@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { API_PREFIX } from '@nuvia/shared-types';
 import { authRoutes } from './modules/auth/routes.mjs';
 import { workspaceRoutes } from './modules/workspaces/routes.mjs';
+import { productRoutes } from './modules/product-routes.mjs';
 import { randomUUID } from 'node:crypto';
 import { ApiError, errorHandler } from './middleware/errors.mjs';
 
@@ -30,6 +31,7 @@ export function createApp(dependencies) {
       throw new ApiError(503, 'SERVICE_UNAVAILABLE');
     }
   });
+  app.use(API_PREFIX, productRoutes(dependencies));
   app.use(API_PREFIX, workspaceRoutes(dependencies));
   app.use((_req, _res, next) => next(new ApiError(404, 'NOT_FOUND')));
   app.use(errorHandler);

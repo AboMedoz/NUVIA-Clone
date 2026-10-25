@@ -2,7 +2,11 @@ import { Router } from 'express';
 import { z, parse, name, email, password, locale, token } from '../../shared/validation.mjs';
 import { csrfMiddleware } from '../../middleware/security.mjs';
 import { createLimiter } from '../../middleware/rate-limits.mjs';
-import { revokeSession } from './sessions.mjs';
+import {
+  revokeSession,
+  saveInvitationContinuation,
+  clearInvitationContinuation,
+} from './sessions.mjs';
 import {
   getSessionView,
   registerOwner,
@@ -53,6 +57,19 @@ export function authRoutes(deps) {
       ),
     ),
   );
+  router.post('/invitation-continuation', async (req, res) =>
+    res.json(
+      await saveInvitationContinuation(
+        req,
+        parse(z.object({ token }).strict(), req.body).token,
+        deps,
+      ),
+    ),
+  );
+  router.delete('/invitation-continuation', async (req, res) => {
+    parse(z.object({ token: token.optional() }).strict(), req.body);
+    res.json(await clearInvitationContinuation(req, deps));
+  });
   router.post('/login', async (req, res) =>
     res.json(
       await loginOwner(

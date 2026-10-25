@@ -2,9 +2,17 @@ import { spawn, execFile } from 'node:child_process';
 import { createServer } from 'node:net';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
+import { buildDevelopmentServices } from './development-services.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-for (const port of [3001, 5173]) {
+const withAI = process.argv.includes('--with-ai');
+const envPath = resolve(root, '.env');
+const localEnv = existsSync(envPath) ? parseEnv(readFileSync(envPath, 'utf8')) : {};
+const env = { ...localEnv, ...process.env };
+const services = buildDevelopmentServices({ root, env, withAI });
+for (const port of withAI ? [3001, 5173, 8000] : [3001, 5173]) {
   await new Promise((done, reject) => {
     const probe = createServer();
     probe.once('error', () =>
@@ -14,15 +22,6 @@ for (const port of [3001, 5173]) {
   });
 }
 
-const services = [
-  ['api', ['--watch', resolve(root, 'apps/api/src/server.mjs')], root],
-  ['mail', [resolve(root, 'apps/api/scripts/mail-worker.mjs')], root],
-  [
-    'web',
-    [resolve(root, 'apps/web/node_modules/vite/bin/vite.js'), '--host', '127.0.0.1'],
-    resolve(root, 'apps/web'),
-  ],
-];
 const children = [];
 let stopping = false;
 function stop(code = 0) {
@@ -43,10 +42,10 @@ function stop(code = 0) {
   }
   setTimeout(() => process.exit(code), 7000).unref();
 }
-for (const [name, args, cwd] of services) {
-  const child = spawn(process.execPath, args, {
+for (const { name, command, args, cwd, env: childEnv } of services) {
+  const child = spawn(command, args, {
     cwd,
-    env: process.env,
+    env: childEnv,
     stdio: 'inherit',
     detached: process.platform !== 'win32',
     windowsHide: true,
@@ -62,7 +61,7 @@ for (const [name, args, cwd] of services) {
 }
 process.on('SIGINT', () => stop());
 process.on('SIGTERM', () => stop());
-console.log('Starting NUVIA web/API/mail; Ctrl+C stops this group.');
+console.log(`Starting NUVIA web/API/mail${withAI ? '/AI' : ''}; Ctrl+C stops this group.`);
 async function waitFor(url) {
   const deadline = Date.now() + 20000;
   while (!stopping && Date.now() < deadline) {
@@ -83,6 +82,7 @@ try {
   await Promise.all([
     waitFor('http://127.0.0.1:3001/api/v1/health/ready'),
     waitFor('http://127.0.0.1:5173/'),
+    ...(withAI ? [waitFor('http://127.0.0.1:8000/api/v1/health/live')] : []),
   ]);
   if (!stopping) console.log('NUVIA ready at http://127.0.0.1:5173/');
 } catch (error) {

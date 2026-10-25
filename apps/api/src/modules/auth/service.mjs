@@ -2,7 +2,14 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { ApiError } from '../../middleware/errors.mjs';
 import { transaction } from '../../shared/database/connection.mjs';
 import { hashPassword, verifyPassword, dummyHash } from './passwords.mjs';
-import { digest, userView, revokeSession, createSession, bootstrapSession } from './sessions.mjs';
+import {
+  digest,
+  userView,
+  revokeSession,
+  createSession,
+  bootstrapSession,
+  resolveSession,
+} from './sessions.mjs';
 import { enqueueAuthMail } from '../mail/outbox.mjs';
 
 async function issueToken(userId, purpose, deps, session) {
@@ -59,10 +66,16 @@ export async function loginOwner(input, req, res, deps) {
   if (!(await verifyPassword(input.password, user?.passwordHash || dummyHash)) || !user)
     throw new ApiError(401, 'INVALID_CREDENTIALS');
   if (!user.verifiedAt) throw new ApiError(403, 'EMAIL_VERIFICATION_REQUIRED');
+  const previous = await resolveSession(req, deps);
   await revokeSession(req, res, deps, { clearCookie: false });
   const { csrfToken } = await createSession(
     res,
-    { userId: user._id, remember: input.remember, credentialsVersion: user.credentialsVersion },
+    {
+      userId: user._id,
+      remember: input.remember,
+      credentialsVersion: user.credentialsVersion,
+      pendingInvitationDigest: previous?.session.pendingInvitationDigest || null,
+    },
     deps,
   );
   return { user: userView(user), csrfToken };

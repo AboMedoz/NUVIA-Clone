@@ -196,6 +196,7 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('Analytics')}
+            aria-current={ui.activeDestination === 'Analytics' ? 'page' : undefined}
           >
             <div
               className="f17"
@@ -221,6 +222,7 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('Reports')}
+            aria-current={ui.activeDestination === 'Reports' ? 'page' : undefined}
           >
             <div className="f17" data-node-id="127:290" data-name="file-chart-column" dir="ltr">
               <img alt="" className="f5" src={imgFileChartColumn} />
@@ -241,6 +243,7 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('Surveys')}
+            aria-current={ui.activeDestination === 'Surveys' ? 'page' : undefined}
           >
             <div className="f17" data-node-id="127:294" data-name="clipboard-list">
               <img alt="" className="f5" src={imgClipboardList} />
@@ -261,6 +264,7 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('Segments')}
+            aria-current={ui.activeDestination === 'Business & Teams' ? 'page' : undefined}
           >
             <div className="f17" data-node-id="127:298" data-name="users">
               <img alt="" className="f5" src={imgUsers} />
@@ -282,6 +286,7 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('NUVIA Assistant')}
+            aria-current={ui.activeDestination === 'NUVIA Assistant' ? 'page' : undefined}
           >
             <div className="f17" data-node-id="127:303" data-name="sparkles">
               <img alt="" className="f5" src={imgSparkles} />
@@ -299,32 +304,35 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
         </div>
         <div className="f24" data-node-id="127:306" data-name="Flexible space" />
         <div className="f25" data-node-id="127:307" data-name="Account destinations">
-          <button
-            className="f19"
-            data-node-id="127:308"
-            data-name="Navigation item"
-            type="button"
-            onClick={() => ui.action('Subscription')}
-          >
-            <div className="f17" data-node-id="127:309" data-name="credit-card">
-              <img alt="" className="f5" src={imgCreditCard} />
-            </div>
-            <p
-              className="f20"
-              data-node-id="127:311"
-              style={{
-                fontVariationSettings: '"opsz" 14',
-              }}
+          {ui.preview && (
+            <button
+              className="f19"
+              data-node-id="127:308"
+              data-name="Navigation item"
+              type="button"
+              onClick={() => ui.action('Subscription')}
             >
-              {tr('Subscription')}
-            </p>
-          </button>
+              <div className="f17" data-node-id="127:309" data-name="credit-card">
+                <img alt="" className="f5" src={imgCreditCard} />
+              </div>
+              <p
+                className="f20"
+                data-node-id="127:311"
+                style={{
+                  fontVariationSettings: '"opsz" 14',
+                }}
+              >
+                {tr('Subscription')}
+              </p>
+            </button>
+          )}
           <button
             className="f19"
             data-node-id="127:312"
             data-name="Navigation item"
             type="button"
             onClick={() => ui.action('Settings')}
+            aria-current={ui.activeDestination === 'Settings' ? 'page' : undefined}
           >
             <div className="f17" data-node-id="127:313" data-name="settings">
               <img alt="" className="f5" src={imgSettings} />

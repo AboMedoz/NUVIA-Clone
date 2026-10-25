@@ -1,0 +1,19 @@
+{
+  "manifestVersion": 1,
+  "modelVersion": "supply-trained-version",
+  "inputSchemaVersion": 1,
+  "outputSchemaVersion": 1,
+  "languages": ["ar", "en", "mixed"],
+  "device": "cpu",
+  "memoryMB": 128,
+  "testOnly": false,
+  "capability": "language",
+  "adapter": "portable_linear",
+  "artifactFormat": "nuvia-linear-v1",
+  "artifacts": {
+    "weights.json": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "options": {
+    "weights": "weights.json"
+  }
+}

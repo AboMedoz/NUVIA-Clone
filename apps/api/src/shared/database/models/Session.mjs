@@ -12,6 +12,7 @@ export const sessionSchema = defineSchema('sessions', {
   createdAt: date,
   expiresAt: date,
   revokedAt: Date,
+  pendingInvitationDigest: { type: String, default: null, match: /^[a-f0-9]{64}$/ },
 });
 sessionSchema.index({ digest: 1 }, { unique: true });
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });

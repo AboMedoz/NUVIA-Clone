@@ -1,0 +1,24 @@
+{
+  "manifestVersion": 1,
+  "modelVersion": "supply-trained-version",
+  "inputSchemaVersion": 1,
+  "outputSchemaVersion": 1,
+  "languages": ["ar", "en", "mixed"],
+  "device": "cpu",
+  "memoryMB": 4096,
+  "testOnly": false,
+  "capability": "assistant",
+  "adapter": "transformers_text",
+  "artifactFormat": "hf-safetensors",
+  "artifacts": {
+    "config.json": "0000000000000000000000000000000000000000000000000000000000000000",
+    "tokenizer.json": "0000000000000000000000000000000000000000000000000000000000000000",
+    "tokenizer_config.json": "0000000000000000000000000000000000000000000000000000000000000000",
+    "model.safetensors": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "options": {
+    "maxInputTokens": 4096,
+    "maxNewTokens": 1024,
+    "dtype": "float32"
+  }
+}

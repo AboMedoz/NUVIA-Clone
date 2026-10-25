@@ -46,7 +46,7 @@ export async function resolveSession(req, deps) {
 }
 export async function createSession(
   res,
-  { userId = null, remember = false, credentialsVersion = null },
+  { userId = null, remember = false, credentialsVersion = null, pendingInvitationDigest = null },
   deps,
 ) {
   const raw = randomBytes(32).toString('hex'),
@@ -58,6 +58,7 @@ export async function createSession(
     csrfDigest: digest(csrfToken),
     userId,
     credentialsVersion,
+    pendingInvitationDigest,
     createdAt: deps.now(),
     expiresAt: new Date(deps.now().getTime() + lifetime),
     revokedAt: null,
@@ -76,12 +77,59 @@ export async function revokeSession(req, res, deps, { clearCookie = true } = {})
 }
 export async function bootstrapSession(req, res, deps) {
   const current = await resolveSession(req, deps);
-  if (current)
+  if (current) {
+    const pendingInvitation = !!(
+      current.session.pendingInvitationDigest &&
+      (await deps.models.Invitation.findOne({
+        tokenDigest: current.session.pendingInvitationDigest,
+        revokedAt: null,
+        acceptedAt: null,
+        expiresAt: { $gt: deps.now() },
+      })
+        .select('_id')
+        .lean())
+    );
+    if (!pendingInvitation && current.session.pendingInvitationDigest)
+      await deps.models.Session.updateOne(
+        { _id: current.session._id },
+        { $set: { pendingInvitationDigest: null } },
+      );
     return {
       user: current.user ? userView(current.user) : null,
       csrfToken: csrfFor(current.raw, deps.config),
+      pendingInvitation,
     };
-  return { user: null, ...(await createSession(res, {}, deps)) };
+  }
+  return { user: null, pendingInvitation: false, ...(await createSession(res, {}, deps)) };
+}
+
+export async function saveInvitationContinuation(req, token, deps) {
+  const current = await resolveSession(req, deps);
+  if (!current) throw new ApiError(403, 'CSRF_REJECTED');
+  const tokenDigest = digest(token);
+  const invitation = await deps.models.Invitation.findOne({
+    tokenDigest,
+    revokedAt: null,
+    acceptedAt: null,
+    expiresAt: { $gt: deps.now() },
+  })
+    .select('_id')
+    .lean();
+  if (!invitation) throw new ApiError(400, 'INVALID_TOKEN');
+  await deps.models.Session.updateOne(
+    { _id: current.session._id, revokedAt: null },
+    { $set: { pendingInvitationDigest: tokenDigest } },
+  );
+  return { pendingInvitation: true };
+}
+export async function clearInvitationContinuation(req, deps) {
+  const current = await resolveSession(req, deps);
+  if (!current) throw new ApiError(403, 'CSRF_REJECTED');
+  await deps.models.Session.updateOne(
+    { _id: current.session._id },
+    { $set: { pendingInvitationDigest: null } },
+  );
+  return { pendingInvitation: false };
 }
 export async function requireUser(req, deps) {
   const current = await resolveSession(req, deps);

@@ -1,0 +1,21 @@
+{
+  "manifestVersion": 1,
+  "modelVersion": "supply-trained-version",
+  "inputSchemaVersion": 1,
+  "outputSchemaVersion": 1,
+  "languages": ["ar", "en", "mixed"],
+  "device": "cpu",
+  "memoryMB": 4096,
+  "testOnly": false,
+  "capability": "forecasting",
+  "adapter": "onnx_numeric",
+  "artifactFormat": "onnx",
+  "artifacts": {
+    "model.onnx": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "options": {
+    "model": "model.onnx",
+    "minObservations": 30,
+    "horizon": 30
+  }
+}

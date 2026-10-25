@@ -9,6 +9,7 @@ export function AuthProvider({ children, preview = false }) {
     status: preview ? 'ready' : 'loading',
     user: null,
     workspace: null,
+    pendingInvitation: false,
   });
   const generation = useRef(0),
     active = useRef(null);
@@ -17,7 +18,12 @@ export function AuthProvider({ children, preview = false }) {
     try {
       const data = await authApi.session();
       if (id !== generation.current) return null;
-      setView({ status: 'ready', user: data.user, workspace: data.workspace });
+      setView({
+        status: 'ready',
+        user: data.user,
+        workspace: data.workspace,
+        pendingInvitation: Boolean(data.pendingInvitation),
+      });
       return data;
     } catch (error) {
       if (id === generation.current) setView({ status: 'error', user: null, workspace: null });

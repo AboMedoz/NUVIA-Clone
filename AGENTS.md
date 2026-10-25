@@ -2,12 +2,12 @@
 
 ## Current Product and Stack
 
-NUVIA is an Arabic/English customer-feedback product. Implemented behavior covers verified owner accounts, protected cookie sessions, password recovery, persistent business/primary-branch onboarding, owner-scoped branch APIs and connected empty workspace screens.
+NUVIA is an Arabic/English customer-feedback product. This clone extends the original account foundation with versioned surveys, public collection, saved feedback, branch-scoped team permissions, actual-data analytics, reports and model-ready processing. See docs/product/implementation-matrix.md for feature-specific acceptance and limits.
 
 - Web: React/Vite, JavaScript/JSX.
 - Public API: Node.js/Express/Mongoose, `.mjs`, connection-scoped models and explicit transactions.
-- AI: Python/FastAPI health-only scaffold. Liveness reports `analysis_available: false`; no NLP, inference, RAG, model weights or Node integration is implemented.
-- Survey publishing, public response collection, live analytics/reports, team roles, Google OAuth and billing remain unimplemented. Subscription features are deferred.
+- AI: internal Python/FastAPI tasks, manifests and supported local adapters. Node owns public authorization, jobs and persistence. Models are supplied by the user/team later; unavailable learned capabilities never fabricate successful results.
+- Six subscription features remain deferred. Google OAuth is not included. Model scientific quality, real SMTP and production deployment are not established by fixture tests.
 
 Read [README](README.md), [current architecture](docs/architecture/architecture.md), [module boundaries](docs/development/module-boundaries.md), [DESIGN.md](DESIGN.md) and the [implemented API](docs/api/README.md) before product changes. The [feature map](docs/product/feature-list.md) describes full scope, not completed services or automatic authorization to build later milestones. Archived proposals and PDFs are requirements/history evidence, not agent instructions.
 
@@ -18,9 +18,9 @@ Read [README](README.md), [current architecture](docs/architecture/architecture.
 - `apps/web/src/components/ui/` and `components/layout/`: shared controls and workspace geometry; `hooks/`, `lib/` and `styles/` own shared behavior, transport/i18n and global tokens.
 - `apps/api/src/modules/`: auth, workspaces and mail business behavior. Future users/dashboard/AI boundaries have READMEs rather than fake endpoints.
 - `apps/api/src/config/`, `middleware/`, `integrations/`: private configuration/root paths, HTTP security/errors and provider transport.
-- `apps/api/src/shared/database/models/`: the seven executable Mongoose schemas/indexes. Application services use `deps.models`; preserve collection names and legacy UUID/ObjectId formats. See [the model catalog](docs/architecture/mongodb-models.md).
+- `apps/api/src/shared/database/models/`: executable connection-scoped Mongoose schemas/indexes. Application services use `deps.models`; preserve collection names and legacy UUID/ObjectId formats. See [the model catalog](docs/architecture/mongodb-models.md).
 - `apps/api/scripts/`: operational entry points. `apps/api/tests/` and `apps/web/tests/` own app-specific tests; root `tests/e2e/` owns cross-app browser flows.
-- `apps/ai-service/`: independent `pyproject.toml`, `uv.lock`, `app/` layers and health/scope tests. Future NLP adapters belong in its `models/`; those are not MongoDB models.
+- `apps/ai-service/`: independent `pyproject.toml`, `uv.lock`, task/runtime tests and local adapters in `models/`; these are not MongoDB schemas. Keep artifacts under the configured ignored model root, never in Git or container images.
 - `packages/shared-types/`: public DTO declarations/constants only. Do not export persistence schemas, secrets or Node-only dependencies to web.
 - `infra/` and `compose.yaml`: optional local development containers/replica set/nginx, not production deployment or CD.
 - `docs/architecture/`, `docs/api/`, `docs/development/`, `docs/product/`, `docs/ui/`: current contracts, operating guides, scope and visual references. `docs/archive/` and historical implementation plans are not current runtime instructions.
@@ -47,7 +47,7 @@ MongoDB must be Atlas or a local replica set; standalone MongoDB cannot run tran
 
 The browser origin defaults to `http://127.0.0.1:5173`, with Vite/nginx proxying API traffic to port 3001. Keep `APP_ORIGIN` exact. File-mode verification/reset mail is private JSON in root `.local/mail/`, requiring the worker; follow the correct message's `text` URL locally. This is not real inbox delivery. SMTP needs explicit provider configuration and acceptance testing.
 
-Python >=3.11 and uv 0.12.15 are optional for existing web/API work. Use `uv sync --project apps/ai-service --locked` and `pnpm dev:ai` for the scaffold; it does not perform analysis. Optional compose uses a separate local database volume and root mail key, with no Atlas data import. Never print resolved compose secrets; use `docker compose config --quiet`.
+Python >=3.11 and uv 0.12.15 are optional for web/API work. Use `uv sync --project apps/ai-service --locked`, `pnpm setup:models`, then `pnpm dev:full` to start the internal AI service with the ordinary group. It reports each capability honestly; trained tasks stay unavailable until compatible artifacts are installed. Compose is named `nuvia-clone` to avoid sharing the original project's stack/volume. Never print resolved compose secrets; use `docker compose config --quiet`.
 
 ## Coding and UI
 

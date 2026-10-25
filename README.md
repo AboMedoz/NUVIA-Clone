@@ -1,13 +1,14 @@
-# NUVIA
+# NUVIA Clone
 
 Bilingual customer-feedback intelligence for Arabic and English. The product goal is to collect survey responses, analyze sentiment/aspects and support evidence-backed business decisions.
 
 ## Current delivery
 
-- **Implemented:** verified owner registration/login/logout, password recovery, protected cookie sessions, persistent business/primary-branch onboarding, owner-scoped branch APIs, EN/AR and RTL screens, and connected empty Overview/Feedback states.
-- **Preview only:** sample metrics, response lists/details, assistant replies and sample exports under `/preview/`.
-- **Scaffold only:** a separate FastAPI service with a liveness endpoint that reports `analysis_available: false`.
-- **Not implemented:** survey publishing/response collection, NLP/AI analysis, RAG, live analytics/reports, team roles, Google OAuth and billing. Subscription features remain deferred in the [51-feature product map](docs/product/feature-list.md).
+- **Connected product:** owner accounts, saved business/branches, versioned questionnaires, branch-specific public links and QR, anonymous validated submissions, feedback/filtering/CSV, real-data aggregates and report snapshots, public business page, and Owner/Manager/Viewer team permissions.
+- **Model infrastructure:** authenticated Node-to-FastAPI tasks, deterministic bilingual text preparation, capability readiness, validated local model packages, persistent analysis jobs/retries and evidence-backed result contracts. Learned features display waiting/unavailable states until compatible models are installed.
+- **Model handoff:** the user/team supplies trained artifacts later. No trained model or scientific accuracy claim is included. See the [model installation guide](apps/ai-service/README.md).
+- **Preview only:** synthetic metrics, feedback and canned replies remain under `/preview/`; they never count as real account analytics.
+- **Deferred:** all six subscription features and Google OAuth. See the [feature acceptance matrix](docs/product/implementation-matrix.md) for per-feature behavior and validation limits.
 
 The JavaScript applications use React/Vite and Node.js/Express/Mongoose. JavaScript/JSX and `.mjs` are intentionally retained; this restructuring does not migrate the applications to TypeScript.
 
@@ -28,11 +29,12 @@ apps/
   api/                       Express application, operational scripts and tests
     src/
       config/                Root-relative private configuration
-      modules/               auth, workspaces, mail and future module boundaries
+      modules/               auth, workspaces, surveys, feedback, team, analysis,
+                             analytics, reports, business-page and mail
       middleware/            Security, limits and safe HTTP errors
-      integrations/          Mail transport and future AI-service boundary
-      shared/database/       Mongoose connection and seven executable models
-  ai-service/                FastAPI health-only scaffold, Python tests and uv.lock
+      integrations/          Mail transport and authenticated AI-service client
+      shared/database/       Connection-scoped Mongoose models and transactions
+  ai-service/                FastAPI tasks, model adapters/manifests, tests, uv.lock
 packages/shared-types/       Public DTO declarations and shared API constants
 infra/docker/                Development images and replica-set initialization
 infra/nginx/                 Same-origin web/API routing for compose
@@ -57,8 +59,7 @@ Each application owns its dependencies and unit/integration tests. Root tooling 
 Prerequisites: Node.js >=22.13 and **pnpm 11.25.0**. If pnpm is missing, install it with `npm install --global pnpm@11.25.0`. Python and Docker are optional for this flow.
 
 ```sh
-git clone https://github.com/mosv7/NUVIA.git
-cd NUVIA
+cd NUVIA-Clone
 pnpm install --frozen-lockfile
 pnpm setup:local
 ```
@@ -67,7 +68,7 @@ pnpm setup:local
 
 ```dotenv
 MONGODB_URI=mongodb+srv://YOUR_DB_USER:YOUR_URL_ENCODED_PASSWORD@YOUR_CLUSTER_HOST/
-MONGODB_DATABASE=nuvia
+MONGODB_DATABASE=nuvia_clone
 APP_ORIGIN=http://127.0.0.1:5173
 MAIL_MODE=file
 ```
@@ -98,8 +99,9 @@ Run those in separate terminals if you choose that mode. Windows users can doubl
 2. Keep the mail worker running. With `MAIL_MODE=file`, open the newest corresponding JSON message in the root `.local/mail/` and follow the complete URL in its `text` field on the same computer.
 3. After verification, log in, save business information and configure the primary branch.
 4. Enter Overview, refresh or sign out/in, and check that saved setup persists.
-5. Open Feedback: six disabled filters, a zero-response state, illustration and getting-started steps are expected. Export/open-response controls are disabled; sharing reports that surveys are unavailable. Sample responses explicitly open `/preview/`.
-6. For recovery, use [Forgot password](http://127.0.0.1:5173/#/forgot) and follow the reset link in its corresponding local message. Reset links expire, are single-use and revoke existing sessions when consumed.
+5. Open Surveys, create a questionnaire or copy a template, choose a branch and publish. Open the public share link in a separate browser context and submit a response. Each link binds its branch and immutable published revision.
+6. Revisit Feedback and Overview: the saved response and real counts appear. Sentiment/aspect results stay unavailable until a compatible model produces validated output. Export filtered CSV, manage branches/team, or create a saved report evidence snapshot.
+7. For recovery, use [Forgot password](http://127.0.0.1:5173/#/forgot) and follow the reset link in its corresponding local message. Reset links expire, are single-use and revoke existing sessions when consumed.
 
 Local mailbox files are **not Gmail delivery**. Real email requires SMTP provider configuration and acceptance testing. Messages contain private verification/reset URLs; do not share them. Data belongs to the selected database; accounts do not automatically transfer between local MongoDB, compose and Atlas.
 
@@ -109,16 +111,45 @@ Run `pnpm dev:web`, then open [Landing](http://127.0.0.1:5173/preview/#/landing)
 
 Previews use illustrative data and do not create a real session or demonstrate completed AI services. `pnpm build` builds `apps/web/dist`; `pnpm preview` serves it locally without starting backend services. `pnpm previews` creates standalone review HTML in the root ignored `previews/` after building. See the [reviewed gallery](docs/ui/frontend/README.md).
 
-## Optional Python scaffold
+## Model-ready Python service
 
 Use Python >=3.11 and uv 0.12.15:
 
 ```sh
 uv sync --project apps/ai-service --locked
-pnpm dev:ai
+pnpm setup:models
+pnpm dev:full
 ```
 
-Only [AI service liveness](http://127.0.0.1:8000/api/v1/health/live) exists. The response explicitly says analysis is unavailable. No model weights, inference endpoint, database writer or Node-to-AI integration is included. This service is independent of web/API installation; details are in [its README](apps/ai-service/README.md).
+`setup:models` preserves existing private settings and adds a shared service key
+and ignored `.local/models` package directory. `dev:full` starts the web/API/mail
+and loopback AI service together, using the already installed Python environment
+offline. Ordinary `pnpm dev` remains available without Python. Do not run both
+development groups at the same time.
+
+The service exposes authenticated capability/task endpoints. Language detection,
+Arabic normalization and sentence spans work without trained models. Learned
+sentiment/aspects, clusters, forecasts, reports and assistant generation wait for
+compatible packages. A raw weights file alone is insufficient: the package needs
+the documented manifest, hashes, supported adapter and task contract. Model
+installation, optional runtime extras and smoke commands are in [the AI guide](apps/ai-service/README.md).
+Node retains authorization and persistence; Python never writes to MongoDB.
+
+An optional `AI_PYTHON_EXECUTABLE` points to an existing compatible local Python
+environment. The launcher uses it directly without installing into or modifying
+that environment. Leave it empty for the clone's locked uv environment. Reusing
+an existing local CUDA environment is machine-specific; it is not a portable
+model package or evidence of model quality.
+
+See [the Arabic model handoff table](docs/ai-model-handoff-ar.md) for which
+capabilities need supplied models and which can share weights.
+
+```sh
+pnpm test:launcher
+pnpm test:e2e:models
+# Local Mongo acceptance: set MONGOMS_SYSTEM_BINARY to your installed mongod path.
+pnpm test:e2e:product
+```
 
 ## Optional local containers
 
@@ -130,7 +161,7 @@ docker compose up --build -d
 
 Open `http://127.0.0.1:5173/`. This builds the web/API, starts a **separate local MongoDB replica set** and mail worker, and routes API calls through nginx on the same browser origin. MongoDB is internal to the compose network; the root `.env` Atlas URI is not used by this stack. Messages appear in `.local/mail/`; database data persists in the `mongo-data` volume.
 
-Add the health-only AI service with `docker compose --profile ai up --build -d`. Stop services with `docker compose --profile ai down`; do not add `--volumes` unless you intend to delete the compose database. This is a loopback-bound HTTP development setup, not a production deployment or CD pipeline. It does not copy credentials into images. See [infrastructure details](infra/README.md).
+Add the model-ready AI service with `docker compose --profile ai up --build -d`. Stop services with `docker compose --profile ai down`; do not add `--volumes` unless you intend to delete the compose database. This is a loopback-bound HTTP development setup, not a production deployment or CD pipeline. It does not copy credentials into images. See [infrastructure details](infra/README.md).
 
 ## Validation and CI
 
@@ -148,7 +179,12 @@ The existing suite covers account security, owner isolation, persisted setup, fa
 
 API integration/browser tests can download MongoDB on first run; Windows reuses an existing ignored `.local/tools/mongod.exe`. Browser tests use Edge, `PLAYWRIGHT_CHROMIUM_EXECUTABLE`, or installed Playwright Chromium (`pnpm exec playwright install chromium`). Dependencies are pinned by `pnpm-lock.yaml` and the Python `uv.lock`; do not create application npm lockfiles.
 
-GitHub Actions checks web formatting/lint/tests/build, API/browser behavior, the Python health scaffold and the optional container stack. Branch protection/deployment rules are not configured by these files. See [validation evidence](docs/development/backend-validation.md) for measured results and limits. Local and CI success do not establish real SMTP, Atlas or production acceptance; Atlas connectivity has been intermittent on this machine.
+GitHub Actions is configured for web formatting/lint/tests/build, API/browser and
+product collection checks, Python service and Node-to-Python contracts, and the
+optional container stack. This describes configured checks, not evidence of a
+remote CI run for this clone. Local results and remaining limits are recorded in
+[the delivery report](docs/development/clone-validation.md). SMTP, Atlas,
+production deployment and trained-model quality require separate acceptance.
 
 ## Documentation
 

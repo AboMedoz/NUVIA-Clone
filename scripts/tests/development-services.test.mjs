@@ -1,0 +1,66 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { buildDevelopmentServices } from '../development-services.mjs';
+
+test('default development keeps the existing three services and does not require AI', () => {
+  const services = buildDevelopmentServices({ root: '/nuvia', env: {}, withAI: false });
+  assert.deepEqual(
+    services.map((service) => service.name),
+    ['api', 'mail', 'web'],
+  );
+});
+
+test('full development starts internal AI with only its configuration and no database/mail secrets', () => {
+  const env = {
+    PATH: 'system-path',
+    AI_SERVICE_KEY: 'test-key',
+    AI_MODEL_ROOT: '/models',
+    MONGODB_URI: 'private',
+    SMTP_PASSWORD: 'private',
+    MAIL_ENCRYPTION_KEY: 'private',
+  };
+  const services = buildDevelopmentServices({ root: '/nuvia', env, withAI: true });
+  const ai = services.find((service) => service.name === 'ai');
+  assert.equal(ai.command, 'uv');
+  assert.equal(ai.env.AI_SERVICE_KEY, 'test-key');
+  assert.equal(ai.env.AI_MODEL_ROOT, '/models');
+  assert.equal(ai.env.PATH, 'system-path');
+  assert.equal(ai.env.MONGODB_URI, undefined);
+  assert.equal(ai.env.SMTP_PASSWORD, undefined);
+  assert.equal(ai.env.MAIL_ENCRYPTION_KEY, undefined);
+  assert.ok(ai.args.includes('--offline'), 'Development cannot implicitly download model runtime');
+  assert.equal(ai.args.at(-1), '8000');
+});
+
+test('full development rejects absent service key before launching children', () => {
+  assert.throws(
+    () => buildDevelopmentServices({ root: '/nuvia', env: {}, withAI: true }),
+    /setup:models/,
+  );
+});
+
+test('explicit local Python runtime is launched directly without modifying its environment', () => {
+  const services = buildDevelopmentServices({
+    root: '/nuvia',
+    env: { AI_SERVICE_KEY: 'test-key', AI_PYTHON_EXECUTABLE: process.execPath },
+    withAI: true,
+  });
+  const ai = services.find((service) => service.name === 'ai');
+  assert.equal(ai.command, process.execPath);
+  assert.deepEqual(ai.args.slice(0, 3), ['-m', 'uvicorn', 'app.main:app']);
+  assert.ok(ai.cwd.endsWith('apps/ai-service') || ai.cwd.endsWith('apps\\ai-service'));
+  assert.equal(ai.env.HF_HUB_OFFLINE, '1');
+  assert.equal(ai.env.PYTHONDONTWRITEBYTECODE, '1');
+});
+
+test('Python runtime override requires an existing absolute executable path', () => {
+  assert.throws(
+    () =>
+      buildDevelopmentServices({
+        root: '/nuvia',
+        env: { AI_SERVICE_KEY: 'test-key', AI_PYTHON_EXECUTABLE: 'python' },
+        withAI: true,
+      }),
+    /absolute/,
+  );
+});

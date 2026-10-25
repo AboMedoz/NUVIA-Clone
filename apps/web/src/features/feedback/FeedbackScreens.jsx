@@ -133,8 +133,8 @@ function NoResponses({ empty, onClear }) {
         <small aria-live="polite">
           {!preview
             ? language === 'ar'
-              ? 'مشاركة الاستبيانات غير متاحة بعد.'
-              : 'Survey sharing is not available yet.'
+              ? 'أنشئ استبيانًا وانشره لمشاركة رابط الفرع.'
+              : 'Create and publish a survey to share a branch link.'
             : shared
               ? 'nuvia.link/bloom-feedback'
               : tr('Already shared? New responses appear automatically.')}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "taskId": "local-smoke-example",
+  "locale": "en",
+  "evidence": [
+    {
+      "id": "example-source-1",
+      "text": "Service was slow."
+    },
+    {
+      "id": "example-source-2",
+      "text": "Helpful staff."
+    },
+    {
+      "id": "example-source-3",
+      "text": "Good value."
+    }
+  ],
+  "parameters": {
+    "vectors": [
+      {
+        "id": "example-source-1",
+        "values": [0, 1]
+      },
+      {
+        "id": "example-source-2",
+        "values": [1, 1]
+      },
+      {
+        "id": "example-source-3",
+        "values": [2, 1]
+      }
+    ]
+  }
+}

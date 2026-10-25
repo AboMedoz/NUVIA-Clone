@@ -1,6 +1,10 @@
 # MongoDB models
 
-The application uses Mongoose 9 for the existing account/workspace storage. Executable schemas and indexes live in `apps/api/src/shared/database/models/`. They describe implemented collections, not the future survey/AI proposal.
+The application uses Mongoose 9 for account/workspace and connected product
+storage. Executable schemas/indexes live in `apps/api/src/shared/database/models/`.
+The original seven account schemas below are extended by `Product.mjs` for
+surveys/revisions/links, responses, memberships/invitations, analysis jobs,
+reports and public business pages. `index.mjs` is the authoritative model registry.
 
 ## Model map
 

@@ -16,6 +16,15 @@ const collections = {
   Branch: 'branches',
   MailOutbox: 'mail_outbox',
   SchemaVersion: 'schema_versions',
+  Survey: 'surveys',
+  SurveyRevision: 'survey_revisions',
+  SurveyLink: 'survey_links',
+  Response: 'responses',
+  AnalysisJob: 'analysis_jobs',
+  Membership: 'memberships',
+  Invitation: 'team_invitations',
+  Report: 'reports',
+  BusinessPage: 'business_pages',
 };
 
 test('Mongoose connection and model reads do not create collections before explicit setup', async () => {

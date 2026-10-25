@@ -23,3 +23,23 @@ def test_health_identifies_the_scaffold_without_claiming_analysis():
 def test_no_analysis_endpoint_is_exposed_by_the_scaffold():
     response = asyncio.run(request("POST", "/api/v1/analyze", json={"text": "sample"}))
     assert response.status_code == 404
+
+
+def test_health_reflects_core_model_readiness_without_exposing_packages(monkeypatch):
+    import importlib
+    from types import SimpleNamespace
+
+    health = importlib.import_module("app.api.v1.health")
+    monkeypatch.setattr(
+        health,
+        "Registry",
+        lambda: SimpleNamespace(
+            entries={
+                "sentiment": {"available": True},
+                "aspects": {"available": True},
+            }
+        ),
+        raising=False,
+    )
+    response = asyncio.run(request("GET", "/api/v1/health/live"))
+    assert response.json()["analysis_available"] is True

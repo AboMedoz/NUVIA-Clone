@@ -1,11 +1,24 @@
 [project]
 name = "nuvia-ai-service"
 version = "0.1.0"
-description = "Health-only scaffold for NUVIA's future FastAPI analysis service"
+description = "Authenticated offline model adapters and task contracts for NUVIA"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.156.3",
     "uvicorn>=0.54.0",
+]
+
+[project.optional-dependencies]
+transformers = [
+    "torch==2.11.0",
+    "transformers==4.57.1",
+    "safetensors==0.6.2",
+]
+onnx = [
+    "numpy==2.4.2",
+    "onnx>=1.19,<2",
+    "onnxruntime>=1.23,<2",
+    "tokenizers==0.22.1",
 ]
 
 [dependency-groups]

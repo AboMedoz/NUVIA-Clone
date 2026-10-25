@@ -33,6 +33,36 @@ export async function deliverPendingMail(
     if (!job) break;
     const match = { _id: job._id, status: 'sending', leaseId };
     try {
+      if (job.kind === 'invitation') {
+        const invitation = await deps.models.Invitation.findOne({
+          _id: job.invitationId,
+          tokenDigest: job.tokenDigest,
+          expiresAt: { $gt: deps.now() },
+          revokedAt: null,
+          acceptedAt: null,
+        }).lean();
+        if (!invitation || !job.payload) {
+          await jobs.updateOne(match, {
+            $set: { status: 'expired' },
+            $unset: { payload: '', leaseUntil: '' },
+          });
+          continue;
+        }
+        const payload = decryptPayload(job.payload, deps.config.mailKey);
+        const subject = payload.locale === 'ar' ? 'دعوة فريق NUVIA' : 'NUVIA team invitation';
+        await adapter.send({
+          id: job._id,
+          to: invitation.email,
+          subject,
+          text: `${subject}\n${payload.businessName}\n${deps.config.appOrigin}/#/team/accept?token=${encodeURIComponent(payload.token)}`,
+        });
+        await jobs.updateOne(match, {
+          $set: { status: 'sent', sentAt: deps.now() },
+          $unset: { payload: '', leaseUntil: '' },
+        });
+        result.sent++;
+        continue;
+      }
       const current = await deps.models.AuthToken.findOne({
         userId: job.userId,
         purpose: job.kind,

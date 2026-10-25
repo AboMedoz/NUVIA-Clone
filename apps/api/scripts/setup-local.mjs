@@ -9,7 +9,7 @@ try {
 } catch {
   await writeFile(
     envPath,
-    `MONGODB_DATABASE=nuvia\nAPP_ORIGIN=http://127.0.0.1:5173\nMAIL_MODE=file\nMAIL_ENCRYPTION_KEY=${randomBytes(32).toString('hex')}\n`,
+    `MONGODB_DATABASE=nuvia_clone\nAPP_ORIGIN=http://127.0.0.1:5173\nMAIL_MODE=file\nMAIL_ENCRYPTION_KEY=${randomBytes(32).toString('hex')}\n`,
     { flag: 'wx', mode: 0o600 },
   );
   console.log(

@@ -5,6 +5,17 @@ import { workspaceSchema } from './Workspace.mjs';
 import { branchSchema } from './Branch.mjs';
 import { mailOutboxSchema } from './MailOutbox.mjs';
 import { schemaVersionSchema } from './SchemaVersion.mjs';
+import {
+  surveySchema,
+  surveyRevisionSchema,
+  surveyLinkSchema,
+  responseSchema,
+  analysisJobSchema,
+  membershipSchema,
+  invitationSchema,
+  reportSchema,
+  businessPageSchema,
+} from './Product.mjs';
 
 export function createModels(connection) {
   const schemas = {
@@ -15,6 +26,15 @@ export function createModels(connection) {
     Branch: branchSchema,
     MailOutbox: mailOutboxSchema,
     SchemaVersion: schemaVersionSchema,
+    Survey: surveySchema,
+    SurveyRevision: surveyRevisionSchema,
+    SurveyLink: surveyLinkSchema,
+    Response: responseSchema,
+    AnalysisJob: analysisJobSchema,
+    Membership: membershipSchema,
+    Invitation: invitationSchema,
+    Report: reportSchema,
+    BusinessPage: businessPageSchema,
   };
   return Object.fromEntries(
     Object.entries(schemas).map(([name, schema]) => [

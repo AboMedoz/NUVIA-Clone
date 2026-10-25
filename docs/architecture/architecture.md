@@ -1,16 +1,20 @@
 # Current architecture
 
-NUVIA is a JavaScript/Python monorepo. Node owns the public product API and MongoDB persistence. React uses that API on one browser origin. FastAPI is currently a separate **health-only scaffold**, not an analysis backend.
+NUVIA is a JavaScript/Python monorepo. Node owns public authorization, MongoDB
+persistence, survey collection, team/branch scope, analytics and analysis jobs.
+React uses that API on one browser origin. Internal FastAPI owns deterministic
+text preparation and validated local model adapters. Trained models are supplied
+later by the user/team; model-driven features expose readiness and waiting states.
 
 ## Application boundaries
 
-| Owner                      | Path                       | Implemented responsibility                                                                                                         |
-| -------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Web                        | `apps/web`                 | React/Vite, hash routing, auth/setup UI, connected empty workspaces and explicit design previews                                   |
-| API                        | `apps/api`                 | Express, protected sessions/CSRF, account recovery, owner-scoped workspace/branch persistence, Mongoose models and mail processing |
-| AI scaffold                | `apps/ai-service`          | FastAPI liveness with `analysis_available: false`; no inference, RAG or product integration                                        |
-| Public contracts           | `packages/shared-types`    | Shared API prefix/locales and public DTO declarations; no database models or secrets                                               |
-| Development infrastructure | `infra` and `compose.yaml` | Optional local replica set, same-origin nginx routing, API/mail/web images and optional AI scaffold                                |
+| Owner                      | Path                       | Implemented responsibility                                                                                                           |
+| -------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Web                        | `apps/web`                 | React/Vite, hash routing, auth/setup UI, connected empty workspaces and explicit design previews                                     |
+| API                        | `apps/api`                 | Express, protected sessions/CSRF, account recovery, owner-scoped workspace/branch persistence, Mongoose models and mail processing   |
+| Internal AI                | `apps/ai-service`          | Authenticated capabilities/tasks, bounded supported local adapters, model manifests, bilingual preprocessing and evidence validation |
+| Public contracts           | `packages/shared-types`    | Shared API prefix/locales and public DTO declarations; no database models or secrets                                                 |
+| Development infrastructure | `infra` and `compose.yaml` | Optional local replica set, same-origin nginx routing, API/mail/web images and optional AI scaffold                                  |
 
 JavaScript/JSX and `.mjs` remain in use. The source layout is ready for deliberate feature growth; there is no TypeScript, Redux, React Router or production deployment migration in this change.
 
@@ -24,7 +28,11 @@ Account product routes use saved identity/workspace data. `/preview/` is the onl
 
 `src/config` resolves the repository root and private configuration independently of package working directory. `modules/auth`, `modules/workspaces` and `modules/mail` implement existing business behavior. `middleware` contains request security, limits and safe errors. `integrations/mail` owns delivery adapters; `integrations/ai-service` is a documented future boundary. `shared/database` owns connection-scoped Mongoose models and explicit transaction handling.
 
-The `users`, `dashboard` and `ai` module boundary documents are extension guidance, not working CRUD/analytics endpoints. The current User model stays internal to `shared/database/models`; authentication remains responsible for account creation/recovery.
+Product modules implement surveys/revisions/distribution links, responses,
+feedback/export, analytics, reports, analysis and team membership/invitations.
+Some inherited `users`, `dashboard` and `ai` boundary READMEs describe older
+extension guidance; use executable routes and current API docs as authority.
+User remains internal to `shared/database/models`; authentication owns accounts.
 
 ## Connected request flow
 
@@ -35,7 +43,27 @@ The `users`, `dashboard` and `ai` module boundary documents are extension guidan
 5. Mail intent is encrypted in the outbox; a separate worker dispatches local development mail or configured SMTP.
 6. The web resumes saved setup and renders honest empty/unavailable states.
 
-No browser-to-MongoDB or browser-to-AI path exists. Future inference should cross a documented authenticated Node-to-FastAPI contract, with owner-scoped inputs and versioned/evidence-backed outputs.
+No browser-to-MongoDB or browser-to-AI path exists. Node calls FastAPI using a
+private service key and bounded, already-authorized evidence. Model tasks return
+versioned results validated again by Node before persistence. Public links grant
+submission access to one branch and immutable survey revision, not workspace reads.
+Membership is resolved on each request; revoked access takes effect immediately.
+
+## Model handoff and analysis state
+
+Ignored model packages declare a capability, supported adapter/format, version,
+language/taxonomy, device requirements and artifact hashes. No remote code or
+implicit weights download is enabled. Builtin language/normalization work without
+trained models; learned capabilities wait until compatible packages are ready.
+Installing a package changes readiness without rebuilding the web/API. Persistent
+jobs and explicit retry preserve provenance; unavailable/failed results never
+become successful dashboards. Fixtures remain test-only. See the AI README for
+exact supported package formats and model installation commands.
+
+The API process pumps queued jobs; report evidence snapshots and derived datasets
+retain their authorized scope. Reports and assistant quotations must map back to
+stored original responses. Local testing of plumbing is separate from scientific
+quality evaluation of models supplied later.
 
 ## Runtime and operational boundaries
 

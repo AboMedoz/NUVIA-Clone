@@ -9,8 +9,9 @@ const payloadSchema = new Schema(
   },
 );
 export const mailOutboxSchema = defineSchema('mail_outbox', {
-  userId: reference('User'),
-  kind: { type: String, enum: ['verify', 'reset'], required: true },
+  userId: reference('User', false),
+  invitationId: reference('Invitation', false),
+  kind: { type: String, enum: ['verify', 'reset', 'invitation'], required: true },
   tokenDigest: text,
   payload: payloadSchema,
   expiresAt: date,

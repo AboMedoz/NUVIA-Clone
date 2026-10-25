@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "taskId": "local-smoke-example",
+  "locale": "en",
+  "evidence": [
+    {
+      "id": "example-source-1",
+      "text": "Service was slow."
+    },
+    {
+      "id": "example-source-2",
+      "text": "Helpful staff."
+    },
+    {
+      "id": "example-source-3",
+      "text": "Good value."
+    }
+  ],
+  "parameters": {
+    "instructions": "Summarize these explicitly illustrative smoke-test sources."
+  }
+}

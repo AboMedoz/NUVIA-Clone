@@ -91,11 +91,11 @@ export async function runAccountScenario({ browser, origin, deps, output }) {
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
     await page.getByRole('heading', { name: 'Welcome to NUVIA' }).waitFor();
     await page.getByRole('button', { name: 'Get Started', exact: true }).click();
-    await page.getByRole('heading', { name: 'No responses yet' }).waitFor();
+    await page.getByRole('heading', { name: 'Overview' }).waitFor();
     assert.equal(await page.getByText('Bloom & Co.', { exact: true }).count(), 0);
     await page.screenshot({ path: join(output, 'overview-en-desktop.png'), fullPage: true });
     await page.reload();
-    await page.getByRole('heading', { name: 'No responses yet' }).waitFor();
+    await page.getByRole('heading', { name: 'Overview' }).waitFor();
     await page.goto(`${origin}/#/feedbacks`);
     await page.getByRole('heading', { name: 'Your first response starts here' }).waitFor();
     assert.equal(await page.locator('.feedback-filter').count(), 6);
@@ -109,11 +109,11 @@ export async function runAccountScenario({ browser, origin, deps, output }) {
     }
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`${origin}/#/dashboard`);
-    await page.getByRole('heading', { name: 'No responses yet' }).waitFor();
+    await page.getByRole('heading', { name: 'Overview' }).waitFor();
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
     await login('Synthetic123');
-    await page.getByRole('heading', { name: 'No responses yet' }).waitFor();
+    await page.getByRole('heading', { name: 'Overview' }).waitFor();
     await page.goto(`${origin}/#/forgot`);
     await page.getByLabel('Work email').fill('browser@example.test');
     await page.getByRole('button', { name: 'Send reset link' }).click();
@@ -126,11 +126,11 @@ export async function runAccountScenario({ browser, origin, deps, output }) {
     await login('Synthetic123');
     await page.getByRole('status').filter({ hasText: 'incorrect' }).waitFor();
     await login('Changed123');
-    await page.getByRole('heading', { name: 'No responses yet' }).waitFor();
+    await page.getByRole('heading', { name: 'Overview' }).waitFor();
     await page.evaluate(() => localStorage.setItem('nuvia-language', 'ar'));
     await page.setViewportSize({ width: 393, height: 800 });
     await page.reload();
-    await page.getByRole('heading', { name: 'لا توجد ردود بعد' }).waitFor();
+    await page.getByRole('heading', { name: 'نظرة عامة' }).waitFor();
     assert.equal(await page.locator('html').getAttribute('dir'), 'rtl');
     await page.screenshot({ path: join(output, 'overview-ar-mobile.png'), fullPage: true });
     assert.ok(

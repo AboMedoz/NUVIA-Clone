@@ -1,5 +1,5 @@
 # Local development only: internal MongoDB, HTTP loopback origin, file mailbox.
-name: nuvia
+name: nuvia-clone
 services:
   mongo:
     image: mongo:7.0.24
@@ -35,6 +35,8 @@ services:
       APP_ORIGIN: http://127.0.0.1:5173
       MAIL_MODE: file
       MAIL_ENCRYPTION_KEY: ${MAIL_ENCRYPTION_KEY:?Run pnpm setup:local first}
+      AI_SERVICE_URL: http://ai:8000
+      AI_SERVICE_KEY: ${AI_SERVICE_KEY:-}
     depends_on:
       mongo-init:
         condition: service_completed_successfully
@@ -82,6 +84,12 @@ services:
       dockerfile: infra/docker/ai.Dockerfile
     ports:
       - 127.0.0.1:8000:8000
+    environment:
+      AI_SERVICE_KEY: ${AI_SERVICE_KEY:-}
+      AI_MODEL_MANIFEST_DIR: /models
+      AI_MODEL_ROOT: /models
+    volumes:
+      - ./.local/models:/models:ro
 
 volumes:
   mongo-data:

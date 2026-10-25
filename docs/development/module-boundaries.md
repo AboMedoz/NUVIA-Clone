@@ -1,20 +1,27 @@
 # Module boundaries
 
-| Owner                                                    | Allowed responsibility                                       | Avoid                                                      |
-| -------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
-| Web `app/router`                                         | Route names, access decisions and screen orchestration       | New persistence or duplicate feature UI                    |
-| Web `app/providers`                                      | Session/workspace and shared shell state                     | Browser storage of passwords/tokens                        |
-| Web `features/*`                                         | Feature screens, drafts, API usage and feature styles        | Importing server models or inventing unavailable responses |
-| Web `components/ui`, `components/layout`, `hooks`, `lib` | Shared UI/geometry, reusable hooks, transport and formatting | Feature-specific business decisions in generic controls    |
-| API `modules/auth`                                       | Account lifecycle and protected sessions                     | User/team CRUD without a permission contract               |
-| API `modules/workspaces`                                 | Owner-scoped activity/branch state and invariants            | Client-selected owner scope or destructive history loss    |
-| API `modules/mail`                                       | Encrypted outbox and retries                                 | Logging private links or provider credentials              |
-| API `middleware`                                         | Origin/CSRF, limits and safe errors                          | Persistence/business rules                                 |
-| API `integrations`                                       | Provider/transport adapters                                  | Browser dependencies or implicit data access               |
-| API `shared/database`                                    | Connection-scoped Mongoose models and transactions           | Index deletion, ID rewrites or global connection models    |
-| `packages/shared-types`                                  | Public DTOs, API prefix and locale constants                 | Mongo schemas, secrets, Node-only dependencies             |
-| FastAPI scaffold                                         | Internal liveness and deliberate future analysis layers      | Direct public browser calls or claiming inference exists   |
+| Owner                                                    | Allowed responsibility                                                                       | Avoid                                                      |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Web `app/router`                                         | Route names, access decisions and screen orchestration                                       | New persistence or duplicate feature UI                    |
+| Web `app/providers`                                      | Session/workspace and shared shell state                                                     | Browser storage of passwords/tokens                        |
+| Web `features/*`                                         | Feature screens, drafts, API usage and feature styles                                        | Importing server models or inventing unavailable responses |
+| Web `components/ui`, `components/layout`, `hooks`, `lib` | Shared UI/geometry, reusable hooks, transport and formatting                                 | Feature-specific business decisions in generic controls    |
+| API `modules/auth`                                       | Account lifecycle and protected sessions                                                     | User/team CRUD without a permission contract               |
+| API `modules/workspaces`                                 | Owner-scoped activity/branch state and invariants                                            | Client-selected owner scope or destructive history loss    |
+| API `modules/mail`                                       | Encrypted outbox and retries                                                                 | Logging private links or provider credentials              |
+| API `middleware`                                         | Origin/CSRF, limits and safe errors                                                          | Persistence/business rules                                 |
+| API `integrations`                                       | Provider/transport adapters                                                                  | Browser dependencies or implicit data access               |
+| API `shared/database`                                    | Connection-scoped Mongoose models and transactions                                           | Index deletion, ID rewrites or global connection models    |
+| `packages/shared-types`                                  | Public DTOs, API prefix and locale constants                                                 | Mongo schemas, secrets, Node-only dependencies             |
+| FastAPI service                                          | Authenticated tasks, deterministic preparation, manifests and supported local model adapters | Browser calls, Mongo writes or fabricated model readiness  |
 
-The current schema location is `apps/api/src/shared/database/models`, with explicit names for the seven existing collections. Services consume `deps.models`; public API DTOs remain separate. Keep hashing/encryption/timestamps explicit in services. Foreign-key-like references do not replace owner predicates or transaction sessions.
+The schema location is `apps/api/src/shared/database/models`, with explicit names
+for account and product collections. Services consume `deps.models`; public API
+DTOs remain separate. Keep hashing/encryption/timestamps explicit in services.
+References do not replace workspace/branch predicates or transaction sessions.
 
-Future modules have boundary READMEs instead of fake endpoints. Before implementing a survey, user/team or AI workflow, define its request/response contract, authorization, error/empty/loading behavior and meaningful tests. The [full feature map](../product/feature-list.md) is scope context, not authorization to implement every planned capability.
+The clone implements the user-approved completion design. Read its
+[shared contracts](integration-contract.md), [feature acceptance matrix](../product/implementation-matrix.md)
+and executable modules before extending workflows. Retain strict authorization,
+error/empty/loading states and meaningful tests. Some inherited future-boundary
+READMEs are historical; do not let them override current executable contracts.

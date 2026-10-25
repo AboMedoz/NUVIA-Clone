@@ -17,3 +17,11 @@ node_modules/
 **/public/assets/
 pnpm-lock.yaml
 **/uv.lock
+
+# Immutable evaluation inputs/raw metadata: preserve hashes used by the Colab run.
+docs/model-research/*-metadata.json
+docs/model-research/*freeze.json
+docs/model-research/real50-*.json
+docs/model-research/real50-SOURCE-README.md
+docs/model-research/retrieval12.json
+docs/model-research/synthetic16.json

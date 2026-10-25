@@ -5,6 +5,27 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadConfig } from '../src/config/env.mjs';
 
+test('clone configuration defaults to an independent database and preserves explicit selection', () => {
+  const values = {
+    NODE_ENV: 'test',
+    MONGODB_URI: 'mongodb://127.0.0.1:27017',
+    MAIL_ENCRYPTION_KEY: 'a'.repeat(64),
+  };
+  assert.equal(loadConfig(values).mongoDatabase, 'nuvia_clone');
+  assert.equal(loadConfig(values).aiTimeoutMs, 75000);
+  assert.equal(loadConfig(values).dataRetentionDays, 0);
+  assert.equal(loadConfig({ ...values, DATA_RETENTION_DAYS: '365' }).dataRetentionDays, 365);
+  for (const value of ['-1', '1.5', '3651', 'unbounded'])
+    assert.throws(
+      () => loadConfig({ ...values, DATA_RETENTION_DAYS: value }),
+      /DATA_RETENTION_DAYS/,
+    );
+  assert.equal(
+    loadConfig({ ...values, MONGODB_DATABASE: 'explicit_selected_database' }).mongoDatabase,
+    'explicit_selected_database',
+  );
+});
+
 const settings = {
   NODE_ENV: 'test',
   MONGODB_URI: 'mongodb://127.0.0.1:27017',

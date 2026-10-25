@@ -5,7 +5,8 @@
 - [Start here (Arabic)](getting-started-ar.md) and [root README](../README.md): install, configure and try the delivered account/setup flow.
 - [Current architecture](architecture/architecture.md), [database overview](architecture/database.md), [Mongoose model catalog](architecture/mongodb-models.md) and [public API](api/README.md).
 - [Monorepo developer guide](development/monorepo.md), [module boundaries](development/module-boundaries.md), [backend operations](development/backend.md), [frontend guide](development/frontend.md) and [validation evidence](development/backend-validation.md).
-- [Local infrastructure](../infra/README.md), [public contracts](../packages/shared-types/README.md), [web app](../apps/web/README.md) and [health-only AI scaffold](../apps/ai-service/README.md).
+- [Local infrastructure](../infra/README.md), [public contracts](../packages/shared-types/README.md), [web app](../apps/web/README.md) and [model-ready AI service](../apps/ai-service/README.md).
+- [Clone acceptance matrix](product/implementation-matrix.md), [clone validation](development/clone-validation.md) and [approved clone design](superpowers/specs/2026-10-25-nuvia-completion-design.md).
 - [Screen galleries](ui/frontend/README.md) and synthetic implementation screenshots in `ui/backend-accounts/`.
 - [Technical decisions](decisions/) and [repository guidelines](../AGENTS.md).
 

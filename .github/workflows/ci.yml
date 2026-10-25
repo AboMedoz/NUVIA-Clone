@@ -23,6 +23,7 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm test:web
+      - run: pnpm test:launcher
       - run: pnpm build
 
   accounts:
@@ -45,19 +46,28 @@ jobs:
           key: mongo-7.0.24-${{ runner.os }}-${{ runner.arch }}
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:backend
+      - run: pnpm test:e2e:product
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e:accounts
+      - run: pnpm test:e2e:invitations
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: account-browser-evidence
-          path: test-results/accounts/
+          path: |
+            test-results/accounts/
+            test-results/invitations/
           if-no-files-found: ignore
 
-  ai-scaffold:
+  ai-service:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -66,6 +76,8 @@ jobs:
       - run: uv run --directory apps/ai-service ruff check .
       - run: uv run --directory apps/ai-service ruff format --check .
       - run: uv run --directory apps/ai-service pytest
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:e2e:models
 
   containers:
     runs-on: ubuntu-22.04

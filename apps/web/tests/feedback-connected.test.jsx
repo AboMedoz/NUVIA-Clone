@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { it, expect, vi } from 'vitest';
 import App from '../src/app/App.jsx';
 import { authApi } from '../src/features/auth/api.js';
+import { productApi } from '../src/features/product/api.js';
 
 it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
   'keeps the reviewed empty feedback layout on the account route %s',
@@ -17,6 +18,7 @@ it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
         branches: [],
       },
     });
+    vi.spyOn(productApi, 'get').mockResolvedValue({ responses: [], total: 0 });
     history.replaceState(null, '', '/#/' + route);
     render(<App />);
     expect(
@@ -40,9 +42,8 @@ it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
       value: { writeText: clipboard },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Share a survey', exact: true }));
-    expect(screen.getByRole('status')).toHaveTextContent('This feature is not available yet.');
     expect(clipboard).not.toHaveBeenCalled();
-    expect(location.hash).toBe('#/' + route);
+    expect(location.hash).toBe('#/surveys');
   },
 );
 

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "taskId": "local-smoke-example",
+  "locale": "en",
+  "parameters": {
+    "businessType": "retail",
+    "goal": "Collect service feedback"
+  }
+}

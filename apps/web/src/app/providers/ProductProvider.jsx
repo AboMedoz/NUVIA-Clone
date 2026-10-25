@@ -40,6 +40,12 @@ export function ProductProvider({
       const selectedBranch = workspace?.branches?.find((branch) => branch.id === text);
       if (selectedBranch) return selectedBranch.name;
       const actual = {
+        'Workspace owner':
+          language === 'ar'
+            ? { owner: 'مالك النشاط', manager: 'مدير', viewer: 'مشاهد' }[workspace?.role || 'owner']
+            : { owner: 'Workspace owner', manager: 'Manager', viewer: 'Viewer' }[
+                workspace?.role || 'owner'
+              ],
         'Bloom & Co.': workspace?.businessName || '',
         'Cafe &workspace': workspace?.industry || '',
         B: Array.from(workspace?.businessName || '')[0] || '',
@@ -53,6 +59,28 @@ export function ProductProvider({
   };
   const [notice, setNotice] = useState('');
   const action = (label) => {
+    if (!preview) {
+      const destinations = {
+        Overview: 'dashboard',
+        Feedbacks: 'feedbacks',
+        'Feedbacks 12': 'feedbacks',
+        'All feedbacks': 'feedbacks',
+        Analytics: 'analytics',
+        Reports: 'reports',
+        Surveys: 'surveys',
+        Segments: 'team',
+        'Business & Teams': 'team',
+        'NUVIA Assistant': 'assistant',
+        Settings: 'settings',
+        'B Bloom & Co. Cafe &workspace': 'settings',
+        'SA Sara Ahmed Workspace owner': 'team',
+      };
+      if (destinations[label]) {
+        onNavigate?.();
+        location.hash = '/' + destinations[label];
+        return;
+      }
+    }
     if (!preview && !['Overview', 'Feedbacks', 'Feedbacks 12', 'All feedbacks'].includes(label)) {
       if (label === 'B Bloom & Co. Cafe &workspace' || label === 'Settings') {
         location.hash = '/business-information';
@@ -132,7 +160,20 @@ export function ProductProvider({
         dashboard,
         workspace,
         preview,
-        activeDestination: location.hash.startsWith('#/feedback') ? 'Feedbacks' : 'Overview',
+        activeDestination: location.hash.startsWith('#/feedback')
+          ? 'Feedbacks'
+          : location.hash.startsWith('#/dashboard')
+            ? 'Overview'
+            : {
+                surveys: 'Surveys',
+                'survey-builder': 'Surveys',
+                analytics: 'Analytics',
+                reports: 'Reports',
+                team: 'Business & Teams',
+                branches: 'Business & Teams',
+                settings: 'Settings',
+                assistant: 'NUVIA Assistant',
+              }[location.hash.slice(2).split('?')[0]] || '',
         language,
         setLanguage,
         tr,

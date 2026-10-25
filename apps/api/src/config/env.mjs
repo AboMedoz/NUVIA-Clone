@@ -26,7 +26,7 @@ export function loadConfig(env = process.env, { rootDir = repositoryRoot } = {})
   if (mongoUri?.includes('<db_password>') && values.MONGODB_PASSWORD)
     mongoUri = mongoUri.replace('<db_password>', encodeURIComponent(values.MONGODB_PASSWORD));
   if (!/^mongodb(?:\+srv)?:\/\/[^\s<>]+$/.test(mongoUri || '')) invalid('MONGODB_URI');
-  const mongoDatabase = values.MONGODB_DATABASE || 'nuvia';
+  const mongoDatabase = values.MONGODB_DATABASE || 'nuvia_clone';
   if (!/^[a-zA-Z0-9_-]{1,63}$/.test(mongoDatabase)) invalid('MONGODB_DATABASE');
   const appOrigin = values.APP_ORIGIN || 'http://127.0.0.1:5173';
   try {
@@ -71,6 +71,10 @@ export function loadConfig(env = process.env, { rootDir = repositoryRoot } = {})
     dnsServers,
     tlsMaxVersion,
     trustProxy,
+    aiServiceUrl: values.AI_SERVICE_URL || 'http://127.0.0.1:8000',
+    aiServiceKey: values.AI_SERVICE_KEY || '',
+    aiTimeoutMs: integer('AI_SERVICE_TIMEOUT_MS', 75000, 100, 120000),
+    dataRetentionDays: integer('DATA_RETENTION_DAYS', 0, 0, 3650),
     smtp: {
       host: values.SMTP_HOST,
       port: integer('SMTP_PORT', 587, 1, 65535),

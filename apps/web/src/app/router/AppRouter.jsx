@@ -1,6 +1,6 @@
 import { currentRoute } from './routes.js';
 import AuthPage from '../../features/auth/AuthPage.jsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Field from '../../components/ui/Field.jsx';
 import { en, ar } from '../../lib/i18n/auth-copy.js';
 import { submitDemo, authApi } from '../../features/auth/api.js';
@@ -10,6 +10,10 @@ import VerificationPage from '../../features/auth/VerificationPage.jsx';
 import LandingPage from '../../features/landing/LandingPage.jsx';
 import DashboardPage from '../../features/dashboard/DashboardPage.jsx';
 import FeedbacksPage from '../../features/feedback/FeedbacksPage.jsx';
+const ProductWorkspace = lazy(() => import('../../features/product/ProductWorkspace.jsx'));
+import PublicSurvey from '../../features/surveys/PublicSurvey.jsx';
+import PublicBusiness from '../../features/workspaces/PublicBusiness.jsx';
+import AcceptInvitation from '../../features/team/AcceptInvitation.jsx';
 import { asset as resolveAsset } from '../../lib/assets.js';
 import BusinessOnboarding, {
   ConnectedBusinessOnboarding,
@@ -69,6 +73,11 @@ export default function AppRouter() {
     localStorage.setItem('nuvia-language', language);
   }, [language]);
   const resetParam = new URLSearchParams(location.hash.split('?')[1]).get('token');
+  const legacyInvite = new URLSearchParams(location.hash.split('?')[1]).get('invite');
+  useEffect(() => {
+    if (!preview && legacyInvite && page !== 'team-accept')
+      location.hash = '/team/accept?token=' + encodeURIComponent(legacyInvite);
+  }, [preview, legacyInvite, page]);
   useEffect(() => {
     if (page !== 'reset' || preview) return;
     const token = resetParam;
@@ -77,7 +86,13 @@ export default function AppRouter() {
       history.replaceState(null, '', `${location.pathname}#/reset`);
     }
   }, [page, preview, resetParam]);
-  const policy = routePolicy({ route: page, preview, user: auth.user, workspace: auth.workspace });
+  const policy = routePolicy({
+    route: page,
+    preview,
+    user: auth.user,
+    workspace: auth.workspace,
+    pendingInvitation: auth.pendingInvitation,
+  });
   const redirect = policy.redirect;
   useEffect(() => {
     if (auth.status === 'ready' && redirect) location.hash = '/' + redirect;
@@ -146,7 +161,12 @@ export default function AppRouter() {
             { email: values.email, password: values.password, remember: values.remember },
             controller.signal,
           );
-          if (isCurrentRequest() && session) location.hash = '/' + afterLogin(session.workspace);
+          if (isCurrentRequest() && session) {
+            const invite = new URLSearchParams(location.hash.split('?')[1]).get('invite');
+            location.hash = invite
+              ? '/team/accept?token=' + encodeURIComponent(invite)
+              : '/' + afterLogin(session.workspace, session.pendingInvitation);
+          }
         } else if (isForgot) {
           await authApi.forgot(values.email, controller.signal);
           if (isCurrentRequest()) setNotice('resetAccepted');
@@ -222,6 +242,55 @@ export default function AppRouter() {
     );
   }
   if (page === 'verify-email') return <VerificationPage language={language} preview={preview} />;
+  if (page === 'team-accept') return <AcceptInvitation language={language} />;
+  if (page === 'public-survey')
+    return <PublicSurvey key={location.hash} language={language} setLanguage={setLanguage} />;
+  if (page === 'public-business')
+    return <PublicBusiness key={location.hash} language={language} setLanguage={setLanguage} />;
+  if (
+    !preview &&
+    [
+      'dashboard',
+      'dashboard-empty',
+      'feedbacks',
+      'feedbacks-empty',
+      'feedback-details',
+      'surveys',
+      'survey-builder',
+      'analytics',
+      'reports',
+      'team',
+      'team-accept',
+      'branches',
+      'assistant',
+      'settings',
+    ].includes(page)
+  )
+    return (
+      <Suspense
+        fallback={
+          <main className="session-state" role="status">
+            {t.loading}
+          </main>
+        }
+      >
+        <ProductWorkspace
+          key={JSON.stringify([
+            page,
+            location.hash,
+            auth.user?.id,
+            auth.workspace?.id,
+            auth.workspace?.role,
+            auth.workspace?.allowedBranchIds,
+          ])}
+          page={page}
+          language={language}
+          setLanguage={setLanguage}
+          workspace={auth.workspace}
+          onLogout={auth.logout}
+        />
+      </Suspense>
+    );
   if (
     page === 'reset' &&
     !preview &&

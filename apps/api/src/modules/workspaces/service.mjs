@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { ApiError } from '../../middleware/errors.mjs';
 import { transaction } from '../../shared/database/connection.mjs';
+import { resolveAccess } from '../team/access.mjs';
 const normalized = (name) => name.normalize('NFKC').trim().toLowerCase();
 const branchView = (branch, primaryId) => ({
   id: branch._id,
@@ -18,8 +19,13 @@ async function owned(userId, id, deps, session) {
   return workspace;
 }
 export async function getWorkspace(userId, deps) {
-  const w = await owned(userId, null, deps);
-  const branches = await deps.models.Branch.find({ workspaceId: w._id, archivedAt: null })
+  const access = await resolveAccess(userId, deps),
+    w = access.workspace;
+  const branches = await deps.models.Branch.find({
+    workspaceId: w._id,
+    archivedAt: null,
+    ...(access.branchIds ? { _id: { $in: access.branchIds } } : {}),
+  })
     .sort({ createdAt: 1, _id: 1 })
     .lean();
   return {
@@ -29,9 +35,12 @@ export async function getWorkspace(userId, deps) {
     locale: w.locale,
     reportingTimezone: w.reportingTimezone,
     branchType: w.branchMode,
-    primaryBranchId: w.primaryBranchId,
+    primaryBranchId:
+      !access.branchIds || access.branchIds.includes(w.primaryBranchId) ? w.primaryBranchId : null,
     onboardingStep: w.onboardingStep,
     branches: branches.map((b) => branchView(b, w.primaryBranchId)),
+    role: access.role,
+    allowedBranchIds: access.branchIds,
   };
 }
 export async function saveWorkspace(userId, input, deps) {
@@ -115,9 +124,12 @@ export async function completeSetup(userId, input, deps) {
   return getWorkspace(userId, deps);
 }
 export async function listBranches(userId, workspaceId, { includeArchived = false }, deps) {
-  const w = await owned(userId, workspaceId, deps);
+  const access = await resolveAccess(userId, deps),
+    w = access.workspace;
+  if (w._id !== workspaceId) throw new ApiError(404, 'NOT_FOUND');
   const items = await deps.models.Branch.find({
     workspaceId,
+    ...(access.branchIds ? { _id: { $in: access.branchIds } } : {}),
     ...(includeArchived ? {} : { archivedAt: null }),
   })
     .sort({ createdAt: 1, _id: 1 })
@@ -157,6 +169,12 @@ export async function updateBranch(userId, workspaceId, branchId, input, deps) {
       Object.assign(update, { name: input.name, normalizedName: normalized(input.name) });
     if (input.archived !== undefined) update.archivedAt = input.archived ? deps.now() : null;
     await branches.updateOne({ _id: branchId, workspaceId }, { $set: update }, { session });
+    if (input.archived)
+      await deps.models.SurveyLink.updateMany(
+        { workspaceId, branchId, enabled: true },
+        { $set: { enabled: false }, $inc: { version: 1 } },
+        { session },
+      );
     if (input.isPrimary)
       await deps.models.Workspace.updateOne(
         { _id: workspaceId, ownerUserId: userId },

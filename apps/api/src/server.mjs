@@ -1,6 +1,7 @@
 import { loadConfig } from './config/env.mjs';
 import { connectDatabase, ensureSchema } from './shared/database/connection.mjs';
 import { createApp } from './app.mjs';
+import { runPendingAnalysis } from './modules/analysis/service.mjs';
 
 let connection;
 try {
@@ -8,10 +9,24 @@ try {
   connection = await connectDatabase(config);
   await ensureSchema(connection.models);
   const deps = { ...connection, config, now: () => new Date() };
+  let analysisRunning = false;
+  const analysisTimer = setInterval(async () => {
+    if (analysisRunning) return;
+    analysisRunning = true;
+    try {
+      await runPendingAnalysis(deps);
+    } catch {
+      console.error('Analysis cycle unavailable; queued jobs are retained.');
+    } finally {
+      analysisRunning = false;
+    }
+  }, 5000);
+  analysisTimer.unref();
   const server = createApp(deps).listen(config.port, config.host, () =>
     console.log(`NUVIA API listening on ${config.host}:${config.port}`),
   );
   server.on('error', async () => {
+    clearInterval(analysisTimer);
     console.error('API listener failed.');
     await connection.close();
     process.exitCode = 1;
@@ -20,6 +35,7 @@ try {
   const close = () => {
     if (closing) return;
     closing = true;
+    clearInterval(analysisTimer);
     server.close(async () => {
       await connection.close();
     });

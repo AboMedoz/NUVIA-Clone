@@ -1,7 +1,36 @@
-# AI service scaffold
+# NUVIA internal AI service
 
-This FastAPI application exposes only `GET /api/v1/health/live`. It deliberately reports `analysis_available: false`. There is no preprocessing, inference, RAG, trained model, MongoDB writer or integration with the Node product yet.
+Authenticated, versioned FastAPI model adapters. Node selects authorized evidence, owns jobs
+and MongoDB, and calls Python with `X-AI-Service-Key`. Browsers never receive that key or
+call Python directly. Models are supplied later by the team; no weights ship with the app.
 
-From the repository root, use `uv sync --project apps/ai-service --locked`, then `pnpm dev:ai` (port 8000). Run `pnpm test:ai` for health/scope tests, and `uv run --directory apps/ai-service ruff check .` for lint. Python >=3.11 and uv are optional for web/API development. The Python dependency graph is owned by this application's `pyproject.toml` and `uv.lock`, not pnpm.
+```powershell
+uv sync --project apps/ai-service --locked
+$env:AI_SERVICE_KEY = 'YOUR_PRIVATE_RANDOM_SERVICE_KEY'
+uv run --directory apps/ai-service uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
 
-Future ownership: `api/v1` for internal transport, `core` for settings/lifecycle, `schemas` for contracts, `services` for orchestration, `models` for model adapters, and `pipelines` for analysis stages. Store downloaded/trained weights in ignored local storage. Keep business authorization and public customer endpoints in Node; design the internal service contract before adding analysis.
+- Public `GET /api/v1/health/live`: liveness; `analysis_available` requires both core sentiment
+  and aspect packages ready. This metadata is not scientific model acceptance.
+- Authenticated `GET /api/v1/capabilities`: per-capability readiness and versions.
+- Authenticated `POST /api/v1/tasks/{capability}`: bounded, validated execution and provenance.
+
+Language/script and Arabic/Unicode normalization with raw sentence offsets work deterministically.
+Sentiment, aspects, embeddings, clustering, forecasting, reports, assistant and survey suggestions
+return `model_unavailable`/503 until a compatible trained package is installed. Configured invalid
+models fail explicitly. Test fixtures never serve product inference.
+
+See [model installation, formats and smoke checks](docs/model-packages.md) and
+[internal task contracts](docs/contracts.md). Installing compatible artifacts updates the
+registry without rebuilding web/API. No training, hosted inference or MongoDB writes exist here.
+
+The [existing local Qwen survey-draft trial](docs/qwen-local-trial.md) proved actual CUDA
+placement but failed reliable bilingual draft acceptance, so no Qwen package is active.
+
+```powershell
+uv run --directory apps/ai-service pytest
+uv run --directory apps/ai-service ruff check .
+uv run --directory apps/ai-service ruff format --check .
+# Optional ONNX execution tests use temporary synthetic graphs:
+uv run --directory apps/ai-service --extra onnx pytest
+```
