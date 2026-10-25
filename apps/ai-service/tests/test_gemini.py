@@ -93,7 +93,7 @@ def test_structured_sentiment_passes_real_contract_validation(configured, monkey
         json={"schemaVersion": 1, "taskId": "r1", "locale": "ar", "text": "جيد"},
     )
     assert response.status_code == 200
-    assert response.json()["pipelineVersion"] == "nuvia-gemini-json-3"
+    assert response.json()["pipelineVersion"] == "nuvia-gemini-json-4"
     assert response.json()["result"]["sentences"][0]["sentenceId"] == "s1"
     assert seen[0][0] == "generateContent"
     assert seen[0][1]["generationConfig"]["responseJsonSchema"]["type"] == "object"
@@ -440,3 +440,18 @@ def test_provider_prompt_never_treats_platform_name_as_customer_business_identit
         assert "Never invent a business name" in prompt
         assert "Customer feedback report" in prompt
         assert "تقرير آراء العملاء" in prompt
+
+
+@pytest.mark.parametrize("capability", ["sentiment", "aspects", "assistant", "survey_generation"])
+def test_generic_report_title_examples_do_not_leak_into_other_tasks(capability):
+    from app.providers.gemini import GeminiConfig, instructions
+    from app.schemas.tasks import TaskRequest
+
+    config = GeminiConfig(capability=capability, key="fixture", model="fixture")
+    task = TaskRequest(schemaVersion=1, taskId="r1", locale="ar")
+    prompt = instructions(config, task)
+    assert "Customer feedback report" not in prompt
+    assert "تقرير آراء العملاء" not in prompt
+    assert "Never invent a business name" in prompt
+    if capability == "survey_generation":
+        assert "survey-specific title" in prompt

@@ -99,7 +99,7 @@ upstream full-token coverage. Longer-source acceptance requires separately verif
 counting/input behavior; no hidden chunks or partial batch embedding are created. Other
 tasks retain their existing complete raw input/evidence limits.
 
-Cloud provenance uses `pipelineVersion:nuvia-gemini-json-3` and `modelVersion:gemini/<model>`;
+Cloud provenance uses `pipelineVersion:nuvia-gemini-json-4` and `modelVersion:gemini/<model>`;
 embedding versions also include dimensions/normalization and `/b1024-v2` for this input
 policy and verified top-level REST shape. Local versions remain unchanged.
 Provider errors are bounded codes, without remote bodies, content, paths or keys. Rate limits

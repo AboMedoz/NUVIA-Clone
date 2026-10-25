@@ -57,6 +57,10 @@ It repairs numeric aspect offsets only when the unchanged literal quote occurs
 uniquely inside the model's declared sentence, and strengthens report instructions
 for prioritized evidence-backed recommendations and source-grounded business
 identity. The older smoke artifacts above retain their original provenance.
+The final wizard pass then found that the generic report-title examples had
+leaked into survey instructions. Pipeline `nuvia-gemini-json-4` scopes those
+examples to report generation and gives surveys task-specific title guidance;
+earlier pipeline-3 outputs retain their measured provenance.
 
 Ignored evidence is under `test-results/gemini-live/`: original failures,
 model-list metadata, controlled diagnostics, `flash-lite/summary.json`,
