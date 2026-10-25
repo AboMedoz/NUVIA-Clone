@@ -64,3 +64,31 @@ test('Python runtime override requires an existing absolute executable path', ()
     /absolute/,
   );
 });
+
+test('Gemini credentials belong only to the AI child and do not alter offline local loading', () => {
+  const env = {
+    AI_SERVICE_KEY: 'test-key',
+    AI_PROVIDER: 'gemini',
+    GEMINI_API_KEY: 'private-provider-key',
+    GEMINI_MODEL: 'test-model',
+  };
+  const services = buildDevelopmentServices({ root: '/nuvia', env, withAI: true });
+  for (const service of services.filter((item) => item.name !== 'ai')) {
+    assert.equal(service.env.GEMINI_API_KEY, undefined);
+    assert.equal(service.env.GEMINI_MODEL, undefined);
+  }
+  const ai = services.find((item) => item.name === 'ai');
+  assert.equal(ai.env.GEMINI_API_KEY, env.GEMINI_API_KEY);
+  assert.equal(ai.env.AI_PROVIDER, 'gemini');
+  assert.equal(ai.env.HF_HUB_OFFLINE, '1');
+  assert.equal(env.GEMINI_API_KEY, 'private-provider-key', 'Caller configuration is preserved');
+});
+
+test('ordinary development also excludes provider secrets from its children', () => {
+  const services = buildDevelopmentServices({
+    root: '/nuvia',
+    env: { GEMINI_API_KEY: 'private-provider-key' },
+    withAI: false,
+  });
+  assert.ok(services.every((item) => item.env.GEMINI_API_KEY === undefined));
+});

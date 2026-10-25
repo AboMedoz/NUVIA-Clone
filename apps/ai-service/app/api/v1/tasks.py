@@ -5,7 +5,10 @@ import os
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.models.manifest import Registry
+from app.providers import selected_registry
+from app.providers.gemini import PIPELINE_VERSION as GEMINI_PIPELINE_VERSION
+from app.providers.gemini import execute as execute_gemini
+from app.providers.gemini import safe_error_code
 from app.schemas.tasks import CAPABILITIES, PIPELINE_VERSION, Sentence, TaskRequest, validate_result
 from app.services.preparation import language, prepare
 from app.services.runtime import ExecutionError, execute_isolated
@@ -35,10 +38,10 @@ def envelope(capability, status, **fields):
 
 @router.get("/capabilities", dependencies=[Depends(authenticate)])
 def capabilities():
-    registry = Registry()
+    registry = selected_registry()
     return {
         "schemaVersion": 1,
-        "pipelineVersion": PIPELINE_VERSION,
+        "pipelineVersion": registry.pipeline_version,
         "capabilities": list(registry.entries.values()),
         "configurationErrors": registry.errors,
     }
@@ -48,7 +51,44 @@ def capabilities():
 async def task(capability: str, request: TaskRequest):
     if capability not in CAPABILITIES:
         raise HTTPException(404, detail={"code": "unknown_capability"})
-    registry = await asyncio.to_thread(Registry)
+    registry = await asyncio.to_thread(selected_registry)
+    cloud = registry.cloud.get(capability)
+    if cloud is not None:
+        if capability in ("sentiment", "aspects") and not (request.text or "").strip():
+            raise HTTPException(422, detail={"code": "text_required"})
+        if capability in ("assistant", "report") and not request.evidence:
+            raise HTTPException(422, detail={"code": "insufficient_evidence"})
+        try:
+            result = await execute_gemini(cloud, request)
+            # Validate again in the parent; neither child nor remote output is trusted.
+            result = validate_result(capability, result, request, cloud)
+            return envelope(
+                capability,
+                "succeeded",
+                modelVersion=cloud.modelVersion,
+                pipelineVersion=GEMINI_PIPELINE_VERSION,
+                provider="gemini",
+                result=result,
+            )
+        except (ExecutionError, ValueError, KeyError, TypeError, AttributeError) as exc:
+            code = (
+                safe_error_code(exc) if isinstance(exc, ExecutionError) else "invalid_model_output"
+            )
+            status = 429 if code == "model_busy" else 504 if code == "model_timeout" else 502
+            return JSONResponse(
+                status_code=status,
+                content=envelope(
+                    capability,
+                    "failed",
+                    modelVersion=cloud.modelVersion,
+                    pipelineVersion=GEMINI_PIPELINE_VERSION,
+                    provider="gemini",
+                    error={
+                        "code": code,
+                        "message": "The provider task could not produce a validated result.",
+                    },
+                ),
+            )
     package = registry.packages.get(capability)
     if capability in ("normalization", "language") and (
         registry.entries[capability].get("modelVersion") == "builtin-1"

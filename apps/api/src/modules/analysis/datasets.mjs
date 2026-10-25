@@ -61,6 +61,21 @@ export function buildClusteringSample(responses) {
     available = texts.filter((response) =>
       response.analysis?.embeddings?.vectors?.some((vector) => vector.id === response._id),
     );
+  // Equal dimensions do not make embeddings from different encoders comparable.
+  // Select the largest coherent space; insertion order breaks ties by newest row.
+  const spaces = new Map();
+  for (const response of available) {
+    const embedding = response.analysis.embeddings;
+    const vector = embedding.vectors.find((item) => item.id === response._id);
+    const key = JSON.stringify([
+      embedding.modelVersion || null,
+      embedding.pipelineVersion || null,
+      vector.values.length,
+    ]);
+    if (!spaces.has(key)) spaces.set(key, []);
+    spaces.get(key).push(response);
+  }
+  const cohort = [...spaces.values()].sort((a, b) => b.length - a.length)[0];
   const selected = [],
     evidence = [],
     vectors = [];
@@ -76,7 +91,7 @@ export function buildClusteringSample(responses) {
     ),
     vectorBudgetBytes: VECTOR_PARAMETERS_BUDGET_BYTES,
   });
-  for (const response of available.length >= 5 ? available : texts) {
+  for (const response of cohort || texts) {
     if (selected.length >= 200 || remaining <= 0) break;
     const vector = response.analysis?.embeddings?.vectors?.find(
       (value) => value.id === response._id,
@@ -100,7 +115,7 @@ export function datasetKey(responses, interval, timezone) {
   return createHash('sha256')
     .update(
       JSON.stringify({
-        transportVersion: 'vector-aware-v3-python-size',
+        transportVersion: 'vector-aware-v4-provider-cohorts',
         interval,
         timezone,
         rows: responses
@@ -109,6 +124,9 @@ export function datasetKey(responses, interval, timezone) {
             r.analysis?.sentiment?.modelVersion || null,
             r.analysis?.aspects?.modelVersion || null,
             r.analysis?.embeddings?.modelVersion || null,
+            r.analysis?.sentiment?.pipelineVersion || null,
+            r.analysis?.aspects?.pipelineVersion || null,
+            r.analysis?.embeddings?.pipelineVersion || null,
           ])
           .sort((a, b) => a[0].localeCompare(b[0])),
       }),

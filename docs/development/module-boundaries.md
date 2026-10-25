@@ -20,6 +20,11 @@ for account and product collections. Services consume `deps.models`; public API
 DTOs remain separate. Keep hashing/encryption/timestamps explicit in services.
 References do not replace workspace/branch predicates or transaction sessions.
 
+Optional Gemini HTTPS transport belongs exclusively to the internal AI service.
+`AI_PROVIDER` selects it explicitly; local adapters remain the default and never
+fall back to cloud implicitly. Root development launchers pass `GEMINI_*` only
+to the AI child. Both providers use the same result and evidence validators.
+
 The clone implements the user-approved completion design. Read its
 [shared contracts](integration-contract.md), [feature acceptance matrix](../product/implementation-matrix.md)
 and executable modules before extending workflows. Retain strict authorization,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.models.manifest import Registry
+from app.providers import selected_registry
 from app.schemas.health import HealthResponse
 
 router = APIRouter(tags=["health"])
@@ -8,7 +8,7 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health/live", response_model=HealthResponse)
 def live() -> HealthResponse:
-    registry = Registry()
+    registry = selected_registry()
     return HealthResponse(
         analysis_available=all(
             registry.entries.get(name, {}).get("available", False)

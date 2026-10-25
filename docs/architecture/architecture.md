@@ -51,6 +51,16 @@ Membership is resolved on each request; revoked access takes effect immediately.
 
 ## Model handoff and analysis state
 
+An explicit `AI_PROVIDER=gemini` selects the optional HTTPS provider inside
+FastAPI for supported text tasks and embeddings. Default `local` retains all
+existing model manifests/adapters. There is no implicit cloud fallback. Gemini
+credentials belong only to the AI service; the browser and Node public transport
+do not receive them. Existing output/evidence validation still applies. Local
+clustering/forecasting packages remain separate. Provider-specific model/pipeline
+versions preserve provenance; clustering samples never combine different
+embedding models/pipelines, even when dimensions match. See the
+[online provider guide](../development/gemini-ar.md).
+
 Ignored model packages declare a capability, supported adapter/format, version,
 language/taxonomy, device requirements and artifact hashes. No remote code or
 implicit weights download is enabled. Builtin language/normalization work without

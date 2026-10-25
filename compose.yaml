@@ -88,6 +88,12 @@ services:
       AI_SERVICE_KEY: ${AI_SERVICE_KEY:-}
       AI_MODEL_MANIFEST_DIR: /models
       AI_MODEL_ROOT: /models
+      AI_PROVIDER: ${AI_PROVIDER:-local}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-001}
+      GEMINI_EMBEDDING_DIMENSIONS: ${GEMINI_EMBEDDING_DIMENSIONS:-768}
+      GEMINI_TIMEOUT_SECONDS: ${GEMINI_TIMEOUT_SECONDS:-45}
     volumes:
       - ./.local/models:/models:ro
 

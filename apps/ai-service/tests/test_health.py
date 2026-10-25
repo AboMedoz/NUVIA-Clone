@@ -32,7 +32,7 @@ def test_health_reflects_core_model_readiness_without_exposing_packages(monkeypa
     health = importlib.import_module("app.api.v1.health")
     monkeypatch.setattr(
         health,
-        "Registry",
+        "selected_registry",
         lambda: SimpleNamespace(
             entries={
                 "sentiment": {"available": True},

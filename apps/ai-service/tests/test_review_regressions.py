@@ -232,11 +232,12 @@ def test_abstention_survives_internal_transport_without_becoming_failed(tmp_path
     model = aspect_manifest().model_copy(update={"capability": "assistant"})
     monkeypatch.setattr(
         tasks,
-        "Registry",
+        "selected_registry",
         lambda: SimpleNamespace(
+            cloud={},
             packages={
                 "assistant": (model, tmp_path),
-            }
+            },
         ),
     )
 

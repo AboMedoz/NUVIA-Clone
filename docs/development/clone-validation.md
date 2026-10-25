@@ -130,3 +130,16 @@ records and both forecasters against the fixtures. No new model weights were
 downloaded locally. These small diagnostic results are not production model
 acceptance; all tested generators failed the complete survey-output contract.
 Qwen2.5 remains inactive and Qwen3.5/GGUF runtime integration is separate work.
+
+## Optional Gemini addition
+
+See [online setup and local switching](gemini-ar.md). The explicit optional
+provider preserves all local adapters/manifests and defaults to local. Fresh
+validation: 108 Python tests including 39 Gemini cases and optional ONNX; 42 API
+tests with an isolated replica set; 9 launcher/setup tests; live local
+Node-to-FastAPI contracts; Ruff check/format, root lint/format and quiet compose
+configuration. Independent review passed. Tests use synthetic provider replies.
+No private Gemini key, live Google inference or scientific quality acceptance
+was available. No cloud call or model-weight download was made. A MongoDB test
+runner initially started a binary download; it was stopped and tests then used
+the existing original-checkout executable read-only with downloads disabled.

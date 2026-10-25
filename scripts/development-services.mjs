@@ -4,27 +4,30 @@ import { statSync } from 'node:fs';
 export function buildDevelopmentServices({ root, env, withAI }) {
   if (withAI && !env.AI_SERVICE_KEY)
     throw new Error('Run pnpm setup:models before full development.');
+  const productEnv = Object.fromEntries(
+    Object.entries(env).filter(([key]) => !/^GEMINI_/i.test(key)),
+  );
   const services = [
     {
       name: 'api',
       command: process.execPath,
       args: ['--watch', resolve(root, 'apps/api/src/server.mjs')],
       cwd: root,
-      env,
+      env: productEnv,
     },
     {
       name: 'mail',
       command: process.execPath,
       args: [resolve(root, 'apps/api/scripts/mail-worker.mjs')],
       cwd: root,
-      env,
+      env: productEnv,
     },
     {
       name: 'web',
       command: process.execPath,
       args: [resolve(root, 'apps/web/node_modules/vite/bin/vite.js'), '--host', '127.0.0.1'],
       cwd: resolve(root, 'apps/web'),
-      env,
+      env: productEnv,
     },
   ];
   if (withAI) {

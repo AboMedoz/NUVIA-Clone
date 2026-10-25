@@ -3,9 +3,13 @@
 All capability/task routes require `X-AI-Service-Key`; no CORS access is enabled. Liveness
 is public and exposes no package paths. Errors never echo input text, service keys or paths.
 
-`GET /api/v1/capabilities` returns schemaVersion, pipelineVersion (`nuvia-ai-1`), a
+`GET /api/v1/capabilities` returns schemaVersion, pipelineVersion (`nuvia-ai-1` for local,
+`nuvia-gemini-json-1` for explicit Gemini selection), a
 `capabilities` array and sanitized `configurationErrors`. Each entry has capability, status
 (`ready`, `unavailable`, `invalid`), available, optional modelVersion/reason/readiness.
+Entries identify their own provider and pipelineVersion: local/builtin entries retain
+`nuvia-ai-1` even while the registry's selected provider is Gemini. Gemini configured
+readiness is `configured_unverified_remote`; no paid probe occurs during discovery.
 The ten capability names are language, normalization, sentiment, aspects, embeddings,
 clustering, forecasting, report, assistant and survey_generation.
 
@@ -31,6 +35,9 @@ sentences are prepared deterministically. Evidence is `[{id,text}]`, scoped by N
 Success is `{schemaVersion:1,status:"succeeded",capability,modelVersion,pipelineVersion,result}`.
 Default deterministic modelVersion is `builtin-1`; normalization method is `unicode-arabic-v2`
 and script language method is `unicode-script-v1`. Learned output always names its model version.
+Gemini success also has `provider:"gemini"`, pipeline `nuvia-gemini-json-1` and version
+`gemini/<model>` (embedding versions append dimensions/normalization). Local manifests and
+result contracts are unchanged; see [optional Gemini configuration](../README.md#optional-online-gemini-provider).
 
 | Capability        | Result                                                                               |
 | ----------------- | ------------------------------------------------------------------------------------ |
