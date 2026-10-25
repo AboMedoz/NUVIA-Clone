@@ -40,3 +40,13 @@ Ruff and compose configuration. No UI changes require rendered revalidation.
 No Gemini key was configured; no live Google inference, quota or model quality
 acceptance is claimed. No local model weights downloaded or adapters removed.
 The clone has no configured remote, so delivery stays on the local task branch.
+
+## User-supplied-key follow-up
+
+After the user added a key, live synthetic checks exposed and reproduced REST
+compatibility defects. Repairs preserve local validators/adapters, use verified
+Embedding001 top-level fields with a 1024-byte preflight source limit, and omit
+remote maxItems while retaining local array bounds. Six live task smoke cases
+passed with explicitly selected Flash Lite. No automatic fallback or local-model
+download. See [live validation](../../development/gemini-live-validation.md).
+The earlier no-key/no-live statements describe the initial checkpoint.

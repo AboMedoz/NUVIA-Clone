@@ -74,7 +74,15 @@ async def task(capability: str, request: TaskRequest):
             code = (
                 safe_error_code(exc) if isinstance(exc, ExecutionError) else "invalid_model_output"
             )
-            status = 429 if code == "model_busy" else 504 if code == "model_timeout" else 502
+            status = (
+                429
+                if code == "model_busy"
+                else 504
+                if code == "model_timeout"
+                else 422
+                if code == "provider_input_too_large"
+                else 502
+            )
             return JSONResponse(
                 status_code=status,
                 content=envelope(

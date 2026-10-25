@@ -139,7 +139,12 @@ validation: 108 Python tests including 39 Gemini cases and optional ONNX; 42 API
 tests with an isolated replica set; 9 launcher/setup tests; live local
 Node-to-FastAPI contracts; Ruff check/format, root lint/format and quiet compose
 configuration. Independent review passed. Tests use synthetic provider replies.
-No private Gemini key, live Google inference or scientific quality acceptance
-was available. No cloud call or model-weight download was made. A MongoDB test
+At the initial integration checkpoint no private Gemini key or live Google
+inference was available; scientific quality acceptance remains unestablished. No cloud call or model-weight download was made. A MongoDB test
 runner initially started a binary download; it was stopped and tests then used
 the existing original-checkout executable read-only with downloads disabled.
+
+The subsequent user-authorized [live Gemini check](gemini-live-validation.md)
+verified six synthetic task contracts and selected Flash Lite in private settings.
+Its compatibility repairs have 115 passing Python tests. The initial no-live-call
+statement above describes the earlier integration checkpoint only.

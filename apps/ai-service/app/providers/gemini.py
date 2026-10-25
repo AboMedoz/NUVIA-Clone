@@ -19,7 +19,7 @@ from app.schemas.tasks import RESULT_MODELS, TaskRequest, validate_result
 from app.services.runtime import ExecutionError, execute_isolated
 
 CAPABILITIES = ("sentiment", "aspects", "embeddings", "report", "assistant", "survey_generation")
-PIPELINE_VERSION = "nuvia-gemini-json-1"
+PIPELINE_VERSION = "nuvia-gemini-json-2"
 TAXONOMY = Taxonomy(
     version="nuvia-gemini-aspects-v1", labels=["staff", "timeliness", "quality", "value"]
 )
@@ -39,6 +39,7 @@ def safe_error_code(error):
             "provider_model_unavailable",
             "provider_request_rejected",
             "provider_unavailable",
+            "provider_input_too_large",
         }
         else "provider_unavailable"
     )
@@ -67,6 +68,8 @@ class GeminiConfig(BaseModel):
             or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", model)
         ):
             raise ValueError("Invalid provider configuration")
+        if capability == "embeddings" and model != "gemini-embedding-001":
+            raise ValueError("unsupported_embedding_model")
         return cls(
             capability=capability,
             key=key,
@@ -77,7 +80,7 @@ class GeminiConfig(BaseModel):
 
     @property
     def modelVersion(self):
-        suffix = f"/d{self.dimensions}/norm1" if self.capability == "embeddings" else ""
+        suffix = f"/d{self.dimensions}/norm1/b1024-v2" if self.capability == "embeddings" else ""
         return f"gemini/{self.model}{suffix}"
 
 
@@ -134,7 +137,6 @@ def response_schema(capability):
         "enum",
         "items",
         "minItems",
-        "maxItems",
         "minimum",
         "maximum",
         "anyOf",
@@ -197,6 +199,11 @@ def embeddings(config, request):
         sources = [(request.taskId, request.text)]
     if not sources:
         raise ValueError("Embedding source required")
+    # Nested autoTruncate was ignored by the live Embedding 001 endpoint. Until
+    # exact tokenizer/countTokens acceptance exists, admit only short full sources.
+    # This conservative operational ceiling is not a tokenizer equivalence claim.
+    if any(len(text.encode("utf-8")) > 1024 for _, text in sources):
+        raise ExecutionError("provider_input_too_large")
     # Synchronous batch API preserves one vector per Content and ordered correspondence.
     response = post_json(
         config,
@@ -206,11 +213,10 @@ def embeddings(config, request):
                 {
                     "model": f"models/{config.model}",
                     "content": {"parts": [{"text": text}]},
-                    "embedContentConfig": {
-                        "outputDimensionality": config.dimensions,
-                        "autoTruncate": False,
-                        "taskType": "CLUSTERING",
-                    },
+                    # Embedding 001 REST currently ignores nested embedContentConfig.
+                    # Live synthetic checks confirm these top-level legacy fields work.
+                    "outputDimensionality": config.dimensions,
+                    "taskType": "CLUSTERING",
                 }
                 for _, text in sources
             ]

@@ -53,8 +53,10 @@ compatible local packages if none is installed. No local adapter, manifest, arti
 trial is removed, activated or downloaded. Invalid provider names disable learned execution;
 missing cloud configuration does not activate an installed local model as a fallback.
 
-Blank/unset model settings use the defaults above. Model names are configurable simple IDs,
-not URLs. The default text model is the currently documented stable `gemini-3.8-flash`;
+Blank/unset model settings use the defaults above. Text model names are configurable simple IDs,
+not URLs. Cloud embeddings currently support only `gemini-embedding-001`; any other configured
+embedding model is unavailable until its REST behavior and input limits are accepted.
+The default text model is the currently documented stable `gemini-3.8-flash`;
 Google currently restricts 2.5 Flash access to prior users. Check availability for the project's
 key before deployment. Registry `readiness:configured_unverified_remote` means configuration
 is present, not that credentials, quota, billing, remote availability or scientific quality were
@@ -65,16 +67,31 @@ existing strict output/source validation runs in both worker and parent. Aspect 
 `nuvia-gemini-aspects-v1`: `staff`, `timeliness`, `quality`, `value`; quotes and absolute Unicode
 spans must match original text. Reports/assistant require exact retained quotations; assistant
 can abstain. Survey output remains a draft requiring review and explicit publication.
+The remote schema projection omits `maxItems`: a controlled live comparison on the same
+synthetic sentiment request returned 400 `INVALID_ARGUMENT` with the original bounds and
+200 with only `maxItems` removed. All local Pydantic array limits and evidence validation
+remain enforced; oversized model output is still rejected. `minItems` and other supported
+schema constraints remain in the remote request.
 
 Embeddings use synchronous `batchEmbedContents`, one ordered vector per source, with
-`embedContentConfig.outputDimensionality`, `taskType:CLUSTERING` and `autoTruncate:false`.
+top-level `outputDimensionality` and `taskType:CLUSTERING` on each request. Although the
+current reference documents nested `embedContentConfig`, live synthetic checks showed
+Embedding 001 ignoring its dimension setting and returning 3072 dimensions. The top-level
+fields correctly returned 768. This adapter therefore uses that verified REST shape.
 Dimensions default to 768 (bounded 128–3072), and vectors must match configured dimensions
 and input IDs exactly. Vectors are L2 normalized, including reduced-dimension Embedding 001
-outputs as Google instructs. Over-limit input is rejected by Google, never silently truncated.
-Model input limits vary; long saved responses can consequently fail embedding honestly.
+outputs as Google instructs. The adapter sends the whole supplied text without trimming.
+Embedding 001's nested `autoTruncate` setting was not verified effective and is not sent.
+A conservative **1024 UTF-8 bytes per source** ceiling rejects an entire oversized batch
+before HTTP with 422 `provider_input_too_large`, rather than risk remote truncation of long
+feedback. This is an operational safety margin, not a proof of tokenizer equivalence or
+upstream full-token coverage. Longer-source acceptance requires separately verified token
+counting/input behavior; no hidden chunks or partial batch embedding are created. Other
+tasks retain their existing complete raw input/evidence limits.
 
-Cloud provenance uses `pipelineVersion:nuvia-gemini-json-1` and `modelVersion:gemini/<model>`;
-embedding versions also include dimensions/normalization. Local versions remain unchanged.
+Cloud provenance uses `pipelineVersion:nuvia-gemini-json-2` and `modelVersion:gemini/<model>`;
+embedding versions also include dimensions/normalization and `/b1024-v2` for this input
+policy and verified top-level REST shape. Local versions remain unchanged.
 Provider errors are bounded codes, without remote bodies, content, paths or keys. Rate limits
 return 429 `model_busy`, timeouts 504 `model_timeout`; bad credentials, unknown models,
 network failure, rejected input and invalid output fail explicitly. There are no hidden retries
@@ -92,8 +109,12 @@ Official references checked for this implementation: [structured output](https:/
 [embedding dimensions/normalization](https://ai.google.dev/gemini-api/docs/embeddings),
 [3.8 Flash](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash) and
 [2.5 access limits](https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash).
-Tests mock the HTTP boundary with synthetic data. No paid/live Google call, real customer
-submission or model quality acceptance was performed.
+Regression tests mock the HTTP boundary with synthetic data and reproduce the observed
+REST compatibility failures. Authorized live checks with synthetic text verified key/model
+access, the embedding shape and the controlled schema fix. For the tested key, 3.8 Flash
+also timed out on tiny requests, while an explicit `gemini-3.5-flash-lite` comparison worked;
+operators can select that model explicitly. There is no automatic model substitution.
+Real customer submissions and model scientific quality are not established by these checks.
 
 The [existing local Qwen survey-draft trial](docs/qwen-local-trial.md) proved actual CUDA
 placement but failed reliable bilingual draft acceptance, so no Qwen package is active.

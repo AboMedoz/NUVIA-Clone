@@ -33,13 +33,17 @@ def selected_registry():
                     "pipelineVersion": PIPELINE_VERSION,
                     "readiness": "configured_unverified_remote",
                 }
-            except ValueError:
+            except ValueError as exc:
                 registry.entries[capability] = {
                     "capability": capability,
                     "status": "unavailable",
                     "available": False,
                     "provider": "gemini",
-                    "reason": "provider_not_configured",
+                    "reason": (
+                        "unsupported_embedding_model"
+                        if str(exc) == "unsupported_embedding_model"
+                        else "provider_not_configured"
+                    ),
                 }
         return registry
     registry.errors.append({"code": "invalid_ai_provider"})

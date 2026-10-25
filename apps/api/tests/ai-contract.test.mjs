@@ -5,6 +5,30 @@ import { randomUUID } from 'node:crypto';
 import { executeTask, validateResult } from '../src/integrations/ai-service/client.mjs';
 import { aggregateResponses } from '../src/modules/analytics/service.mjs';
 
+test('oversized cloud embedding input keeps its permanent error instead of a transient retry', async () => {
+  const server = createServer((_req, res) => {
+    res.writeHead(422, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: { code: 'provider_input_too_large' } }));
+  });
+  await new Promise((done) => server.listen(0, '127.0.0.1', done));
+  try {
+    const result = await executeTask(
+      'embeddings',
+      { taskId: 'synthetic', locale: 'en', text: 'Synthetic input' },
+      {
+        config: {
+          aiServiceUrl: `http://127.0.0.1:${server.address().port}`,
+          aiServiceKey: 'synthetic-key',
+          aiTimeoutMs: 1000,
+        },
+      },
+    );
+    assert.deepEqual(result, { status: 'failed', error: 'provider_input_too_large' });
+  } finally {
+    await new Promise((done) => server.close(done));
+  }
+});
+
 test('assistant preserves a typed insufficient-evidence abstention for a nonempty evidence cohort', () => {
   const result = validateResult(
     'assistant',

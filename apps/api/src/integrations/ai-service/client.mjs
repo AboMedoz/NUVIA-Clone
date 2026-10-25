@@ -285,10 +285,9 @@ export async function executeTask(capability, input, deps) {
     )
       return {
         status: 'failed',
-        error:
-          body.error?.code === 'invalid_model_output'
-            ? 'invalid_model_output'
-            : 'service_unavailable',
+        error: ['invalid_model_output', 'provider_input_too_large'].includes(body.error?.code)
+          ? body.error.code
+          : 'service_unavailable',
       };
     if (body.testOnly === true) return { status: 'failed', error: 'test_model_not_allowed' };
     return {
