@@ -14,6 +14,7 @@ AI_Powered_Customer_Feedback_Analytics_&_Business_Intelligence_Platform.pdf
 
 # Dependencies and generated output
 .local/
+.superpowers/
 test-results/
 playwright-report/
 node_modules/

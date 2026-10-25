@@ -1,0 +1,769 @@
+[
+  {
+    "id": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "modified": "2026-03-02T11:26:58.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 11544
+      },
+      {
+        "path": "README.md",
+        "bytes": 61705
+      },
+      {
+        "path": "chat_template.jinja",
+        "bytes": 7755
+      },
+      {
+        "path": "config.json",
+        "bytes": 2907
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 3353259
+      },
+      {
+        "path": "model.safetensors-00001-of-00001.safetensors",
+        "bytes": 1746942600
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 50900
+      },
+      {
+        "path": "preprocessor_config.json",
+        "bytes": 390
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 12807982
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 16709
+      },
+      {
+        "path": "video_preprocessor_config.json",
+        "bytes": 385
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 6722759
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors-00001-of-00001.safetensors",
+        "bytes": 1746942600
+      }
+    ],
+    "weight_bytes": 1746942600
+  },
+  {
+    "id": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "modified": "2026-03-02T11:26:29.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 11544
+      },
+      {
+        "path": "README.md",
+        "bytes": 62814
+      },
+      {
+        "path": "chat_template.jinja",
+        "bytes": 7755
+      },
+      {
+        "path": "config.json",
+        "bytes": 2908
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 3353259
+      },
+      {
+        "path": "model.safetensors-00001-of-00001.safetensors",
+        "bytes": 4548221488
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 64460
+      },
+      {
+        "path": "preprocessor_config.json",
+        "bytes": 390
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 12807982
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 16709
+      },
+      {
+        "path": "video_preprocessor_config.json",
+        "bytes": 385
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 6722759
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors-00001-of-00001.safetensors",
+        "bytes": 4548221488
+      }
+    ],
+    "weight_bytes": 4548221488
+  },
+  {
+    "id": "Qwen/Qwen3.5-4B",
+    "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+    "modified": "2026-03-02T00:52:52.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 11544
+      },
+      {
+        "path": "README.md",
+        "bytes": 77661
+      },
+      {
+        "path": "chat_template.jinja",
+        "bytes": 7756
+      },
+      {
+        "path": "config.json",
+        "bytes": 3161
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 3353259
+      },
+      {
+        "path": "model.safetensors-00001-of-00002.safetensors",
+        "bytes": 5329398688
+      },
+      {
+        "path": "model.safetensors-00002-of-00002.safetensors",
+        "bytes": 3990429408
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 76196
+      },
+      {
+        "path": "preprocessor_config.json",
+        "bytes": 390
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 12807982
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 16710
+      },
+      {
+        "path": "video_preprocessor_config.json",
+        "bytes": 385
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 6722759
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors-00001-of-00002.safetensors",
+        "bytes": 5329398688
+      },
+      {
+        "path": "model.safetensors-00002-of-00002.safetensors",
+        "bytes": 3990429408
+      }
+    ],
+    "weight_bytes": 9319828096
+  },
+  {
+    "id": "Qwen/Qwen3-4B-Instruct-2507",
+    "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+    "modified": "2025-09-17T06:56:53.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 11343
+      },
+      {
+        "path": "README.md",
+        "bytes": 8168
+      },
+      {
+        "path": "config.json",
+        "bytes": 727
+      },
+      {
+        "path": "generation_config.json",
+        "bytes": 238
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 1671839
+      },
+      {
+        "path": "model-00001-of-00003.safetensors",
+        "bytes": 3957900840
+      },
+      {
+        "path": "model-00002-of-00003.safetensors",
+        "bytes": 3987450520
+      },
+      {
+        "path": "model-00003-of-00003.safetensors",
+        "bytes": 99630640
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 32819
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 11422654
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 9377
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 2776833
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model-00001-of-00003.safetensors",
+        "bytes": 3957900840
+      },
+      {
+        "path": "model-00002-of-00003.safetensors",
+        "bytes": 3987450520
+      },
+      {
+        "path": "model-00003-of-00003.safetensors",
+        "bytes": 99630640
+      }
+    ],
+    "weight_bytes": 8044982000
+  },
+  {
+    "id": "CAMeL-Lab/bert-base-arabic-camelbert-mix-sentiment",
+    "revision": "6ef16021f303c8a2bac02fd5af16601593e665d2",
+    "modified": "2021-10-17T12:09:14.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1175
+      },
+      {
+        "path": "RAEDME.md",
+        "bytes": 3379
+      },
+      {
+        "path": "README.md",
+        "bytes": 3389
+      },
+      {
+        "path": "config.json",
+        "bytes": 842
+      },
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 436389169
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 112
+      },
+      {
+        "path": "tf_model.h5",
+        "bytes": 436622684
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 86
+      },
+      {
+        "path": "training_args.bin",
+        "bytes": 1348
+      },
+      {
+        "path": "vocab.txt",
+        "bytes": 304561
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 436389169
+      }
+    ],
+    "weight_bytes": 436389169
+  },
+  {
+    "id": "cardiffnlp/twitter-xlm-roberta-base-sentiment",
+    "revision": "f2f1202b1bdeb07342385c3f807f9c07cd8f5cf8",
+    "modified": "2023-07-19T20:41:38.000Z",
+    "license": null,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 690
+      },
+      {
+        "path": "README.md",
+        "bytes": 3290
+      },
+      {
+        "path": "config.json",
+        "bytes": 841
+      },
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 1112271561
+      },
+      {
+        "path": "sentencepiece.bpe.model",
+        "bytes": 5069051
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 150
+      },
+      {
+        "path": "tf_model.h5",
+        "bytes": 1114822968
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 1112271561
+      }
+    ],
+    "weight_bytes": 1112271561
+  },
+  {
+    "id": "intfloat/multilingual-e5-small",
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "modified": "2026-04-02T02:16:05.000Z",
+    "license": "mit",
+    "files": [
+      {
+        "path": ".eval_results/ArguAna.yaml",
+        "bytes": 575
+      },
+      {
+        "path": ".eval_results/BrightAopsRetrieval.yaml",
+        "bytes": 641
+      },
+      {
+        "path": ".eval_results/BrightBiologyLongRetrieval.yaml",
+        "bytes": 651
+      },
+      {
+        "path": ".eval_results/BrightBiologyRetrieval.yaml",
+        "bytes": 647
+      },
+      {
+        "path": ".eval_results/BrightEarthScienceLongRetrieval.yaml",
+        "bytes": 663
+      },
+      {
+        "path": ".eval_results/BrightEarthScienceRetrieval.yaml",
+        "bytes": 659
+      },
+      {
+        "path": ".eval_results/BrightEconomicsLongRetrieval.yaml",
+        "bytes": 655
+      },
+      {
+        "path": ".eval_results/BrightEconomicsRetrieval.yaml",
+        "bytes": 651
+      },
+      {
+        "path": ".eval_results/BrightLeetcodeRetrieval.yaml",
+        "bytes": 651
+      },
+      {
+        "path": ".eval_results/BrightPonyLongRetrieval.yaml",
+        "bytes": 645
+      },
+      {
+        "path": ".eval_results/BrightPonyRetrieval.yaml",
+        "bytes": 641
+      },
+      {
+        "path": ".eval_results/BrightPsychologyLongRetrieval.yaml",
+        "bytes": 655
+      },
+      {
+        "path": ".eval_results/BrightPsychologyRetrieval.yaml",
+        "bytes": 653
+      },
+      {
+        "path": ".eval_results/BrightRoboticsLongRetrieval.yaml",
+        "bytes": 653
+      },
+      {
+        "path": ".eval_results/BrightRoboticsRetrieval.yaml",
+        "bytes": 647
+      },
+      {
+        "path": ".eval_results/BrightStackoverflowLongRetrieval.yaml",
+        "bytes": 665
+      },
+      {
+        "path": ".eval_results/BrightStackoverflowRetrieval.yaml",
+        "bytes": 659
+      },
+      {
+        "path": ".eval_results/BrightSustainableLivingLongRetrieval.yaml",
+        "bytes": 673
+      },
+      {
+        "path": ".eval_results/BrightSustainableLivingRetrieval.yaml",
+        "bytes": 667
+      },
+      {
+        "path": ".eval_results/BrightTheoremQAQuestionsRetrieval.yaml",
+        "bytes": 669
+      },
+      {
+        "path": ".eval_results/BrightTheoremQATheoremsRetrieval.yaml",
+        "bytes": 667
+      },
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "1_Pooling/config.json",
+        "bytes": 200
+      },
+      {
+        "path": "README.md",
+        "bytes": 497538
+      },
+      {
+        "path": "config.json",
+        "bytes": 655
+      },
+      {
+        "path": "model.safetensors",
+        "bytes": 470641600
+      },
+      {
+        "path": "modules.json",
+        "bytes": 387
+      },
+      {
+        "path": "onnx/config.json",
+        "bytes": 653
+      },
+      {
+        "path": "onnx/model.onnx",
+        "bytes": 470268510
+      },
+      {
+        "path": "onnx/model_O4.onnx",
+        "bytes": 235052531
+      },
+      {
+        "path": "onnx/model_qint8_avx512_vnni.onnx",
+        "bytes": 118346824
+      },
+      {
+        "path": "onnx/sentencepiece.bpe.model",
+        "bytes": 5069051
+      },
+      {
+        "path": "onnx/special_tokens_map.json",
+        "bytes": 167
+      },
+      {
+        "path": "onnx/tokenizer.json",
+        "bytes": 17082730
+      },
+      {
+        "path": "onnx/tokenizer_config.json",
+        "bytes": 443
+      },
+      {
+        "path": "openvino/openvino_model.bin",
+        "bytes": 470027936
+      },
+      {
+        "path": "openvino/openvino_model.xml",
+        "bytes": 363385
+      },
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 470681649
+      },
+      {
+        "path": "sentence_bert_config.json",
+        "bytes": 57
+      },
+      {
+        "path": "sentencepiece.bpe.model",
+        "bytes": 5069051
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 167
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 17082730
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 443
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors",
+        "bytes": 470641600
+      }
+    ],
+    "weight_bytes": 470641600
+  },
+  {
+    "id": "Qwen/Qwen3-Embedding-0.6B",
+    "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "modified": "2026-04-20T02:45:58.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1570
+      },
+      {
+        "path": "1_Pooling/config.json",
+        "bytes": 313
+      },
+      {
+        "path": "README.md",
+        "bytes": 17237
+      },
+      {
+        "path": "config.json",
+        "bytes": 727
+      },
+      {
+        "path": "config_sentence_transformers.json",
+        "bytes": 215
+      },
+      {
+        "path": "generation_config.json",
+        "bytes": 117
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 1671853
+      },
+      {
+        "path": "model.safetensors",
+        "bytes": 1191586416
+      },
+      {
+        "path": "modules.json",
+        "bytes": 349
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 11423705
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 9706
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 2776833
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors",
+        "bytes": 1191586416
+      }
+    ],
+    "weight_bytes": 1191586416
+  },
+  {
+    "id": "BAAI/bge-m3",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "modified": "2024-07-03T14:50:10.000Z",
+    "license": "mit",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1627
+      },
+      {
+        "path": "1_Pooling/config.json",
+        "bytes": 191
+      },
+      {
+        "path": "README.md",
+        "bytes": 15822
+      },
+      {
+        "path": "colbert_linear.pt",
+        "bytes": 2100674
+      },
+      {
+        "path": "config.json",
+        "bytes": 687
+      },
+      {
+        "path": "config_sentence_transformers.json",
+        "bytes": 123
+      },
+      {
+        "path": "imgs/.DS_Store",
+        "bytes": 6148
+      },
+      {
+        "path": "imgs/bm25.jpg",
+        "bytes": 131849
+      },
+      {
+        "path": "imgs/long.jpg",
+        "bytes": 485432
+      },
+      {
+        "path": "imgs/miracl.jpg",
+        "bytes": 576482
+      },
+      {
+        "path": "imgs/mkqa.jpg",
+        "bytes": 608027
+      },
+      {
+        "path": "imgs/nqa.jpg",
+        "bytes": 158358
+      },
+      {
+        "path": "imgs/others.webp",
+        "bytes": 20984
+      },
+      {
+        "path": "long.jpg",
+        "bytes": 126894
+      },
+      {
+        "path": "modules.json",
+        "bytes": 349
+      },
+      {
+        "path": "onnx/Constant_7_attr__value",
+        "bytes": 65552
+      },
+      {
+        "path": "onnx/config.json",
+        "bytes": 698
+      },
+      {
+        "path": "onnx/model.onnx",
+        "bytes": 724923
+      },
+      {
+        "path": "onnx/model.onnx_data",
+        "bytes": 2266820608
+      },
+      {
+        "path": "onnx/sentencepiece.bpe.model",
+        "bytes": 5069051
+      },
+      {
+        "path": "onnx/special_tokens_map.json",
+        "bytes": 964
+      },
+      {
+        "path": "onnx/tokenizer.json",
+        "bytes": 17082821
+      },
+      {
+        "path": "onnx/tokenizer_config.json",
+        "bytes": 1173
+      },
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 2271145830
+      },
+      {
+        "path": "sentence_bert_config.json",
+        "bytes": 54
+      },
+      {
+        "path": "sentencepiece.bpe.model",
+        "bytes": 5069051
+      },
+      {
+        "path": "sparse_linear.pt",
+        "bytes": 3516
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 964
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 17098108
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 444
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "pytorch_model.bin",
+        "bytes": 2271145830
+      }
+    ],
+    "weight_bytes": 2271145830
+  }
+]

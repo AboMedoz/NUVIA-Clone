@@ -3,3 +3,12 @@ AGENTS.md -text
 
 # Store command scripts consistently; use Windows line endings when checked out.
 *.cmd text eol=crlf
+
+# Frozen evaluation inputs/notebooks/source retain the exact bytes hashed in Colab.
+# CRLF is valid here; other whitespace checks remain enabled for these artifacts.
+docs/model-research/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/model-research/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/model-research/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/model-research/*.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Imported provenance prose is also retained verbatim, including its original spaces.
+docs/model-research/real50-SOURCE-README.md -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

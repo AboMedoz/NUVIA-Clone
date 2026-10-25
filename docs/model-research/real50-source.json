@@ -1,0 +1,55 @@
+{
+  "source": "https://huggingface.co/datasets/bayandashnan/AQTE-Arabic-Quote-Triplet-Extraction",
+  "revision": "faa0abd03a08c349551230a9959351dd1afebe0b",
+  "split": "test",
+  "license": "CC BY 4.0 for compilation and annotations; original public review text remains subject to platform terms.",
+  "source_file_sha256": "9bbac759579d9834f90c926abc8c725c0a17c47cfe133ee9ffe5778fcb2acd32",
+  "seed": "NUVIA-REAL50-20261023",
+  "quotas": {
+    "neutral": 2,
+    "mixed": 16,
+    "negative": 16,
+    "positive": 16
+  },
+  "mapping": {
+    "الطعام": "food",
+    "المشروبات": "food",
+    "الخدمة": "service",
+    "طاقم العمل": "service",
+    "التعامل": "service",
+    "السعر": "price",
+    "السرعة": "speed",
+    "النظافة": "cleanliness"
+  },
+  "manual_exclusions": {
+    "R02603": "Named staff members in text.",
+    "R00379": "Named staff member in text.",
+    "R01809": "Named staff member in text.",
+    "R00279": "Identifiable individual nickname in text.",
+    "R03292": "Named staff member in text.",
+    "R01604": "Identifiable staff nickname in text.",
+    "R00167": "Source service category includes sink cleanliness; ambiguous category projection.",
+    "R02563": "Source mixed service includes general venue praise; no clear positive staff opinion.",
+    "R02979": "Source speed criticism concerns opening hours rather than waiting/preparation/delivery.",
+    "R02314": "Source service category contains speed praise; incompatible direct category projection.",
+    "R02615": "Source service criticism concerns family seating rather than staff behavior.",
+    "R01776": "Source positive service is not explicit in the review; category projection ambiguous.",
+    "R01715": "Negative interpretation of rich cheese is ambiguous without further context."
+  },
+  "candidate_counts": {
+    "negative": 103,
+    "positive": 260,
+    "mixed": 92,
+    "neutral": 2
+  },
+  "skipped": {
+    "neutral_annotation_policy_ambiguity": 61,
+    "unsupported_category_or_annotation": 1243,
+    "length_or_identifier_filter": 134,
+    "manual_exclusion": 13
+  },
+  "selection": "Supported categories only; 10–600 chars; no detected personal identifiers; no duplicate text; one review per restaurant; hash order within predetermined sentiment strata.",
+  "neutral_adaptation": "Two factual descriptions inspected before inference; source neutral category mentions omitted because NUVIA extracts evaluated aspects only.",
+  "limitations": "Saudi Arabic source, category-filtered and sentiment-stratified sample. Only two neutral cases. Not a representative customer distribution, not Egyptian/English acceptance. Public-data pretraining overlap unknown.",
+  "local_review": "All selected full texts screened by Codex before inference; no claim of a second independent human annotation. Gold uses source human annotations with declared taxonomy mapping and two factual-neutral adaptations."
+}

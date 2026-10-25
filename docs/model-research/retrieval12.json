@@ -1,0 +1,62 @@
+[
+  {
+    "id": "d0",
+    "text": "The meal arrived cold.",
+    "query": "شكوى عن أكل بارد"
+  },
+  {
+    "id": "d1",
+    "text": "الموظف كان قليل الذوق.",
+    "query": "rude employee"
+  },
+  {
+    "id": "d2",
+    "text": "الطلب اتأخر ساعة.",
+    "query": "delivery delay"
+  },
+  {
+    "id": "d3",
+    "text": "الأسعار مناسبة جدا.",
+    "query": "affordable prices"
+  },
+  {
+    "id": "d4",
+    "text": "الطاولات عليها تراب.",
+    "query": "dirty tables"
+  },
+  {
+    "id": "d5",
+    "text": "The soup tasted wonderful.",
+    "query": "شوربة طعمها جميل"
+  },
+  {
+    "id": "d6",
+    "text": "The waiter helped us patiently.",
+    "query": "موظف متعاون"
+  },
+  {
+    "id": "d7",
+    "text": "وصل الطلب بسرعة.",
+    "query": "fast delivery"
+  },
+  {
+    "id": "d8",
+    "text": "The bill was far too expensive.",
+    "query": "فاتورة غالية"
+  },
+  {
+    "id": "d9",
+    "text": "المكان نظيف جدا.",
+    "query": "spotless restaurant"
+  },
+  {
+    "id": "d10",
+    "text": "رحت يوم الجمعة ودفعت كاش.",
+    "query": "visit date and payment method"
+  },
+  {
+    "id": "d11",
+    "text": "The food was tasty but the staff were rude.",
+    "query": "أكل حلو وخدمة سيئة"
+  }
+]

@@ -1,0 +1,310 @@
+[
+  {
+    "id": "en-p",
+    "text": "The food was delicious. The staff were helpful.",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "service": "positive"
+    },
+    "slice": "en",
+    "sentences": [
+      {
+        "text": "The food was delicious.",
+        "label": "positive"
+      },
+      {
+        "text": "The staff were helpful.",
+        "label": "positive"
+      }
+    ]
+  },
+  {
+    "id": "en-n",
+    "text": "The food was cold. Service was rude.",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative",
+      "service": "negative"
+    },
+    "slice": "en",
+    "sentences": [
+      {
+        "text": "The food was cold.",
+        "label": "negative"
+      },
+      {
+        "text": "Service was rude.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "en-neutral",
+    "text": "I visited on Monday. I paid by card.",
+    "sentiment": "neutral",
+    "aspects": {},
+    "slice": "en",
+    "sentences": [
+      {
+        "text": "I visited on Monday.",
+        "label": "neutral"
+      },
+      {
+        "text": "I paid by card.",
+        "label": "neutral"
+      }
+    ]
+  },
+  {
+    "id": "en-m",
+    "text": "The food tasted great. The service was awful.",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "service": "negative"
+    },
+    "slice": "en",
+    "sentences": [
+      {
+        "text": "The food tasted great.",
+        "label": "positive"
+      },
+      {
+        "text": "The service was awful.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "eg-p",
+    "text": "الأكل تحفة. والجرسون ذوق جدا.",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "service": "positive"
+    },
+    "slice": "eg",
+    "sentences": [
+      {
+        "text": "الأكل تحفة.",
+        "label": "positive"
+      },
+      {
+        "text": "والجرسون ذوق جدا.",
+        "label": "positive"
+      }
+    ]
+  },
+  {
+    "id": "eg-n",
+    "text": "الأكل مش حلو. والترابيزات وسخة.",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative",
+      "cleanliness": "negative"
+    },
+    "slice": "eg",
+    "sentences": [
+      {
+        "text": "الأكل مش حلو.",
+        "label": "negative"
+      },
+      {
+        "text": "والترابيزات وسخة.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "eg-neutral",
+    "text": "رحت يوم الاتنين. دفعت بالكارت.",
+    "sentiment": "neutral",
+    "aspects": {},
+    "slice": "eg",
+    "sentences": [
+      {
+        "text": "رحت يوم الاتنين.",
+        "label": "neutral"
+      },
+      {
+        "text": "دفعت بالكارت.",
+        "label": "neutral"
+      }
+    ]
+  },
+  {
+    "id": "eg-m",
+    "text": "الأكل حلو أوي. بس الخدمة وحشة.",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "service": "negative"
+    },
+    "slice": "eg",
+    "sentences": [
+      {
+        "text": "الأكل حلو أوي.",
+        "label": "positive"
+      },
+      {
+        "text": "بس الخدمة وحشة.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "gulf-p",
+    "text": "الأكل لذيذ وايد. والتوصيل سريع.",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "speed": "positive"
+    },
+    "slice": "gulf",
+    "sentences": [
+      {
+        "text": "الأكل لذيذ وايد.",
+        "label": "positive"
+      },
+      {
+        "text": "والتوصيل سريع.",
+        "label": "positive"
+      }
+    ]
+  },
+  {
+    "id": "gulf-n",
+    "text": "الأسعار غالية وايد. والنظافة سيئة.",
+    "sentiment": "negative",
+    "aspects": {
+      "price": "negative",
+      "cleanliness": "negative"
+    },
+    "slice": "gulf",
+    "sentences": [
+      {
+        "text": "الأسعار غالية وايد.",
+        "label": "negative"
+      },
+      {
+        "text": "والنظافة سيئة.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "gulf-neutral",
+    "text": "طلبت وجبتين. الحساب خمسين ريال.",
+    "sentiment": "neutral",
+    "aspects": {},
+    "slice": "gulf",
+    "sentences": [
+      {
+        "text": "طلبت وجبتين.",
+        "label": "neutral"
+      },
+      {
+        "text": "الحساب خمسين ريال.",
+        "label": "neutral"
+      }
+    ]
+  },
+  {
+    "id": "gulf-m",
+    "text": "الطعم زين. بس الطلب تأخر وايد.",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "speed": "negative"
+    },
+    "slice": "gulf",
+    "sentences": [
+      {
+        "text": "الطعم زين.",
+        "label": "positive"
+      },
+      {
+        "text": "بس الطلب تأخر وايد.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "mix-p",
+    "text": "الأكل delicious. والموظفين helpful.",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "service": "positive"
+    },
+    "slice": "code-switch",
+    "sentences": [
+      {
+        "text": "الأكل delicious.",
+        "label": "positive"
+      },
+      {
+        "text": "والموظفين helpful.",
+        "label": "positive"
+      }
+    ]
+  },
+  {
+    "id": "mix-n",
+    "text": "The service وحش جدا. والترابيزات dirty.",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative",
+      "cleanliness": "negative"
+    },
+    "slice": "code-switch",
+    "sentences": [
+      {
+        "text": "The service وحش جدا.",
+        "label": "negative"
+      },
+      {
+        "text": "والترابيزات dirty.",
+        "label": "negative"
+      }
+    ]
+  },
+  {
+    "id": "mix-neutral",
+    "text": "I ordered رز. ودفعت cash.",
+    "sentiment": "neutral",
+    "aspects": {},
+    "slice": "code-switch",
+    "sentences": [
+      {
+        "text": "I ordered رز.",
+        "label": "neutral"
+      },
+      {
+        "text": "ودفعت cash.",
+        "label": "neutral"
+      }
+    ]
+  },
+  {
+    "id": "mix-m",
+    "text": "الأكل tasty. بس delivery بطيء.",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "speed": "negative"
+    },
+    "slice": "code-switch",
+    "sentences": [
+      {
+        "text": "الأكل tasty.",
+        "label": "positive"
+      },
+      {
+        "text": "بس delivery بطيء.",
+        "label": "negative"
+      }
+    ]
+  }
+]

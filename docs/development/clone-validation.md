@@ -118,3 +118,15 @@ checkpoint is promised to run solely by being copied into a folder.
 
 No remote push, merge, hosted deployment, production HTTPS, real SMTP acceptance,
 Atlas acceptance or backup/restore drill is claimed by this local delivery.
+
+## Completed model comparison
+
+All 11 shortlisted models completed actual Colab inference. See the
+[Arabic results and download-size table](../model-research/RESULTS-AR.md),
+[detailed NLP measurements](../model-research/MEASURED.md), and
+[separate synthetic forecasting diagnostic](../model-research/FORECAST.md).
+Frozen inputs remain byte-exact; saved-output audits verified all nine NLP
+records and both forecasters against the fixtures. No new model weights were
+downloaded locally. These small diagnostic results are not production model
+acceptance; all tested generators failed the complete survey-output contract.
+Qwen2.5 remains inactive and Qwen3.5/GGUF runtime integration is separate work.

@@ -1,0 +1,2361 @@
+[
+  {
+    "id": "aqte-R02532",
+    "text": "بالنسبه لي افضل كرك مقارنه بمحلات المنطقه",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "افضل كرك مقارنه بمحلات المنطقه",
+          "source_aspect": "المشروبات"
+        }
+      ]
+    },
+    "source_review_id": "R02532",
+    "source_place_sha256": "8fccaa69a90c7294e9e2039af1404d2d9f6ca35c2ad2fa3db7fdcba434562caf",
+    "source_opinions": [
+      {
+        "aspect": "المشروبات",
+        "avg_sentiment": 1.0,
+        "quotes": "افضل كرك مقارنه بمحلات المنطقه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00281",
+    "text": "كبده طاازة والطعم اللي ادور زيه خاصة التقاطيع بس ملاحظتي الساندوش ملاحظتي ب 10 يعتبر سعره مرتفع نوعا ما",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "price": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "كبده طاازة",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "والطعم اللي ادور زيه خاصة التقاطيع",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "يعتبر سعره مرتفع نوعا ما",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R00281",
+    "source_place_sha256": "c47e53b0b74377b3dabfa3b3989097f26113ded42d9df0ad7404d0264eaea717",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "كبده طاازة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "والطعم اللي ادور زيه خاصة التقاطيع"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "يعتبر سعره مرتفع نوعا ما"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01589",
+    "text": "أكلهم جدا لذيذ جربو صوص شرنمب نيشن ولفتني السرعة وعطونا قفاز ومريلة بلاستيكية عشان الواحد ياكل بيده على الراحه الذره تجنن اتمنى يزيدون كذا حبه من لذتها روحو له وانتم مغمضين",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "speed": "positive",
+      "service": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "أكلهم جدا لذيذ",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "جربو صوص شرنمب نيشن",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "الذره تجنن اتمنى يزيدون كذا حبه من لذتها",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "positive",
+          "quote": "ولفتني السرعة",
+          "source_aspect": "السرعة"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "وعطونا قفاز ومريلة بلاستيكية عشان الواحد ياكل بيده على الراحه",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R01589",
+    "source_place_sha256": "f0ffb44c00bce55f7c57ad022f5b1c7b2da707fd1778a01bb472efd17d5c651b",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "أكلهم جدا لذيذ"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "جربو صوص شرنمب نيشن"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 1.0,
+        "quotes": "ولفتني السرعة"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 1.0,
+        "quotes": "وعطونا قفاز ومريلة بلاستيكية عشان الواحد ياكل بيده على الراحه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الذره تجنن اتمنى يزيدون كذا حبه من لذتها"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00336",
+    "text": "اكل جيد بس عندهم المشروبات الغازيه ليه تتباع ال 330 ملي ب 3 ريال المفروض الي ب 3 ريال 365 ملي",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "price": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اكل جيد",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "المشروبات الغازيه ليه تتباع ال 330 ملي ب 3 ريال المفروض الي ب 3 ريال 365 ملي",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R00336",
+    "source_place_sha256": "ddbf5a3d6b972623d9977123a61390cad6b740d540691345a6e695b1f1b58a43",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اكل جيد"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "المشروبات الغازيه ليه تتباع ال 330 ملي ب 3 ريال المفروض الي ب 3 ريال 365 ملي"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01943",
+    "text": "طلبت كباب لحم للامانه لذيذ كا اول تجربة الله يبارك لهم",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "كباب لحم للامانه لذيذ",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01943",
+    "source_place_sha256": "f48c7b6ffbfb66fa5d405fb67c6dfea3bd950259c90b6055091d547377362b6a",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "كباب لحم للامانه لذيذ"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02342",
+    "text": "جربت ساندوتشات شرار وللأسف أقل من المتوقع بعشرة ريال وصغيرة والخبز والشيش طاووق ما كانوا بالمستوى المأمول",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative",
+      "price": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "جربت ساندوتشات شرار وللأسف أقل من المتوقع",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "والخبز والشيش طاووق ما كانوا بالمستوى المأمول",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "أقل من المتوقع بعشرة ريال وصغيرة",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R02342",
+    "source_place_sha256": "9be4bfe8c91a3481f11916760e25fd227d72b7396c91a99dfa8b7e1c081321b5",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "جربت ساندوتشات شرار وللأسف أقل من المتوقع"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "أقل من المتوقع بعشرة ريال وصغيرة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "والخبز والشيش طاووق ما كانوا بالمستوى المأمول"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02133",
+    "text": "من أسوأ التجارب في الكباب كباب بلا طعم لا دجاج ولا لحم يعطيهم العافيه على الخدمه فقط اما الاكل للاسف سيئ جدا",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "negative",
+      "service": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "كباب بلا طعم لا دجاج ولا لحم",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "الاكل للاسف سيئ جدا",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "يعطيهم العافيه على الخدمه فقط",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R02133",
+    "source_place_sha256": "fbe6747b2a8caf356ed2c2d5f789b334a1f52714a2f64c9e2f6f5b10dba6e3c5",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "كباب بلا طعم لا دجاج ولا لحم"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 1.0,
+        "quotes": "يعطيهم العافيه على الخدمه فقط"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الاكل للاسف سيئ جدا"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02912",
+    "text": "للأسف جيت متأخر ما لحقت اكل فيه عموما ما شفت فيه زباين اتوقع موعد قفل المحل لكن لي زياره ونذوق الأكل ونقيمه عطيتهم نجمتين عشان السفينه مغبره يبى لها تنظيف",
+    "sentiment": "negative",
+    "aspects": {
+      "cleanliness": "negative"
+    },
+    "evidence": {
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "السفينه مغبره يبى لها تنظيف",
+          "source_aspect": "النظافة"
+        }
+      ]
+    },
+    "source_review_id": "R02912",
+    "source_place_sha256": "6e1768d08cb267d2260d6f190ec97030a1454b1629d50dfca231b63866557061",
+    "source_opinions": [
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "السفينه مغبره يبى لها تنظيف"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02322",
+    "text": "يجنن لذيذ بشكل البطاطس مو عااادي بس فيه شيء بسيط البرجر ملحه زايد مدري كيف بس ستل حلو لا يفوتكم",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "يجنن لذيذ بشكل",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "البطاطس مو عااادي",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "البرجر ملحه زايد",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02322",
+    "source_place_sha256": "52ed27e1a17ffc072a11260114c942282490967a5b52e3172030712dd28e06a1",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "يجنن لذيذ بشكل"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "البطاطس مو عااادي"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "البرجر ملحه زايد"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00244",
+    "text": "القائمه برقر لحم او دجاج او مسحب او قمبري او سمك فيليه مع جبنه ٦ بدون ٥ زنقر مع جبنه ٧ بدون ٦ وجبه مسحب ٧ قطع مع بطاطس ١١ حبات وليس سندويتش وجبه جمبري مع بطاطس ١٧ حبات وليس سندويتش يوجد شطه كتشب مايونيز ثوم طماطم خس الخ",
+    "sentiment": "neutral",
+    "aspects": {},
+    "evidence": {},
+    "source_review_id": "R00244",
+    "source_place_sha256": "0e3cad4f68d9781d75ed3d732625065517e8db5d4cfc9412cd9376a6b91e2073",
+    "source_opinions": [
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.5,
+        "quotes": "برقر لحم او دجاج او مسحب او قمبري او سمك فيليه مع جبنه ٦ بدون ٥"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.5,
+        "quotes": "زنقر مع جبنه ٧ بدون ٦ وجبه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.5,
+        "quotes": "زنقر مع جبنه ٧ بدون ٦"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.5,
+        "quotes": "وجبه مسحب ٧ قطع مع بطاطس ١١ حبات وليس سندويتش"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.5,
+        "quotes": "وجبه جمبري مع بطاطس ١٧ حبات وليس سندويتش"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Factual menu/description: neutral overall, no evaluated NUVIA aspects.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01992",
+    "text": "اعجبتني التبولة جدا ومتبل الشمندر كنا لحالنا في المطعم كامل ومع هذا كان فيه تاخير ساعه على مايوصل الاكل جابو اول خبز وزبدة بعدها بساعه وصل الاكل والخبر جفف طلبتهم يغيرونه اخذوه وسخونه ورجعوه وايضا طلبت رز صيادية بسمك فيليه وصلني صيادية بدون سمك بعدها جابو لي السمك بتأخير اضافي اعجبتني اسعارهم في الاكل لكن الكولا الصغيرة ب٣٤ ريال جدا مبالغ باسعار المشرووب",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed",
+      "speed": "negative",
+      "service": "negative",
+      "price": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اعجبتني التبولة جدا ومتبل الشمندر",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "جابو اول خبز وزبدة بعدها بساعه وصل الاكل والخبر جفف",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "negative",
+          "quote": "كان فيه تاخير ساعه على مايوصل الاكل",
+          "source_aspect": "السرعة"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "طلبت رز صيادية بسمك فيليه وصلني صيادية بدون سمك",
+          "source_aspect": "الخدمة"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "بعدها جابو لي السمك بتأخير اضافي",
+          "source_aspect": "الخدمة"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "positive",
+          "quote": "اعجبتني اسعارهم في الاكل",
+          "source_aspect": "السعر"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "الكولا الصغيرة ب٣٤ ريال جدا مبالغ باسعار المشرووب",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R01992",
+    "source_place_sha256": "c2bc31d33cc7bd931874c3b6394256d2237e67acff920481a4c7fb6760fb7fc7",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اعجبتني التبولة جدا ومتبل الشمندر"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 0.0,
+        "quotes": "كان فيه تاخير ساعه على مايوصل الاكل"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "جابو اول خبز وزبدة بعدها بساعه وصل الاكل والخبر جفف"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "طلبت رز صيادية بسمك فيليه وصلني صيادية بدون سمك"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "بعدها جابو لي السمك بتأخير اضافي"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 1.0,
+        "quotes": "اعجبتني اسعارهم في الاكل"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "الكولا الصغيرة ب٣٤ ريال جدا مبالغ باسعار المشرووب"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R03302",
+    "text": "مطعم يقدم الأكلات الشعبيه",
+    "sentiment": "neutral",
+    "aspects": {},
+    "evidence": {},
+    "source_review_id": "R03302",
+    "source_place_sha256": "3e7d7661db509bab50636f0e8417f6d8618f7a168caf74f4c7cb54d528bf5a99",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.5,
+        "quotes": "يقدم الأكلات الشعبيه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Factual menu/description: neutral overall, no evaluated NUVIA aspects.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00133",
+    "text": "سيئ جدا تعامل الموظف غير اخلاقي الاكل بايت الاسعار مرتفعه اتمني ان يكون موظف صاحب اخلاق عاليه",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative",
+      "food": "negative",
+      "price": "negative"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "تعامل الموظف غير اخلاقي",
+          "source_aspect": "التعامل"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "الاكل بايت",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "الاسعار مرتفعه",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R00133",
+    "source_place_sha256": "def2dfadd14502e335147d0cc83c85a9a86bbd6197c2b39ad9366a5217721a96",
+    "source_opinions": [
+      {
+        "aspect": "التعامل",
+        "avg_sentiment": 0.0,
+        "quotes": "تعامل الموظف غير اخلاقي"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الاكل بايت"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "الاسعار مرتفعه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01468",
+    "text": "انا من الرياض وجيت عمرة لمكة وقلت لازم ازوور هاالفود ترك اكل لذيذ وله لذة أفضل من المطاعم الهندية اللي تسوية يكفي انه من يدين بناتنا الله يحفظهم وبرضو يكون دعم لذوي الهمم الفئة الغالية على مجتمعنا",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اكل لذيذ وله لذة أفضل من المطاعم الهندية اللي تسوية",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01468",
+    "source_place_sha256": "e17313f178ad58c8b6bff38534dd20f43903a9777302bc9005cc47bca51c7a53",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اكل لذيذ وله لذة أفضل من المطاعم الهندية اللي تسوية"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00104",
+    "text": "الخدمه سيئه وطعم القهوه حليب الاسلوب سيء",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative",
+      "food": "negative"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "الخدمه سيئه",
+          "source_aspect": "الخدمة"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "الاسلوب سيء",
+          "source_aspect": "التعامل"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "وطعم القهوه حليب",
+          "source_aspect": "المشروبات"
+        }
+      ]
+    },
+    "source_review_id": "R00104",
+    "source_place_sha256": "fbd7a88c536b6d7f744c93ae08af47d074e1f0d972122cfed9b104e959566ec6",
+    "source_opinions": [
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "الخدمه سيئه"
+      },
+      {
+        "aspect": "المشروبات",
+        "avg_sentiment": 0.0,
+        "quotes": "وطعم القهوه حليب"
+      },
+      {
+        "aspect": "التعامل",
+        "avg_sentiment": 0.0,
+        "quotes": "الاسلوب سيء"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01523",
+    "text": "انا حطيت نجمه علشان اعلق فقط اما الموظفين لايصلحون اطلاقا قسم بالله مشكلتين قدامي مع الناس فعلقت والاكل قدامي ملوش طعم",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative",
+      "food": "negative"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "الموظفين لايصلحون اطلاقا",
+          "source_aspect": "طاقم العمل"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "والاكل قدامي ملوش طعم",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01523",
+    "source_place_sha256": "f4bdf2ccf2eb88adb94520ea81b1c316331c1b6d89c637df305ded4a40f9657e",
+    "source_opinions": [
+      {
+        "aspect": "طاقم العمل",
+        "avg_sentiment": 0.0,
+        "quotes": "الموظفين لايصلحون اطلاقا"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "والاكل قدامي ملوش طعم"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02117",
+    "text": "طلبت كبده بالجبن لذيذه وطلبت فلافل اوني طعمها زيت قديم مره كانت سيئه الله يديم النعمه",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "كبده بالجبن لذيذه",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "فلافل اوني طعمها زيت قديم مره كانت سيئه",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02117",
+    "source_place_sha256": "6b7a62c03708a1f060382527ee8a46edbeb8b0818d35a9b374e1f6a2fd56704d",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "كبده بالجبن لذيذه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "فلافل اوني طعمها زيت قديم مره كانت سيئه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02424",
+    "text": "وصاخه الى ابعد حد حصلت شعره داخله بعجين بيتزا الببروني",
+    "sentiment": "negative",
+    "aspects": {
+      "cleanliness": "negative",
+      "food": "negative"
+    },
+    "evidence": {
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "وصاخه الى ابعد حد",
+          "source_aspect": "النظافة"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "حصلت شعره داخله بعجين بيتزا الببروني",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02424",
+    "source_place_sha256": "9419195cd65d699b23470f63fcadd72c02da9b724c66f1bd3eebebcf4a91203e",
+    "source_opinions": [
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "وصاخه الى ابعد حد"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "حصلت شعره داخله بعجين بيتزا الببروني"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02108",
+    "text": "طلبت منه قبل ٣ شهور ماعجبني في الزيت كان طعم سمك بعدين جربته عشان اخواتي يحبونه قبل يومين للامانه جدا تحسن والطعم مميز ولذيذ",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "ماعجبني في الزيت كان طعم سمك",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "جدا تحسن والطعم مميز ولذيذ",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02108",
+    "source_place_sha256": "7124f804c3a1d7b97190b44fa22e18d12e05a461b9356dad8e3a4c49ac827b06",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "ماعجبني في الزيت كان طعم سمك"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "جدا تحسن والطعم مميز ولذيذ"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02047",
+    "text": "الذبان مالي المكان لازم يشوفون حل للذبان نظافه المغسله الطاولات والارضيات لك عليه سله الخبز المحلي نته ومتوسخه وينقلونها من زبون لاخر بدون نظافه بالنسبه للاكل لذيذ والاسعار ممتازة",
+    "sentiment": "mixed",
+    "aspects": {
+      "cleanliness": "negative",
+      "food": "positive",
+      "price": "positive"
+    },
+    "evidence": {
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "الذبان مالي المكان",
+          "source_aspect": "النظافة"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "نظافه المغسله الطاولات والارضيات لك عليه",
+          "source_aspect": "النظافة"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "سله الخبز المحلي نته ومتوسخه وينقلونها من زبون لاخر بدون نظافه",
+          "source_aspect": "النظافة"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "بالنسبه للاكل لذيذ",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "positive",
+          "quote": "والاسعار ممتازة",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R02047",
+    "source_place_sha256": "0bcc2438c597bc15d4f674dde3a12ba1a981739b1d01521ab8f3eead1a1c0a4b",
+    "source_opinions": [
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "الذبان مالي المكان"
+      },
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "نظافه المغسله الطاولات والارضيات لك عليه"
+      },
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "سله الخبز المحلي نته ومتوسخه وينقلونها من زبون لاخر بدون نظافه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "بالنسبه للاكل لذيذ"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 1.0,
+        "quotes": "والاسعار ممتازة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02216",
+    "text": "صراحة من أفضل الوجبات الهندية الي أكلتها في جدة من هذا المطعم خضار واللحم والدجاج والرز لذيذ جدا بس اخ لو يهتم بالنظافة زي اهتمامه ان الاكل لذيذ كان بيكون روعة وممكن يفتح مطعم كبير التتبيلة والسمبوسة الخضار على الطريقة الهندية روعة وايضا الفطاير لذيذة عنده تبغا اكل هندي لذيذ روح وبالعافية بس اذا انت تخاف من المطاعم إلي نظافتها لك عليها وتعتبر ( ستريت فود ) اكثر من انها مطعم يضمنلك معايير النظافة فانتبه",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "cleanliness": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "صراحة من أفضل الوجبات الهندية الي أكلتها في جدة",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "خضار واللحم والدجاج والرز لذيذ جدا",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "التتبيلة والسمبوسة الخضار على الطريقة الهندية روعة",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "وايضا الفطاير لذيذة عنده",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "لو يهتم بالنظافة زي اهتمامه ان الاكل لذيذ كان بيكون روعة",
+          "source_aspect": "النظافة"
+        }
+      ]
+    },
+    "source_review_id": "R02216",
+    "source_place_sha256": "53a076216d0ebe5b29291bc0d2379f732e61f3436fb5bac549cb172ccdba417d",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "صراحة من أفضل الوجبات الهندية الي أكلتها في جدة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "خضار واللحم والدجاج والرز لذيذ جدا"
+      },
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "لو يهتم بالنظافة زي اهتمامه ان الاكل لذيذ كان بيكون روعة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "التتبيلة والسمبوسة الخضار على الطريقة الهندية روعة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "وايضا الفطاير لذيذة عنده"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00263",
+    "text": "شاورما جميله جدا دجاج المراعي مبرد اتمني تجربووو",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "شاورما جميله جدا",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "دجاج المراعي مبرد",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R00263",
+    "source_place_sha256": "0f88d49b485850ba76a47878af625fda188d5ba7e06050772dd58f150a8ec019",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "شاورما جميله جدا"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "دجاج المراعي مبرد"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01875",
+    "text": "ممتاز ولذيذ مثل الفرع الاخر وممكن حتى افضل بالطعم",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "ممتاز ولذيذ مثل الفرع الاخر",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "وممكن حتى افضل بالطعم",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01875",
+    "source_place_sha256": "8461946f3c87634159146e29b3267a1576cb3625b5627e0730e536619925f7ff",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "ممتاز ولذيذ مثل الفرع الاخر"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "وممكن حتى افضل بالطعم"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00018",
+    "text": "بصراحة الطعم جيد ولكن مقدمين الطعام سيئين للغاية حيث أنه لا يقوم باحترامك ولا يرد على أسئلتك المتكررة أرجو الالتفات إليهم وعدم تكرار الخطأ في فرع أم الحمام",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "service": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "الطعم جيد",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "مقدمين الطعام سيئين للغاية",
+          "source_aspect": "طاقم العمل"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "لا يقوم باحترامك ولا يرد على أسئلتك المتكررة",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R00018",
+    "source_place_sha256": "f9e9fe544281daef3079194b02eac7b7c62d5d018c6db60ce863c4f6d4d5c49e",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الطعم جيد"
+      },
+      {
+        "aspect": "طاقم العمل",
+        "avg_sentiment": 0.0,
+        "quotes": "مقدمين الطعام سيئين للغاية"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "لا يقوم باحترامك ولا يرد على أسئلتك المتكررة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01736",
+    "text": "أجمل الأكلات الهندية",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "أجمل الأكلات الهندية",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01736",
+    "source_place_sha256": "e95b6a0bb046cbb0f1c75b51b9caa306ccca7b85179b3d051b3c7d76742a1d75",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "أجمل الأكلات الهندية"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R03072",
+    "text": "ياخي والله عيب يعني توكم فاتحين ويجيكم زبون وتكذبون عليه تقولون له طلبك موجود وتحطون له شي غير الي طالبه",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "ويجيكم زبون وتكذبون عليه",
+          "source_aspect": "التعامل"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "وتحطون له شي غير الي طالبه",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R03072",
+    "source_place_sha256": "4fc2cde6c61babbb5e0c9d599d14494491635fe8e0e2201c5dcdb98afbb74cd2",
+    "source_opinions": [
+      {
+        "aspect": "التعامل",
+        "avg_sentiment": 0.0,
+        "quotes": "ويجيكم زبون وتكذبون عليه"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "وتحطون له شي غير الي طالبه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00292",
+    "text": "الطعم لذيذ جدا بالنسبة ل الريش والشيش طاووق الأسعار مقبولة جدا مقابل الخدمة والجودة",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "price": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "الطعم لذيذ جدا بالنسبة ل الريش والشيش طاووق",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "positive",
+          "quote": "الأسعار مقبولة جدا مقابل الخدمة والجودة",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R00292",
+    "source_place_sha256": "023d5ac800bba177d8d31017d436527db5aa3bf82bbc492058b5c83fe257df61",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الطعم لذيذ جدا بالنسبة ل الريش والشيش طاووق"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 1.0,
+        "quotes": "الأسعار مقبولة جدا مقابل الخدمة والجودة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01677",
+    "text": "الاكل ماله طعم والخدمه مشي حالك",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative",
+      "service": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "الاكل ماله طعم",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "والخدمه مشي حالك",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R01677",
+    "source_place_sha256": "307cf7bc4722a1d8c3abfb6a2725bc0361dfb21d347a9bb2d054695269f39eaa",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الاكل ماله طعم"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "والخدمه مشي حالك"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02197",
+    "text": "ماشاء الله اكلهم لذيذ والطلب يوصل بسرعه و البيتزا والبروست طعمهم جنااان موفقييين ان شاء الله",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "speed": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اكلهم لذيذ",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "البيتزا والبروست طعمهم جنااان",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "positive",
+          "quote": "والطلب يوصل بسرعه",
+          "source_aspect": "السرعة"
+        }
+      ]
+    },
+    "source_review_id": "R02197",
+    "source_place_sha256": "8d4f1bd667c31fba4b89ef7f223c0d692aa8fa824aa674440c4dfb174e37ae84",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اكلهم لذيذ"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 1.0,
+        "quotes": "والطلب يوصل بسرعه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "البيتزا والبروست طعمهم جنااان"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01813",
+    "text": "جربت عندهم ايج فرايز كانت لذيذه وتشيز برجر جيد واخيرا ترافل برجر وكان طعمه ابدا مو لذيذ فيه طعم شيء غريب كذا بس مو طعم شيء يتاكل",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "ايج فرايز كانت لذيذه",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "وتشيز برجر جيد",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "ترافل برجر وكان طعمه ابدا مو لذيذ فيه طعم شيء غريب كذا بس مو طعم شيء يتاكل",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R01813",
+    "source_place_sha256": "61b2747b7593097712930d95cbca59ff3c69c0368620a712c9e8c65a21f363b5",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "ايج فرايز كانت لذيذه"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "وتشيز برجر جيد"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "ترافل برجر وكان طعمه ابدا مو لذيذ فيه طعم شيء غريب كذا بس مو طعم شيء يتاكل"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01745",
+    "text": "حاطين عامل النظافه يسوي قهوه علموه اقل شي اساسيات النظافه وما يعطس في القهوه اللي يسويها احترموا الزباين بلاش شغل تقليل تكاليف ع حساب صحة الزباين ونظافة المشروبات",
+    "sentiment": "negative",
+    "aspects": {
+      "cleanliness": "negative",
+      "service": "negative"
+    },
+    "evidence": {
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "عامل النظافه يسوي قهوه علموه اقل شي اساسيات النظافه وما يعطس في القهوه اللي يسويها",
+          "source_aspect": "النظافة"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "ونظافة المشروبات",
+          "source_aspect": "النظافة"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "احترموا الزباين بلاش شغل تقليل تكاليف ع حساب صحة الزباين",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R01745",
+    "source_place_sha256": "461e6584b8e2458c790cb528cd98cc86a60970ebef3545af126a64128a01d075",
+    "source_opinions": [
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "عامل النظافه يسوي قهوه علموه اقل شي اساسيات النظافه وما يعطس في القهوه اللي يسويها"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "احترموا الزباين بلاش شغل تقليل تكاليف ع حساب صحة الزباين"
+      },
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "ونظافة المشروبات"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01619",
+    "text": "اشتريت منهم اليوم غدا و لقيت فيه شعره",
+    "sentiment": "negative",
+    "aspects": {
+      "cleanliness": "negative"
+    },
+    "evidence": {
+      "cleanliness": [
+        {
+          "sentiment": "negative",
+          "quote": "لقيت فيه شعره",
+          "source_aspect": "النظافة"
+        }
+      ]
+    },
+    "source_review_id": "R01619",
+    "source_place_sha256": "46c8ca634ebb6c9c0c0e55d9f4f630b44a579cf0b15a8163d52efb5aae20dafb",
+    "source_opinions": [
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 0.0,
+        "quotes": "لقيت فيه شعره"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R03014",
+    "text": "طلبته من هنقرستيشن الاكل جدا سيىء جدا البرجر ماله طعم والخبز طعمه كانه قديم الفرايز اسوا شي اكلته في حياتي كلها",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "الاكل جدا سيىء جدا",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "البرجر ماله طعم",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "والخبز طعمه كانه قديم",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "الفرايز اسوا شي اكلته في حياتي كلها",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R03014",
+    "source_place_sha256": "82e151971da759df46b0c67ec9bfc8f4f1c7d8848902a335a32b32c97f441565",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الاكل جدا سيىء جدا"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "البرجر ماله طعم"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "والخبز طعمه كانه قديم"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الفرايز اسوا شي اكلته في حياتي كلها"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01398",
+    "text": "لذيذ دائما مشكلتهم دايم يتاخرون في تجهيز الطلب",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "speed": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "لذيذ دائما",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "negative",
+          "quote": "دايم يتاخرون في تجهيز الطلب",
+          "source_aspect": "السرعة"
+        }
+      ]
+    },
+    "source_review_id": "R01398",
+    "source_place_sha256": "9010221d4a11660683af7fd1380c9fd86cf5decdf3b404a4f407f6cb62db185c",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "لذيذ دائما"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 0.0,
+        "quotes": "دايم يتاخرون في تجهيز الطلب"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00059",
+    "text": "السلام عليكم جربت الفول عندهم لذيذ وطعمة جميل والخبز التميز ممتاز جدا جدا لايفوتكم وحليب عدني ع المزاج",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "جربت الفول عندهم لذيذ وطعمة جميل",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "والخبز التميز ممتاز جدا جدا لايفوتكم",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "وحليب عدني ع المزاج",
+          "source_aspect": "المشروبات"
+        }
+      ]
+    },
+    "source_review_id": "R00059",
+    "source_place_sha256": "88a2e0722f39f3e1b40b20828b16a61ba7c1febcbbae3ce4dc5197f30b551633",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "جربت الفول عندهم لذيذ وطعمة جميل"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "والخبز التميز ممتاز جدا جدا لايفوتكم"
+      },
+      {
+        "aspect": "المشروبات",
+        "avg_sentiment": 1.0,
+        "quotes": "وحليب عدني ع المزاج"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01841",
+    "text": "كنت متردده مع باقي الاطباق بس اكلهم لذيذ والسوشي كمان كان لذيذ جربت القيزوا كمان وكانت الحشوه لحم ممتازه الستاف لطيفين لي زياره ثانيه اجرب باقي الاطباق",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "service": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اكلهم لذيذ",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "والسوشي كمان كان لذيذ",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "جربت القيزوا كمان وكانت الحشوه لحم ممتازه",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "الستاف لطيفين",
+          "source_aspect": "طاقم العمل"
+        }
+      ]
+    },
+    "source_review_id": "R01841",
+    "source_place_sha256": "d415c6dbc7c5fc168b3e7e8f15ac3c0426772eb4dc55ba103fb1aed07787ec2f",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اكلهم لذيذ"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "والسوشي كمان كان لذيذ"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "جربت القيزوا كمان وكانت الحشوه لحم ممتازه"
+      },
+      {
+        "aspect": "طاقم العمل",
+        "avg_sentiment": 1.0,
+        "quotes": "الستاف لطيفين"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01642",
+    "text": "السعر مرتفع الطعام تغير عن أول طلبنا فطور تم تقديم طبق فول الجره باااارد ولم تتم الخدمة بشكل مناسب",
+    "sentiment": "negative",
+    "aspects": {
+      "price": "negative",
+      "food": "negative",
+      "service": "negative"
+    },
+    "evidence": {
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "السعر مرتفع",
+          "source_aspect": "السعر"
+        }
+      ],
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "الطعام تغير عن أول",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "تم تقديم طبق فول الجره باااارد",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "ولم تتم الخدمة بشكل مناسب",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R01642",
+    "source_place_sha256": "94cf7170b30f2d815d00f5adce651ca0f0a2d454066ec5843e77e341b95268b8",
+    "source_opinions": [
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "السعر مرتفع"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الطعام تغير عن أول"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "تم تقديم طبق فول الجره باااارد"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "ولم تتم الخدمة بشكل مناسب"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00348",
+    "text": "احسن ناس ما شاء الله اسلوب وذوق وسرعة تحضير الطلب ونظافة واشكر كل العاملين الله يسعدهم",
+    "sentiment": "positive",
+    "aspects": {
+      "service": "positive",
+      "speed": "positive",
+      "cleanliness": "positive"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "اسلوب وذوق",
+          "source_aspect": "التعامل"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "واشكر كل العاملين",
+          "source_aspect": "طاقم العمل"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "positive",
+          "quote": "وسرعة تحضير الطلب",
+          "source_aspect": "السرعة"
+        }
+      ],
+      "cleanliness": [
+        {
+          "sentiment": "positive",
+          "quote": "ونظافة",
+          "source_aspect": "النظافة"
+        }
+      ]
+    },
+    "source_review_id": "R00348",
+    "source_place_sha256": "6b98a461c8f9dcc77bd3b72b37bbfd27bdb8c961bb5a29c7985f6e266f06c1c4",
+    "source_opinions": [
+      {
+        "aspect": "التعامل",
+        "avg_sentiment": 1.0,
+        "quotes": "اسلوب وذوق"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 1.0,
+        "quotes": "وسرعة تحضير الطلب"
+      },
+      {
+        "aspect": "النظافة",
+        "avg_sentiment": 1.0,
+        "quotes": "ونظافة"
+      },
+      {
+        "aspect": "طاقم العمل",
+        "avg_sentiment": 1.0,
+        "quotes": "واشكر كل العاملين"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02504",
+    "text": "لذيذ ونفوسهم طيبه",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive",
+      "service": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "لذيذ",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "ونفوسهم طيبه",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R02504",
+    "source_place_sha256": "f2d75f4d4bc0fdbab951633f664706cbcf003d74c12e38049afba5d3f1be3ee7",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "لذيذ"
+      },
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 1.0,
+        "quotes": "ونفوسهم طيبه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R00086",
+    "text": "اسعارهم غالية",
+    "sentiment": "negative",
+    "aspects": {
+      "price": "negative"
+    },
+    "evidence": {
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "اسعارهم غالية",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R00086",
+    "source_place_sha256": "c63491ddafe6d9ef2ae19556d048b66d2791084dd21bf0f06f1bb9fc906ad407",
+    "source_opinions": [
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "اسعارهم غالية"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02284",
+    "text": "طلبت منهم برقر بيردز اورجينال اعطيه ٩/١٠ يعتبر حلو بس مافيه بهارات مميزه يشبه مره البروستد واللي عجبني نظيف مو زفر طلبت بطاطس فاير ٧/١٠ وانا انسانه احب السبايسي بس ماقدرت اكمله من شدة حرارته كانت حرارته مو طبيعيه مااتوقع احد يتحمله بس بشكل عام لذيذ",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "برقر بيردز اورجينال اعطيه ٩/١٠ يعتبر حلو بس مافيه بهارات مميزه يشبه مره البروستد واللي عجبني نظيف مو زفر",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "بطاطس فاير ٧/١٠ وانا انسانه احب السبايسي بس ماقدرت اكمله من شدة حرارته",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "بشكل عام لذيذ",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02284",
+    "source_place_sha256": "75a2587f730479ac3ff282dded907f39a5a9ea4cb7b4f09769183e1d0b41bb0f",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "برقر بيردز اورجينال اعطيه ٩/١٠ يعتبر حلو بس مافيه بهارات مميزه يشبه مره البروستد واللي عجبني نظيف مو زفر"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "بطاطس فاير ٧/١٠ وانا انسانه احب السبايسي بس ماقدرت اكمله من شدة حرارته"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "بشكل عام لذيذ"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02977",
+    "text": "بخاري كأنك ماسك خط الجنوب و حصلت محطه فيها اكل سيء لكن الحمدالله على نعمه",
+    "sentiment": "negative",
+    "aspects": {
+      "food": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "اكل سيء",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02977",
+    "source_place_sha256": "c3f5f47180b376ba048f64e18546216e7d53d21fdc07a1a6940f2f6a9206c9b5",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "اكل سيء"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02961",
+    "text": "امس كان عندنا مناسبه وطلبنا كابلي الرز زيت ومعجون وللاسف ماتحملت من ضيوفي اتمنى الي بكتب رأي يخاف الله ويكتب بمصداقيه اما اخلاقهم وتعاملهم راقي",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "negative",
+      "service": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "الرز زيت ومعجون",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "positive",
+          "quote": "اخلاقهم وتعاملهم راقي",
+          "source_aspect": "التعامل"
+        }
+      ]
+    },
+    "source_review_id": "R02961",
+    "source_place_sha256": "e467ffd1097610f6dd1c7ea92d45f4015e551b5ccdecaea2de1e405eb6d5db38",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الرز زيت ومعجون"
+      },
+      {
+        "aspect": "التعامل",
+        "avg_sentiment": 1.0,
+        "quotes": "اخلاقهم وتعاملهم راقي"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01456",
+    "text": "عند الحساب زاد علي 4 ريال وانا داريه انه زايد السعر قلت ابي فاتوره وجلس فتره ويكلم خويه ثم قال معليش بارجع لك 4 ريال كاش خطا الحساب لذلك انتبهوا",
+    "sentiment": "negative",
+    "aspects": {
+      "service": "negative"
+    },
+    "evidence": {
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "زاد علي 4 ريال وانا داريه انه زايد السعر",
+          "source_aspect": "الخدمة"
+        }
+      ]
+    },
+    "source_review_id": "R01456",
+    "source_place_sha256": "40415a7d2154161c897c15d7e7812bbdd1cd19619b1d8e61f886826e1f73cf39",
+    "source_opinions": [
+      {
+        "aspect": "الخدمة",
+        "avg_sentiment": 0.0,
+        "quotes": "زاد علي 4 ريال وانا داريه انه زايد السعر"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R01914",
+    "text": "غالي مقابل الخدمة والجودة توجد خيارات افضل وبنفس السعر او أرخص",
+    "sentiment": "negative",
+    "aspects": {
+      "price": "negative"
+    },
+    "evidence": {
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "غالي مقابل الخدمة والجودة",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R01914",
+    "source_place_sha256": "bb349fa368fd788d9b84bcb23dd02d7d9a8815f58944e01adbe76b9d429b05e4",
+    "source_opinions": [
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "غالي مقابل الخدمة والجودة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R03064",
+    "text": "مرره الاكل شامز مافي ملح والاسعار جدا مبالغ فيها الرز الابيض طابخينه بمويه للامانه مافي شي ذقناه ويفتح النفس الا شوربه الذره والباقي ولاشي طلعنا بجوعنا ورحنا نشوف مطعم ثاني",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "mixed",
+      "price": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "negative",
+          "quote": "مرره الاكل شامز مافي ملح",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "للامانه مافي شي ذقناه ويفتح النفس",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "negative",
+          "quote": "الرز الابيض طابخينه بمويه",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "مافي شي ذقناه ويفتح النفس الا شوربه الذره",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "price": [
+        {
+          "sentiment": "negative",
+          "quote": "والاسعار جدا مبالغ فيها",
+          "source_aspect": "السعر"
+        }
+      ]
+    },
+    "source_review_id": "R03064",
+    "source_place_sha256": "37f0ab109151a40ce9097d12e9a6fa1db1251822dba0ffe16e53c1ed34954935",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "مرره الاكل شامز مافي ملح"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "للامانه مافي شي ذقناه ويفتح النفس"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 0.0,
+        "quotes": "الرز الابيض طابخينه بمويه"
+      },
+      {
+        "aspect": "السعر",
+        "avg_sentiment": 0.0,
+        "quotes": "والاسعار جدا مبالغ فيها"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "مافي شي ذقناه ويفتح النفس الا شوربه الذره"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02390",
+    "text": "اطعم بروست أكلته البطاطس لذيذة ومقرمشة الدجاج نظيف ومقلي بشكل ممتاز الثوم رووووعة",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "اطعم بروست أكلته",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "البطاطس لذيذة ومقرمشة",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "الدجاج نظيف ومقلي بشكل ممتاز",
+          "source_aspect": "الطعام"
+        },
+        {
+          "sentiment": "positive",
+          "quote": "الثوم رووووعة",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02390",
+    "source_place_sha256": "fc1b91058a36814cf6a11aaa0f5693063aacf93aef476e622466a36fc6b5ac26",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "اطعم بروست أكلته"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "البطاطس لذيذة ومقرمشة"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الدجاج نظيف ومقلي بشكل ممتاز"
+      },
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الثوم رووووعة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02990",
+    "text": "عكاوي زعتر وفطيرة بيض طلب كل صباح جميل جدا يعيبهم التاخير وقل الخبرة",
+    "sentiment": "mixed",
+    "aspects": {
+      "food": "positive",
+      "speed": "negative",
+      "service": "negative"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "طلب كل صباح جميل جدا",
+          "source_aspect": "الطعام"
+        }
+      ],
+      "speed": [
+        {
+          "sentiment": "negative",
+          "quote": "يعيبهم التاخير",
+          "source_aspect": "السرعة"
+        }
+      ],
+      "service": [
+        {
+          "sentiment": "negative",
+          "quote": "وقل الخبرة",
+          "source_aspect": "طاقم العمل"
+        }
+      ]
+    },
+    "source_review_id": "R02990",
+    "source_place_sha256": "d59f2638397c022c141086f0ba762116bf67694299ed31557eebdc3dddf4b967",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "طلب كل صباح جميل جدا"
+      },
+      {
+        "aspect": "السرعة",
+        "avg_sentiment": 0.0,
+        "quotes": "يعيبهم التاخير"
+      },
+      {
+        "aspect": "طاقم العمل",
+        "avg_sentiment": 0.0,
+        "quotes": "وقل الخبرة"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02260",
+    "text": "الاكل ولا غلطه لذيييييييييييذ جدا لا يفوتكم",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "الاكل ولا غلطه لذيييييييييييذ جدا",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02260",
+    "source_place_sha256": "125cee9f0fd1c73b325c335f9af20b9b9c6689b728be05971637d49990450a9e",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "الاكل ولا غلطه لذيييييييييييذ جدا"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  },
+  {
+    "id": "aqte-R02293",
+    "text": "التندوري والتكا مرره لذيذه لازم تجربونها",
+    "sentiment": "positive",
+    "aspects": {
+      "food": "positive"
+    },
+    "evidence": {
+      "food": [
+        {
+          "sentiment": "positive",
+          "quote": "التندوري والتكا مرره لذيذه",
+          "source_aspect": "الطعام"
+        }
+      ]
+    },
+    "source_review_id": "R02293",
+    "source_place_sha256": "2e4c6280dbc03b62c2cb846ca4c1574b904d540a8361cb3e54c2b6b665daf068",
+    "source_opinions": [
+      {
+        "aspect": "الطعام",
+        "avg_sentiment": 1.0,
+        "quotes": "التندوري والتكا مرره لذيذه"
+      }
+    ],
+    "annotation_origin": "AQTE human-adjudicated test annotations with explicit NUVIA category mapping",
+    "adaptation_note": "Category mapping and polarity aggregation only; source labels retained.",
+    "screening": "reviewed_by_assistant_before_inference",
+    "screening_scope": "Read full text for personal identifiers, ambiguity and source-category compatibility. Not an independent human reannotation."
+  }
+]

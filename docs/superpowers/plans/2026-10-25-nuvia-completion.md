@@ -1,6 +1,6 @@
 # NUVIA Completion Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Deliver the 45 current-release NUVIA features with real collection/persistence/UI and model-ready integration, without trained-model dependencies or invented analytics.
 
@@ -84,57 +84,57 @@ Health remains honest. Provider config is private `AI_SERVICE_URL` and
 
 - [x] Initialize independent Git repository and fetch local source history without private files.
 - [x] Check out `feat/complete-nuvia`; preserve approved spec.
-- [ ] Publish contract and agent ownership; install existing JS dependencies from offline cache where possible.
-- [ ] Run baseline web/API unit checks, document any pre-existing failures before integration.
+- [x] Publish contract and agent ownership; install existing JS dependencies from offline cache where possible.
+- [x] Run baseline web/API unit checks, document any pre-existing failures before integration.
 
 ### Task 2: Collection, persistence, permissions and analytics API — backend agent
 
 **Files:** `apps/api/src/modules/{surveys,feedback,analytics,reports,team,analysis,business-page}/`, model registry, API integrations/config, `packages/shared-types/`, API tests/docs.
 **Interfaces:** all public routes above, internal AI transport above; existing deps.models and transactions.
 
-- [ ] First add failing regression coverage for publication/versioning, public validation/idempotency, isolation and missing-model jobs.
-- [ ] Add connection-scoped models and API modules. Mount under existing security layers; public endpoints have bounded validation/rate limits.
-- [ ] Implement survey revisions/templates/links, storage/feedback/export, tenant/branch roles, deterministic real-data analytics, reports and AI job orchestration; test each behavior as implemented.
-- [ ] Preserve existing auth compatibility; test revoked/foreign scopes and unknown/malformed AI outputs.
-- [ ] Run backend tests with isolated replica-set using original local mongod executable path explicitly; never original DB/config. Report files and exact tests/limits.
+- [x] First add failing regression coverage for publication/versioning, public validation/idempotency, isolation and missing-model jobs.
+- [x] Add connection-scoped models and API modules. Mount under existing security layers; public endpoints have bounded validation/rate limits.
+- [x] Implement survey revisions/templates/links, storage/feedback/export, tenant/branch roles, deterministic real-data analytics, reports and AI job orchestration; test each behavior as implemented.
+- [x] Preserve existing auth compatibility; test revoked/foreign scopes and unknown/malformed AI outputs.
+- [x] Run backend tests with isolated replica-set using original local mongod executable path explicitly; never original DB/config. Report files and exact tests/limits.
 
 ### Task 3: Connected bilingual product and public frontend — frontend agent
 
 **Files:** `apps/web/src/features/{surveys,feedback,dashboard,analytics,reports,team,workspaces,ai-analysis}/`, router/providers, API clients/styles/tests. Existing design system reused.
 **Interfaces:** shared public HTTP contract above and existing cookie/CSRF transport; no server-model imports.
 
-- [ ] Add failing meaningful route/transport/state tests and preserve existing regression coverage.
-- [ ] Implement reachable builder/templates/list/share/QR, public questionnaire/confirmation and optional business page.
-- [ ] Connect real feedback, filters/detail/export, overview/analytics/topics/comparison, reports/evidence, assistant/suggestions, branches/team and settings.
-- [ ] Preserve model-unavailable/waiting states, empty/error/loading, role-aware controls and EN/AR/RTL/mobile/keyboard usability.
-- [ ] Run web tests/build and rendered desktop/narrow checks. Do not claim Figma inspection unless retrieved.
+- [x] Add failing meaningful route/transport/state tests and preserve existing regression coverage.
+- [x] Implement reachable builder/templates/list/share/QR, public questionnaire/confirmation and optional business page.
+- [x] Connect real feedback, filters/detail/export, overview/analytics/topics/comparison, reports/evidence, assistant/suggestions, branches/team and settings.
+- [x] Preserve model-unavailable/waiting states, empty/error/loading, role-aware controls and EN/AR/RTL/mobile/keyboard usability.
+- [x] Run web tests/build and rendered desktop/narrow checks. Do not claim Figma inspection unless retrieved.
 
 ### Task 4: Model-ready FastAPI service and team handoff — AI agent
 
 **Files:** `apps/ai-service/app/{config,schemas,services,models,api}/`, tests, manifests/examples and AI README; no Node/browser changes.
 **Interfaces:** authenticated capability/task endpoints above; configurable versioned manifests and typed task schemas.
 
-- [ ] Add failing tests for unavailable capability, auth, manifests and invalid output.
-- [ ] Build lazy adapter registry, safe local artifact checks/readiness, bounded execution and documented adapters for supported model formats. No product fake adapters.
-- [ ] Implement deterministic text preparation where appropriate, provenance/evidence validation, sentiment/aspect/task contracts and offline Qwen tagged-text compatibility without loading/downloading weights by default.
-- [ ] Provide model package examples, installation/configuration/smoke-validation instructions and isolated contract fixtures.
-- [ ] Run Python tests/Ruff; report exact compatible formats and limits so user/team can supply models later.
+- [x] Add failing tests for unavailable capability, auth, manifests and invalid output.
+- [x] Build lazy adapter registry, safe local artifact checks/readiness, bounded execution and documented adapters for supported model formats. No product fake adapters.
+- [x] Implement deterministic text preparation where appropriate, provenance/evidence validation, sentiment/aspect/task contracts and offline Qwen tagged-text compatibility without loading/downloading weights by default.
+- [x] Provide model package examples, installation/configuration/smoke-validation instructions and isolated contract fixtures.
+- [x] Run Python tests/Ruff; report exact compatible formats and limits so user/team can supply models later.
 
 ### Task 5: Integration and cross-app acceptance — coordinator plus scoped fixes
 
 **Files:** `tests/e2e/`, launcher/config docs, feature acceptance matrix, integration fixes within assigned ownership.
 
-- [ ] Review each agent's diff against spec and contracts; fix concrete defects before accepting its task.
-- [ ] Exercise survey publication -> anonymous answer -> authenticated feedback -> analytics counts -> unavailable analysis -> retry, plus branch/role access and bilingual routes.
-- [ ] Verify model manifest/task contracts between Node and Python and controlled fake transport only in isolated tests.
-- [ ] Run format/lint/test/build/Python checks and rendered EN/AR at 360/768/1280 widths; document executable versus model/SMTP/deployment acceptance.
-- [ ] Produce feature-by-feature matrix and source/setup/model handoff documentation; retain all unresolved gaps honestly.
+- [x] Review each agent's diff against spec and contracts; fix concrete defects before accepting its task.
+- [x] Exercise survey publication -> anonymous answer -> authenticated feedback -> analytics counts -> unavailable analysis -> retry, plus branch/role access and bilingual routes.
+- [x] Verify model manifest/task contracts between Node and Python and controlled fake transport only in isolated tests.
+- [x] Run format/lint/test/build/Python checks and rendered EN/AR at 360/768/1280 widths; document executable versus model/SMTP/deployment acceptance.
+- [x] Produce feature-by-feature matrix and source/setup/model handoff documentation; retain all unresolved gaps honestly.
 
 ### Task 6: Independent review and delivery
 
-- [ ] Generate scoped review artifacts; obtain independent spec and quality review of final changes and repair material defects.
-- [ ] Verify staged diff and commit approved work on task branch; no push/merge/deployment without user instruction.
-- [ ] Deliver verified behavior and explicit trained-model/production limits. Do not mark goal complete until requested implementation and checks are actually complete.
+- [x] Generate scoped review artifacts; obtain independent spec and quality review of final changes and repair material defects.
+- [x] Verify staged diff and commit approved work on task branch; no push/merge/deployment without user instruction.
+- [x] Deliver verified behavior and explicit trained-model/production limits. Do not mark goal complete until requested implementation and checks are actually complete.
 
 ## Rulings
 

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "amazon/chronos-2",
+    "revision": "29ec3766d36d6f73f0696f85560a422f50e8498c",
+    "modified": "2026-06-05T11:55:42.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1519
+      },
+      {
+        "path": "README.md",
+        "bytes": 7773
+      },
+      {
+        "path": "config.json",
+        "bytes": 1067
+      },
+      {
+        "path": "model.safetensors",
+        "bytes": 477930472
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors",
+        "bytes": 477930472
+      }
+    ],
+    "weight_bytes": 477930472
+  },
+  {
+    "id": "google/timesfm-2.5-200m-pytorch",
+    "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+    "modified": "2025-10-02T17:21:38.000Z",
+    "license": "apache-2.0",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1519
+      },
+      {
+        "path": "README.md",
+        "bytes": 2496
+      },
+      {
+        "path": "config.json",
+        "bytes": 475
+      },
+      {
+        "path": "model.safetensors",
+        "bytes": 925181104
+      }
+    ],
+    "selected_weight_files": [
+      {
+        "path": "model.safetensors",
+        "bytes": 925181104
+      }
+    ],
+    "weight_bytes": 925181104
+  }
+]

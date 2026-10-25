@@ -1,0 +1,15 @@
+{
+  "annotations.json": "0f8387f306e7f292a75be63bf5932388ae19bb881aa290b344fc7c7bb11ac4be",
+  "inputs.json": "6bd7dcf7c5adbec3d7280acec24fba341401311d08e08889f672a83713f6eef2",
+  "profile.json": "3c3b7fc6458d6e944fcac1b3c478361c8b3ba1241678a8f8cc11050d9fb14e34",
+  "prompt.txt": "4dd6b93bb53c9bb82838137209c583fc992d3a3d80f68b520807af263162c2bf",
+  "source.json": "d9b301a422d3c93ab62ee7a92670cc259d999fb9b5d4adbeaa232a2cbcaeee09",
+  "SOURCE-README.md": "7a085bcc1b8d5beb53535b81e373afff711d12cc72cf97dcb5de54159d712c5c",
+  "code/prepare_real50.py": "29bd92bcbce95d0d096ef0d83e4afe68d12b4d2b9f396ae70c5149df60f3cde3",
+  "code/freeze_real50.py": "25560bf32b8e89c72005181aa1f0403b8ac4c09e3037feda835f4c54f1fc9793",
+  "code/real_review_eval.py": "3e6c194d42fd4f47e18dae602bc9b1c3fd7ea741987c47e4fa49ae3d6e88e6f6",
+  "code/run_v2_json.py": "9ba47735075e6057e6efb43690f783ac8f4b1ddee42cc2f66e9185a7a1622ca5",
+  "code/v2_json.py": "c35330a0fbf9f4ba890d433cd047fc39428a00ebac7e245d347b758b082e7dc7",
+  "code/text_output.py": "07984c1fdf8c5aa7617a12c328df552d59ba33216a53478bec679aafae7643de",
+  "code/partial_text.py": "87a6de3cf5f600334d71c036f59729dfdaf29b4651bddc0cf826a5c2344dd080"
+}
