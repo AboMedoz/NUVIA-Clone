@@ -41,6 +41,9 @@ export async function capabilities(deps) {
             available: z.boolean(),
             status: z.enum(['ready', 'unavailable', 'invalid']),
             modelVersion: z.string().optional(),
+            pipelineVersion: z.string().optional(),
+            provider: z.string().optional(),
+            readiness: z.string().optional(),
             reason: z.string().optional(),
           }),
         ),
@@ -63,19 +66,26 @@ export async function capabilities(deps) {
 const label = z.enum(['positive', 'negative', 'neutral', 'mixed']);
 const confidence = z.number().min(0).max(1).optional();
 const citation = z.object({ id: z.string(), quote: z.string().min(1) }).strict();
+// Keep aligned with the internal Python request/result contract.
+const MAX_SENTENCES = 16384;
+// Python str.strip includes NEL and U+001C..001F, but not the BOM that JS trim removes.
+// eslint-disable-next-line no-control-regex -- Match Python's four additional whitespace controls.
+const hasSourceContent = (text) => /[^\p{White_Space}\u001c-\u001f]/u.test(text);
 export function validateResult(capability, value, input) {
   const schemas = {
     normalization: z.object({
       text: z.string(),
       normalizedText: z.string(),
-      sentences: z.array(
-        z.object({
-          id: z.string(),
-          start: z.number().int().min(0),
-          end: z.number().int().min(0),
-          text: z.string(),
-        }),
-      ),
+      sentences: z
+        .array(
+          z.object({
+            id: z.string().min(1),
+            start: z.number().int().min(0),
+            end: z.number().int().min(0),
+            text: z.string(),
+          }),
+        )
+        .max(MAX_SENTENCES),
       method: z.string(),
     }),
     language: z.object({
@@ -121,14 +131,17 @@ export function validateResult(capability, value, input) {
       noiseIds: z.array(z.string()),
     }),
     forecasting: z.object({
-      points: z.array(
-        z.object({
-          date: z.string(),
-          value: z.number().finite(),
-          lower: z.number().finite().optional(),
-          upper: z.number().finite().optional(),
-        }),
-      ),
+      points: z
+        .array(
+          z.object({
+            date: z.string(),
+            value: z.number().finite(),
+            lower: z.number().finite().optional(),
+            upper: z.number().finite().optional(),
+          }),
+        )
+        .min(1)
+        .max(366),
       sampleCount: z.number().int().min(1),
       uncertainty: z.string().optional(),
     }),
@@ -179,14 +192,29 @@ export function validateResult(capability, value, input) {
   if (!parsed.success) throw new Error('invalid_model_output');
   const result = parsed.data,
     raw = Array.from(input.text || '');
-  if (
-    capability === 'normalization' &&
-    (result.text !== input.text ||
-      result.sentences.some(
-        (s) => s.end <= s.start || raw.slice(s.start, s.end).join('') !== s.text,
-      ))
-  )
-    throw new Error('invalid_model_output');
+  if (capability === 'normalization') {
+    if (
+      result.text !== input.text ||
+      (hasSourceContent(input.text) && !hasSourceContent(result.normalizedText))
+    )
+      throw new Error('invalid_model_output');
+    const ids = new Set();
+    let previousEnd = 0;
+    for (const sentence of result.sentences) {
+      if (
+        ids.has(sentence.id) ||
+        sentence.start < previousEnd ||
+        sentence.end <= sentence.start ||
+        sentence.end > raw.length ||
+        hasSourceContent(raw.slice(previousEnd, sentence.start).join('')) ||
+        raw.slice(sentence.start, sentence.end).join('') !== sentence.text
+      )
+        throw new Error('invalid_model_output');
+      ids.add(sentence.id);
+      previousEnd = sentence.end;
+    }
+    if (hasSourceContent(raw.slice(previousEnd).join(''))) throw new Error('invalid_model_output');
+  }
   if (capability === 'aspects') {
     const pairs = new Set();
     for (const m of result.mentions) {
@@ -225,19 +253,24 @@ export function validateResult(capability, value, input) {
     )
       throw new Error('invalid_model_output');
   }
-  if (
-    capability === 'embeddings' &&
-    (new Set(result.vectors.map((v) => v.id)).size !== result.vectors.length ||
+  if (capability === 'embeddings') {
+    const expected = evidence.size ? new Set(evidence.keys()) : new Set([input.taskId]);
+    if (
+      result.vectors.length !== expected.size ||
+      new Set(result.vectors.map((v) => v.id)).size !== result.vectors.length ||
       result.vectors.some(
-        (v) => !evidence.has(v.id) || v.values.length !== result.vectors[0].values.length,
-      ))
-  )
-    throw new Error('invalid_model_output');
+        (v) => !expected.has(v.id) || v.values.length !== result.vectors[0].values.length,
+      )
+    )
+      throw new Error('invalid_model_output');
+  }
   if (capability === 'clustering') {
     const members = result.clusters.flatMap((c) => c.memberIds),
       all = [...members, ...result.noiseIds];
     if (
+      all.length !== evidence.size ||
       new Set(all).size !== all.length ||
+      new Set(result.clusters.map((c) => c.id)).size !== result.clusters.length ||
       all.some((id) => !evidence.has(id)) ||
       result.clusters.some(
         (c) =>
@@ -250,10 +283,12 @@ export function validateResult(capability, value, input) {
   }
   if (
     capability === 'forecasting' &&
-    (result.sampleCount > (input.parameters?.observations?.length || 0) ||
+    (result.sampleCount !== (input.parameters?.observations?.length || 0) ||
+      result.points.length !== input.parameters?.futureDates?.length ||
       result.points.some(
-        (p) =>
-          !input.parameters?.futureDates?.includes(p.date) ||
+        (p, index) =>
+          input.parameters?.futureDates?.[index] !== p.date ||
+          (p.lower === undefined) !== (p.upper === undefined) ||
           p.value < 0 ||
           p.value > 10 ||
           (p.lower !== undefined && (p.lower > p.value || p.lower < 0)) ||

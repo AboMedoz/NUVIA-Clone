@@ -47,6 +47,344 @@ const draft = () => ({
   ],
 });
 
+test('CSV export rejects invalid segment filters before starting a download', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'csv-invalid@example.test');
+    const response = await owner.agent
+      .get('/api/v1/feedback/export?segment=invalid-json')
+      .timeout({ deadline: 2000 })
+      .expect(422);
+    assert.match(response.headers['content-type'], /application\/json/);
+    assert.equal(response.body.error.code, 'VALIDATION_ERROR');
+    assert.equal(response.headers['content-disposition'], undefined);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
+test('CSV export terminates a partial download when its database cursor fails', async () => {
+  const deps = await createTestDatabase();
+  const originalFind = deps.models.Response.find;
+  try {
+    const owner = await account(deps, 'csv-stream-failure@example.test');
+    const input = draft();
+    const survey = (await owner.mutate('post', '/surveys', input, 201)).body.survey;
+    const published = (
+      await owner.mutate('post', `/surveys/${survey.id}/publish`, {
+        branchIds: [owner.workspace.primaryBranchId],
+      })
+    ).body.survey;
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${published.links[0].token}/responses`)
+      .send({
+        answers: [
+          { questionId: input.questions[0].id, value: 'Saved response before cursor failure' },
+          { questionId: input.questions[1].id, value: 'Delivery' },
+        ],
+        locale: 'en',
+        consent: true,
+        idempotencyKey: randomUUID(),
+      })
+      .expect(201);
+    deps.models.Response.find = function (...args) {
+      const query = originalFind.apply(this, args);
+      const originalCursor = query.cursor;
+      query.cursor = function (...cursorArgs) {
+        const cursor = originalCursor.apply(this, cursorArgs);
+        return (async function* () {
+          try {
+            for await (const row of cursor) {
+              yield row;
+              throw new Error('Synthetic private cursor failure');
+            }
+          } finally {
+            await cursor.close();
+          }
+        })();
+      };
+      return query;
+    };
+    await assert.rejects(
+      owner.agent.get('/api/v1/feedback/export').timeout({ deadline: 2000 }),
+      (error) => {
+        assert.notEqual(
+          error.code,
+          'ECONNABORTED',
+          'A broken download must terminate rather than hang until the client deadline',
+        );
+        assert.match(error.message, /aborted|socket hang up/i);
+        assert.ok(!error.message.includes('Synthetic private cursor failure'));
+        return true;
+      },
+    );
+  } finally {
+    deps.models.Response.find = originalFind;
+    await deps.cleanup();
+  }
+});
+
+test('all six question types validate bounds and preserve multiple-choice segments and immutable revisions', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'question-types@example.test');
+    const types = ['short_text', 'long_text', 'single_choice', 'multiple_choice', 'rating', 'nps'];
+    const questions = types.map((type) => ({
+      id: randomUUID(),
+      type,
+      label: type,
+      required: true,
+      ...(['single_choice', 'multiple_choice'].includes(type)
+        ? { options: ['Delivery', 'Dine in'], segment: true }
+        : {}),
+    }));
+    const input = { title: 'All question types', description: '', locale: 'en', questions };
+    const survey = (await owner.mutate('post', '/surveys', input, 201)).body.survey;
+    const published = (
+      await owner.mutate('post', `/surveys/${survey.id}/publish`, {
+        branchIds: [owner.workspace.primaryBranchId],
+      })
+    ).body.survey;
+    const endpoint = `/api/v1/public/surveys/${published.links[0].token}/responses`;
+    const values = [
+      '=SUM(1,2)',
+      'Arabic عربي and English',
+      'Delivery',
+      ['Delivery', 'Dine in'],
+      5,
+      0,
+    ];
+    const payload = {
+      answers: questions.map((q, index) => ({ questionId: q.id, value: values[index] })),
+      locale: 'en',
+      consent: true,
+      idempotencyKey: randomUUID(),
+    };
+    for (const [index, value] of [
+      [0, 'x'.repeat(501)],
+      [2, 'Unknown'],
+      [3, ['Delivery', 'Delivery']],
+      [4, 6],
+      [4, 1.5],
+      [5, -1],
+      [5, 11],
+    ]) {
+      const invalid = structuredClone(payload);
+      invalid.answers[index].value = value;
+      await request(owner.app).post(endpoint).send(invalid).expect(422);
+    }
+    await request(owner.app)
+      .post(endpoint)
+      .send({ ...payload, answers: [...payload.answers, payload.answers[0]] })
+      .expect(422);
+    await request(owner.app).post(endpoint).send(payload).expect(201);
+    const conflict = structuredClone(payload);
+    conflict.answers[0].value = 'Changed payload';
+    await request(owner.app).post(endpoint).send(conflict).expect(409);
+    const segment = encodeURIComponent(JSON.stringify({ [questions[3].id]: 'Delivery' }));
+    const feedback = (await owner.get(`/feedback?segment=${segment}`)).body;
+    assert.equal(feedback.total, 1);
+    assert.deepEqual(feedback.responses[0].segments[questions[3].id], ['Delivery', 'Dine in']);
+    const analytics = (await owner.get(`/analytics?segment=${segment}`)).body;
+    assert.equal(analytics.totalResponses, 1);
+    assert.equal(
+      analytics.segmentComparisons.filter((g) => g.questionId === questions[3].id).length,
+      2,
+    );
+    const csv = await owner.get(`/feedback/export?segment=${segment}`);
+    assert.ok(csv.text.includes("'=SUM(1,2)"), 'Formula-leading response text must be escaped');
+    const changedQuestions = questions.map((q, index) =>
+      index === 0 ? { ...q, type: 'long_text' } : q,
+    );
+    await owner.mutate('patch', `/surveys/${survey.id}`, {
+      questions: changedQuestions,
+      revision: 1,
+    });
+    const old = (await owner.get(`/feedback/${feedback.responses[0].id}`)).body.response;
+    assert.equal(old.questions[0].type, 'short_text');
+    assert.equal(old.revision, 1);
+    const templates = (await owner.get('/survey-templates')).body.templates;
+    assert.equal(templates.length, 6);
+    const template = structuredClone(templates[0]);
+    await owner.mutate(
+      'post',
+      '/surveys',
+      {
+        title: 'Copied template',
+        description: template.description,
+        locale: template.locale,
+        questions: template.questions,
+      },
+      201,
+    );
+    assert.deepEqual((await owner.get('/survey-templates')).body.templates[0], template);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
+test('membership scope reduction immediately hides mixed-branch reports, jobs and export data', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'scope-owner@example.test');
+    const member = await account(deps, 'scope-manager@example.test', false);
+    const branchA = owner.workspace.primaryBranchId;
+    const branchB = (
+      await owner.mutate(
+        'post',
+        `/workspaces/${owner.workspace.id}/branches`,
+        { name: 'Giza' },
+        201,
+      )
+    ).body.id;
+    const input = draft();
+    const survey = (await owner.mutate('post', '/surveys', input, 201)).body.survey;
+    const published = (
+      await owner.mutate('post', `/surveys/${survey.id}/publish`, { branchIds: [branchA, branchB] })
+    ).body.survey;
+    for (const link of published.links) {
+      await request(owner.app)
+        .post(`/api/v1/public/surveys/${link.token}/responses`)
+        .send({
+          answers: [
+            {
+              questionId: input.questions[0].id,
+              value: link.branchId === branchA ? 'Private Cairo feedback' : 'Allowed Giza feedback',
+            },
+            { questionId: input.questions[1].id, value: 'Delivery' },
+          ],
+          locale: 'en',
+          consent: true,
+          idempotencyKey: randomUUID(),
+        })
+        .expect(201);
+    }
+    const invitation = (
+      await owner.mutate(
+        'post',
+        '/team/invitations',
+        {
+          email: 'scope-manager@example.test',
+          role: 'manager',
+          branchIds: [branchA, branchB],
+        },
+        201,
+      )
+    ).body.invitation;
+    await member.mutate('post', '/team/accept', {
+      token: new URL(invitation.acceptUrl).hash.split('token=')[1],
+    });
+    const report = (await member.mutate('post', '/reports', { locale: 'en', filters: {} }, 201))
+      .body.report;
+    assert.equal(report.metrics.totalResponses, 2);
+    const membership = (await owner.get('/team')).body.members.find((m) => m.userId === member.id);
+    await owner.mutate('patch', `/team/members/${membership.id}`, { branchIds: [branchB] });
+    const session = (await member.get('/auth/session')).body;
+    assert.equal(session.workspace.primaryBranchId, null);
+    assert.equal(session.workspace.branches.length, 1);
+    const allowed = (await member.get('/feedback')).body;
+    assert.equal(allowed.total, 1);
+    assert.equal(allowed.responses[0].text, 'Allowed Giza feedback');
+    assert.equal((await member.get('/analytics')).body.totalResponses, 1);
+    await member.get(`/reports/${report.id}`, 404);
+    await member.get(`/reports/${report.id}/export`, 404);
+    assert.equal((await member.get('/reports')).body.reports.length, 0);
+    const jobs = (await member.get('/analysis/jobs')).body.jobs;
+    assert.equal(jobs.length, 5);
+    assert.ok(jobs.every((job) => job.responseId === allowed.responses[0].id));
+    const csv = await member.get('/feedback/export?pageSize=1');
+    assert.ok(csv.text.includes('Allowed Giza feedback'));
+    assert.ok(!csv.text.includes('Private Cairo feedback'));
+    const denied = await member.agent
+      .get(`/api/v1/feedback/export?branchId=${branchA}`)
+      .timeout({ deadline: 2000 })
+      .expect(404);
+    assert.equal(denied.body.error.code, 'NOT_FOUND');
+    assert.equal(denied.headers['content-disposition'], undefined);
+    await member.mutate('patch', `/surveys/${survey.id}`, { title: 'Unauthorized edit' }, 404);
+    await member.mutate(
+      'put',
+      '/business-page',
+      { slug: 'scope-business', enabled: true, description: '', logoUrl: '', contactUrl: '' },
+      403,
+    );
+    await owner.mutate('patch', `/team/members/${membership.id}`, { role: 'viewer' });
+    await member.mutate('post', '/analysis/retry', {}, 403);
+    await member.mutate('post', '/reports', { locale: 'en', filters: {} }, 403);
+    await member.mutate('post', '/surveys', draft(), 403);
+    await owner.mutate('delete', `/team/members/${membership.id}`, {}, 204);
+    await member.get('/feedback/export', 404);
+    await member.get('/analysis/jobs', 404);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
+test('public business pages publish only enabled branch revisions and expose no private account data', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'public-page@example.test');
+    const other = await account(deps, 'slug-conflict@example.test');
+    const branchA = owner.workspace.primaryBranchId;
+    const branchB = (
+      await owner.mutate(
+        'post',
+        `/workspaces/${owner.workspace.id}/branches`,
+        { name: 'Giza' },
+        201,
+      )
+    ).body.id;
+    const survey = (await owner.mutate('post', '/surveys', draft(), 201)).body.survey;
+    const published = (
+      await owner.mutate('post', `/surveys/${survey.id}/publish`, { branchIds: [branchA, branchB] })
+    ).body.survey;
+    const page = {
+      slug: 'public-cafe',
+      enabled: true,
+      description: 'Public description',
+      logoUrl: 'https://example.test/logo.png',
+      contactUrl: 'https://example.test/contact',
+    };
+    await owner.mutate('put', '/business-page', page);
+    await other.mutate('put', '/business-page', page, 409);
+    await owner.mutate('put', '/business-page', { ...page, logoUrl: 'javascript:alert(1)' }, 422);
+    await owner.mutate('patch', `/surveys/${survey.id}`, {
+      title: 'New branch revision',
+      revision: 1,
+    });
+    const replacement = (
+      await owner.mutate('post', `/surveys/${survey.id}/publish`, { branchIds: [branchA] })
+    ).body.survey;
+    const publicPage = (
+      await request(owner.app).get('/api/v1/public/business/public-cafe').expect(200)
+    ).body;
+    assert.equal(publicPage.surveys.length, 2);
+    assert.equal(
+      publicPage.surveys.find((s) => s.branch.id === branchA).title,
+      'New branch revision',
+    );
+    assert.equal(publicPage.surveys.find((s) => s.branch.id === branchB).title, survey.title);
+    const oldA = published.links.find((link) => link.branchId === branchA);
+    await request(owner.app).get(`/api/v1/public/surveys/${oldA.token}`).expect(404);
+    const oldB = published.links.find((link) => link.branchId === branchB);
+    await request(owner.app).get(`/api/v1/public/surveys/${oldB.token}`).expect(200);
+    assert.ok(
+      replacement.links.some(
+        (link) => link.branchId === branchA && link.enabled && link.revision === 2,
+      ),
+    );
+    const serialized = JSON.stringify(publicPage);
+    assert.ok(!serialized.includes('public-page@example.test'));
+    assert.ok(!serialized.includes(owner.id));
+    assert.ok(!serialized.includes(owner.workspace.id));
+    await owner.mutate('put', '/business-page', { ...page, enabled: false });
+    await request(owner.app).get('/api/v1/public/business/public-cafe').expect(404);
+    await request(owner.app).get(`/api/v1/public/surveys/${oldB.token}`).expect(200);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
 test('product collection preserves revisions, validates public answers, deduplicates and isolates real data', async () => {
   const deps = await createTestDatabase();
   try {

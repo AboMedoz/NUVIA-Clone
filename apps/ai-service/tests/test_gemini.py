@@ -93,7 +93,7 @@ def test_structured_sentiment_passes_real_contract_validation(configured, monkey
         json={"schemaVersion": 1, "taskId": "r1", "locale": "ar", "text": "جيد"},
     )
     assert response.status_code == 200
-    assert response.json()["pipelineVersion"] == "nuvia-gemini-json-2"
+    assert response.json()["pipelineVersion"] == "nuvia-gemini-json-3"
     assert response.json()["result"]["sentences"][0]["sentenceId"] == "s1"
     assert seen[0][0] == "generateContent"
     assert seen[0][1]["generationConfig"]["responseJsonSchema"]["type"] == "object"
@@ -301,3 +301,142 @@ def test_relaxed_remote_schema_retains_local_array_bounds(configured, monkeypatc
     )
     assert response.status_code == 502
     assert response.json()["error"]["code"] == "invalid_model_output"
+
+
+@pytest.mark.parametrize(
+    "text,quote,start,end,expected_start,expected_end",
+    [
+        ("Delivery was quick and food was excellent.", "Delivery was quick", 0, 21, 0, 18),
+        ("😀 الخدمة ممتازة.", "الخدمة ممتازة", 3, 16, 2, 15),
+        ("Good service, good service.", "service", 19, 26, 19, 26),
+    ],
+)
+def test_cloud_aspect_spans_derive_only_from_exact_unambiguous_sentence_quotes(
+    configured, monkeypatch, text, quote, start, end, expected_start, expected_end
+):
+    inline_http(
+        monkeypatch,
+        generated(
+            {
+                "taxonomyVersion": "nuvia-gemini-aspects-v1",
+                "mentions": [
+                    {
+                        "sentenceId": "s1",
+                        "aspect": "staff",
+                        "label": "positive",
+                        "start": start,
+                        "end": end,
+                        "quote": quote,
+                    }
+                ],
+            }
+        ),
+    )
+    response = request(
+        "POST",
+        "/api/v1/tasks/aspects",
+        headers=configured,
+        json={"schemaVersion": 1, "taskId": "r1", "locale": "ar", "text": text},
+    )
+    assert response.status_code == 200
+    mention = response.json()["result"]["mentions"][0]
+    assert (mention["start"], mention["end"]) == (expected_start, expected_end)
+    assert text[mention["start"] : mention["end"]] == quote
+
+
+@pytest.mark.parametrize(
+    "quote,sentence_id",
+    [("service", "s1"), ("invented", "s1"), ("Other", "s1"), ("Other", "foreign")],
+)
+def test_cloud_aspect_span_repair_rejects_ambiguity_and_nonliteral_or_foreign_quotes(
+    configured, monkeypatch, quote, sentence_id
+):
+    inline_http(
+        monkeypatch,
+        generated(
+            {
+                "taxonomyVersion": "nuvia-gemini-aspects-v1",
+                "mentions": [
+                    {
+                        "sentenceId": sentence_id,
+                        "aspect": "staff",
+                        "label": "positive",
+                        "start": 0,
+                        "end": 1,
+                        "quote": quote,
+                    }
+                ],
+            }
+        ),
+    )
+    response = request(
+        "POST",
+        "/api/v1/tasks/aspects",
+        headers=configured,
+        json={
+            "schemaVersion": 1,
+            "taskId": "r1",
+            "locale": "en",
+            "text": "Good service, good service. Other.",
+        },
+    )
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "invalid_model_output"
+
+
+def test_aspect_alignment_is_idempotent_and_limited_to_declared_sentence():
+    from app.providers.gemini import GeminiConfig, align_aspect_spans
+    from app.schemas.tasks import TaskRequest, validate_result
+
+    task = TaskRequest(
+        schemaVersion=1, taskId="r1", locale="en", text="Good service. Good service."
+    )
+    output = {
+        "taxonomyVersion": "nuvia-gemini-aspects-v1",
+        "mentions": [
+            {
+                "sentenceId": "s2",
+                "aspect": "staff",
+                "label": "positive",
+                "start": 0,
+                "end": 1,
+                "quote": "service",
+            }
+        ],
+    }
+    aligned = align_aspect_spans(output, task)
+    assert aligned["mentions"][0]["start"] == 19
+    assert aligned["mentions"][0]["end"] == 26
+    assert align_aspect_spans(aligned, task) == aligned
+    manifest = GeminiConfig(capability="aspects", key="fixture", model="fixture")
+    assert validate_result("aspects", aligned, task, manifest) == aligned
+
+
+def test_report_prompt_requests_prioritized_evidence_backed_actions_without_cluster_drift():
+    from app.providers.gemini import GeminiConfig, instructions
+    from app.schemas.tasks import TaskRequest
+
+    config = GeminiConfig(capability="report", key="fixture", model="fixture")
+    task = TaskRequest(schemaVersion=1, taskId="r1", locale="ar")
+    prompt = instructions(config, task)
+    assert "prioritized recommendations" in prompt
+    assert "observations" in prompt and "hypotheses" in prompt
+    assert "small sample" in prompt and "unknown causes" in prompt
+    task.parameters = {"purpose": "cluster_summary"}
+    cluster_prompt = instructions(config, task)
+    assert "ONLY included cluster members" in cluster_prompt
+    assert "prioritized recommendations" not in cluster_prompt
+
+
+def test_provider_prompt_never_treats_platform_name_as_customer_business_identity():
+    from app.providers.gemini import GeminiConfig, instructions
+    from app.schemas.tasks import TaskRequest
+
+    config = GeminiConfig(capability="report", key="fixture", model="fixture")
+    for locale in ("ar", "en"):
+        task = TaskRequest(schemaVersion=1, taskId="r1", locale=locale)
+        prompt = instructions(config, task)
+        assert "NUVIA is the software platform, not the reviewed business" in prompt
+        assert "Never invent a business name" in prompt
+        assert "Customer feedback report" in prompt
+        assert "تقرير آراء العملاء" in prompt

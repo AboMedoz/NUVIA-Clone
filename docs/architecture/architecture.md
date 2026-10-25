@@ -26,7 +26,7 @@ Account product routes use saved identity/workspace data. `/preview/` is the onl
 
 ## API ownership
 
-`src/config` resolves the repository root and private configuration independently of package working directory. `modules/auth`, `modules/workspaces` and `modules/mail` implement existing business behavior. `middleware` contains request security, limits and safe errors. `integrations/mail` owns delivery adapters; `integrations/ai-service` is a documented future boundary. `shared/database` owns connection-scoped Mongoose models and explicit transaction handling.
+`src/config` resolves the repository root and private configuration independently of package working directory. `modules/auth`, `modules/workspaces` and `modules/mail` implement existing business behavior. `middleware` contains request security, limits and safe errors. `integrations/mail` owns delivery adapters; `integrations/ai-service` owns authenticated task transport, safe capability metadata and independent result validation before persistence. `shared/database` owns connection-scoped Mongoose models and explicit transaction handling.
 
 Product modules implement surveys/revisions/distribution links, responses,
 feedback/export, analytics, reports, analysis and team membership/invitations.

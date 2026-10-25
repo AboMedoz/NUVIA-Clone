@@ -46,11 +46,17 @@ Private root `.env` now selects `AI_PROVIDER=gemini` and
 verified unchanged. Restart the owned development group to load these settings;
 no existing unrelated service was stopped or restarted.
 
-Cloud pipeline metadata is `nuvia-gemini-json-2`. Embedding model provenance adds
+At this smoke-check checkpoint cloud pipeline metadata was `nuvia-gemini-json-2`. Embedding model provenance adds
 `/d768/norm1/b1024-v2`. The functional smoke results above preceded only the
 pipeline tag update from 1 to 2; their original artifacts were retained unchanged.
 A fresh local registry check verified the final metadata for all six cloud tasks.
 Builtin language/normalization retain `nuvia-ai-1` and all local adapters remain.
+
+The later full-product QA advanced the cloud pipeline to `nuvia-gemini-json-3`.
+It repairs numeric aspect offsets only when the unchanged literal quote occurs
+uniquely inside the model's declared sentence, and strengthens report instructions
+for prioritized evidence-backed recommendations and source-grounded business
+identity. The older smoke artifacts above retain their original provenance.
 
 Ignored evidence is under `test-results/gemini-live/`: original failures,
 model-list metadata, controlled diagnostics, `flash-lite/summary.json`,

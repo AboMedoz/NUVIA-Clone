@@ -37,6 +37,8 @@ const child = spawn(
     env: {
       ...process.env,
       AI_SERVICE_KEY: key,
+      AI_PROVIDER: 'local',
+      GEMINI_API_KEY: '',
       AI_MODEL_ROOT: modelRoot,
       AI_MODEL_MANIFEST_DIR: modelRoot,
     },
@@ -84,6 +86,20 @@ try {
   assert.equal(normalized.status, 'succeeded', JSON.stringify(normalized));
   assert.equal(normalized.result.text, text);
   assert.ok(normalized.result.sentences.length >= 2);
+  for (const separator of ['\u0085', '\u001c', '\u001f', '\u2028', '\ufeff']) {
+    const source = `Good.${separator}Bad.${separator}`;
+    const prepared = await executeTask(
+      'normalization',
+      { taskId: randomUUID(), locale: 'en', text: source },
+      deps,
+    );
+    assert.equal(
+      prepared.status,
+      'succeeded',
+      `Source separator U+${separator.codePointAt(0).toString(16)}`,
+    );
+    assert.equal(prepared.result.text, source);
+  }
   const language = await executeTask('language', input, deps);
   assert.equal(language.status, 'succeeded');
   assert.equal(language.result.language, 'mixed');

@@ -67,6 +67,16 @@ existing strict output/source validation runs in both worker and parent. Aspect 
 `nuvia-gemini-aspects-v1`: `staff`, `timeliness`, `quality`, `value`; quotes and absolute Unicode
 spans must match original text. Reports/assistant require exact retained quotations; assistant
 can abstain. Survey output remains a draft requiring review and explicit publication.
+For aspects, the adapter preserves valid model spans. If arithmetic is wrong, it derives
+codepoint offsets only when the exact quote occurs once in the declared source sentence.
+Missing, paraphrased, ambiguous or wrong-sentence quotations fail; no fuzzy matching or
+cross-sentence search is used. The strict result validator still checks the derived span.
+Feedback report prompts request observed strengths/problems and prioritized, cited
+recommendations, distinguish proposed actions from observations and disclose small samples
+and unknown causes. Cluster-summary prompts remain scoped to their included members.
+These instructions do not replace evaluation of factual entailment or recommendation quality.
+The prompt distinguishes NUVIA the software from the reviewed business and requests generic
+report titles when no authorized business name is supplied.
 The remote schema projection omits `maxItems`: a controlled live comparison on the same
 synthetic sentiment request returned 400 `INVALID_ARGUMENT` with the original bounds and
 200 with only `maxItems` removed. All local Pydantic array limits and evidence validation
@@ -89,7 +99,7 @@ upstream full-token coverage. Longer-source acceptance requires separately verif
 counting/input behavior; no hidden chunks or partial batch embedding are created. Other
 tasks retain their existing complete raw input/evidence limits.
 
-Cloud provenance uses `pipelineVersion:nuvia-gemini-json-2` and `modelVersion:gemini/<model>`;
+Cloud provenance uses `pipelineVersion:nuvia-gemini-json-3` and `modelVersion:gemini/<model>`;
 embedding versions also include dimensions/normalization and `/b1024-v2` for this input
 policy and verified top-level REST shape. Local versions remain unchanged.
 Provider errors are bounded codes, without remote bodies, content, paths or keys. Rate limits

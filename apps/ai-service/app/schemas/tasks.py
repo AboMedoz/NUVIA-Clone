@@ -233,7 +233,7 @@ class LanguageResult(StrictModel):
 class NormalizationResult(StrictModel):
     text: str
     normalizedText: str
-    sentences: list[Sentence]
+    sentences: list[Sentence] = Field(max_length=MAX_SENTENCES)
     method: str
 
 
@@ -258,6 +258,8 @@ def validate_result(capability, value, request, manifest=None):
     if capability == "normalization":
         if result.text != request.text:
             raise ValueError("Normalization changed raw source")
+        if len({item.id for item in result.sentences}) != len(result.sentences):
+            raise ValueError("Duplicate normalization sentence IDs")
         if request.text.strip() and not result.normalizedText.strip():
             raise ValueError("Normalization removed all source text")
         for item in result.sentences:

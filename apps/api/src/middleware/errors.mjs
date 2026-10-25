@@ -7,7 +7,12 @@ export class ApiError extends Error {
   }
 }
 export function errorHandler(error, req, res, _next) {
-  if (res.headersSent) return;
+  if (res.headersSent) {
+    // A streamed response can no longer carry safe JSON. Abort the download so
+    // the client cannot mistake truncated evidence for a completed export.
+    res.destroy();
+    return;
+  }
   const duplicate = error.code === 11000;
   const unavailable = /^Mongo(?:Network|ServerSelection|TopologyClosed|NotConnected)/.test(
     error.name,

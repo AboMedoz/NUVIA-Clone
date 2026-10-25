@@ -142,6 +142,43 @@ def test_normalization_output_cannot_drop_a_source_sentence():
         )
 
 
+def test_normalization_output_rejects_duplicate_ids_before_downstream_tasks():
+    task = TaskRequest(schemaVersion=1, taskId="1", locale="en", text="Good. Bad.")
+    sentences = [item.model_dump() for item in task.sentences]
+    sentences[1]["id"] = sentences[0]["id"]
+    with pytest.raises(ValueError, match="Duplicate normalization sentence IDs"):
+        validate_result(
+            "normalization",
+            {
+                "text": task.text,
+                "normalizedText": task.text,
+                "method": "learned-normalizer",
+                "sentences": sentences,
+            },
+            task,
+        )
+
+
+def test_normalization_output_cannot_exceed_downstream_sentence_limit():
+    from app.core.limits import MAX_SENTENCES
+
+    text = "a" * (MAX_SENTENCES + 1)
+    task = TaskRequest(schemaVersion=1, taskId="1", locale="en", text=text)
+    with pytest.raises(ValueError):
+        validate_result(
+            "normalization",
+            {
+                "text": text,
+                "normalizedText": text,
+                "method": "learned-normalizer",
+                "sentences": [
+                    {"id": f"s{i}", "start": i, "end": i + 1, "text": "a"} for i in range(len(text))
+                ],
+            },
+            task,
+        )
+
+
 @pytest.mark.parametrize("count", [1, 4, 11, 50])
 def test_survey_generation_rejects_counts_outside_five_to_ten(count):
     task = TaskRequest(schemaVersion=1, taskId="survey-job", locale="en")

@@ -172,6 +172,7 @@ export function productRoutes(deps) {
   );
   router.get('/feedback/export', async (req, res) => {
     const filters = parse(filterSchema, req.query);
+    const query = filterQuery(filters, req.access);
     res
       .set('Content-Type', 'text/csv; charset=utf-8')
       .set('Content-Disposition', 'attachment; filename="nuvia-feedback.csv"');
@@ -191,7 +192,7 @@ export function productRoutes(deps) {
           'answers',
         ]),
     );
-    for await (const response of deps.models.Response.find(filterQuery(filters, req.access))
+    for await (const response of deps.models.Response.find(query)
       .sort({ createdAt: -1 })
       .lean()
       .cursor()) {
