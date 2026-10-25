@@ -4,7 +4,13 @@ import { productApi } from '../product/api.js';
 import { canManage, queryString, requestFilters } from '../product/product-state.js';
 import { DataTable, EmptyState, ErrorNotice, ResourceState, Status } from '../product/ui.jsx';
 import Filters from '../product/Filters.jsx';
-import { AspectScoreChart, SentimentChart, TrendChart } from './ChartVisuals.jsx';
+import {
+  AspectScoreChart,
+  SentimentChart,
+  TrendChart,
+  ResponseTrendChart,
+} from './ChartVisuals.jsx';
+import './analytics-report.css';
 const asRows = (value) =>
   Array.isArray(value)
     ? value
@@ -40,8 +46,15 @@ export default function AnalyticsPage({ language, workspace, overview }) {
     jobs = useResource('/analysis/jobs', { refreshInterval: 30000 }),
     mutation = useMutation();
   const data = resource.data;
+  const sentimentCount = Object.values(data?.sentimentDistribution || {}).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
+  const positiveShare = sentimentCount
+    ? Math.round(((data.sentimentDistribution.positive || 0) / sentimentCount) * 100)
+    : null;
   return (
-    <>
+    <div className={'analytics-report-page ' + (overview ? 'overview-page' : 'analytics-page')}>
       <div className="product-heading">
         <div>
           <h1>{overview ? t('Overview', 'نظرة عامة') : t('Analytics', 'التحليلات')}</h1>
@@ -52,11 +65,22 @@ export default function AnalyticsPage({ language, workspace, overview }) {
             )}
           </p>
         </div>
-        <a className="product-button" href="#/surveys">
-          {t('Share a survey', 'مشاركة استبيان')}
-        </a>
+        <div className="product-actions">
+          <a className="product-button" href="#/reports">
+            {t('View reports', 'عرض التقارير')}
+          </a>
+          <a className="product-button primary" href="#/surveys">
+            {t('Share a survey', 'مشاركة استبيان')}
+          </a>
+        </div>
       </div>
-      <Filters {...{ filters, setFilters, workspace, language }} />
+      <details className="analytics-filter-disclosure">
+        <summary>
+          {t('Filter feedback', 'تصفية الآراء')}
+          {Object.values(filters).some(Boolean) ? t(' · Active', ' · نشطة') : ''}
+        </summary>
+        <Filters {...{ filters, setFilters, workspace, language }} />
+      </details>
       <ResourceState resource={resource} language={language} />
       {data && (
         <>
@@ -70,15 +94,44 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               </p>
             </EmptyState>
           )}
-          <div className="product-grid">
+          <div className="overview-metrics">
             {[
-              [t('Total responses', 'إجمالي الردود'), data.totalResponses],
-              [t('Analyzed responses', 'الردود المحللة'), data.analyzedResponses],
-              [t('Pending analysis', 'بانتظار التحليل'), data.pendingResponses],
-            ].map(([label, value]) => (
+              [
+                t('Total responses', 'إجمالي الردود'),
+                Number(data.totalResponses || 0).toLocaleString(language),
+                'response',
+                t('Saved customer feedback', 'آراء العملاء المحفوظة'),
+              ],
+              [
+                t('Positive sentiment', 'المشاعر الإيجابية'),
+                positiveShare === null ? '—' : positiveShare.toLocaleString(language) + '%',
+                'sentiment',
+                t('Of responses with sentiment analysis', 'من الردود التي تم تحليل مشاعرها'),
+              ],
+              [
+                t('Analyzed responses', 'الردود المحللة'),
+                Number(data.analyzedResponses || 0).toLocaleString(language),
+                'analyzed',
+                t('Sentiment and aspects complete', 'اكتمل تحليل المشاعر والجوانب'),
+              ],
+              [
+                t('Pending analysis', 'بانتظار التحليل'),
+                Number(data.pendingResponses || 0).toLocaleString(language),
+                'pending',
+                t('Awaiting complete analysis', 'في انتظار اكتمال التحليل'),
+              ],
+            ].map(([label, value, icon, description]) => (
               <section key={label} className="product-card product-metric">
-                <p>{label}</p>
-                <strong>{Number(value || 0).toLocaleString(language)}</strong>
+                <div className="metric-heading">
+                  <p>{label}</p>
+                  <img
+                    src={'/assets/figma-analytics-reports/' + icon + '.svg'}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </div>
+                <strong>{value}</strong>
+                <small>{description}</small>
               </section>
             ))}
           </div>
@@ -90,20 +143,105 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               )}
             </p>
           )}
-          <div className="product-tabs">
-            {[
-              ['sentiment', t('Sentiment', 'المشاعر')],
-              ['aspects', t('Aspects', 'الجوانب')],
-              ['topics', t('Topics', 'الموضوعات')],
-              ['trends', t('Trends', 'الاتجاهات')],
-              ['comparisons', t('Comparisons', 'المقارنات')],
-            ].map(([key, label]) => (
-              <button key={key} aria-pressed={tab === key} onClick={() => setTab(key)}>
-                {label}
-              </button>
-            ))}
-          </div>
-          {tab === 'sentiment' && (
+          {overview && (
+            <>
+              <div className="overview-chart-grid">
+                <section className="product-card overview-trend-panel">
+                  <div className="panel-heading">
+                    <div>
+                      <h2>{t('Response & sentiment trends', 'اتجاهات الردود والمشاعر')}</h2>
+                      <p>
+                        {t(
+                          'Saved responses and their observed sentiment.',
+                          'الردود المحفوظة ومشاعرها المرصودة.',
+                        )}
+                      </p>
+                    </div>
+                    <a href="#/analytics">{t('Analytics →', 'التحليلات ←')}</a>
+                  </div>
+                  <ResponseTrendChart
+                    rows={data.trends}
+                    language={language}
+                    interval={data.interval || filters.interval || 'day'}
+                  />
+                  {!data.trends?.length && (
+                    <EmptyState
+                      title={t('No trend observations yet', 'لا توجد ملاحظات للاتجاهات بعد')}
+                    />
+                  )}
+                </section>
+                <section className="product-card overview-sentiment-panel">
+                  <h2>{t('How customers feel', 'كيف يشعر العملاء')}</h2>
+                  <p className="panel-description">
+                    {t('Sentiment across analyzed feedback', 'المشاعر في الآراء المحللة')}
+                  </p>
+                  <SentimentChart distribution={data.sentimentDistribution} language={language} />
+                  {!sentimentCount && (
+                    <EmptyState
+                      title={t('No analyzed sentiment yet', 'لا يوجد تحليل للمشاعر بعد')}
+                    />
+                  )}
+                </section>
+              </div>
+              <div className="overview-evidence-grid">
+                <section className="product-card overview-evidence-panel">
+                  <div className="panel-heading">
+                    <h2>
+                      <img
+                        src="/assets/figma-analytics-reports/insight.svg"
+                        alt=""
+                        aria-hidden="true"
+                      />
+                      {t('From feedback to action', 'من الآراء إلى خطوات عملية')}
+                    </h2>
+                    <span className="product-status">{t('Evidence-led', 'قائم على الأدلة')}</span>
+                  </div>
+                  <h3>
+                    {t('Explore the evidence behind your results.', 'استكشف الأدلة وراء نتائجك.')}
+                  </h3>
+                  <p>
+                    {t(
+                      'Open a saved report for its findings and quoted feedback, or ask a question about your current customer responses.',
+                      'افتح تقريرًا محفوظًا للاطلاع على نتائجه واقتباساته، أو اسأل عن آراء عملائك الحالية.',
+                    )}
+                  </p>
+                  <div className="product-actions">
+                    <a href="#/reports">{t('View reports →', 'عرض التقارير ←')}</a>
+                    <a href="#/assistant">{t('Ask NUVIA', 'اسأل نوفيا')}</a>
+                  </div>
+                </section>
+                <section className="product-card overview-aspect-panel">
+                  <h2>{t('Aspect scores', 'تقييم الجوانب')}</h2>
+                  <p className="panel-description">
+                    {t(
+                      'Observed scores out of 10 · Mention counts',
+                      'تقييمات مرصودة من ١٠ · عدد الإشارات',
+                    )}
+                  </p>
+                  <AspectScoreChart rows={data.aspectScores} language={language} />
+                  {!data.aspectScores?.length && (
+                    <EmptyState title={t('No aspect evidence yet', 'لا توجد أدلة للجوانب بعد')} />
+                  )}
+                </section>
+              </div>
+            </>
+          )}
+          {!overview && (
+            <div className="product-tabs">
+              {[
+                ['sentiment', t('Sentiment', 'المشاعر')],
+                ['aspects', t('Aspects', 'الجوانب')],
+                ['topics', t('Topics', 'الموضوعات')],
+                ['trends', t('Trends', 'الاتجاهات')],
+                ['comparisons', t('Comparisons', 'المقارنات')],
+              ].map(([key, label]) => (
+                <button key={key} aria-pressed={tab === key} onClick={() => setTab(key)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+          {!overview && tab === 'sentiment' && (
             <section className="product-card">
               <h2>{t('Sentiment distribution', 'توزيع المشاعر')}</h2>
               <SentimentChart distribution={data.sentimentDistribution} language={language} />
@@ -121,7 +259,7 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               )}
             </section>
           )}
-          {tab === 'aspects' && (
+          {!overview && tab === 'aspects' && (
             <section className="product-card">
               <h2>{t('Aspect scores', 'تقييم الجوانب')}</h2>
               <AspectScoreChart rows={data.aspectScores} language={language} />
@@ -154,7 +292,7 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               )}
             </section>
           )}
-          {tab === 'topics' && (
+          {!overview && tab === 'topics' && (
             <section className="product-card">
               <h2>{t('Topics & emerging issues', 'الموضوعات والقضايا الناشئة')}</h2>
               {asRows(data.topics).map((row, index) => (
@@ -186,7 +324,7 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               )}
             </section>
           )}
-          {tab === 'trends' && (
+          {!overview && tab === 'trends' && (
             <section className="product-card">
               <h2>{t('Feedback over time', 'الآراء عبر الزمن')}</h2>
               <TrendChart
@@ -273,7 +411,7 @@ export default function AnalyticsPage({ language, workspace, overview }) {
               )}
             </section>
           )}
-          {tab === 'comparisons' && (
+          {!overview && tab === 'comparisons' && (
             <section className="product-card">
               <h2>{t('Branch & period comparison', 'مقارنة الفروع والفترات')}</h2>
               <DataTable
@@ -357,47 +495,76 @@ export default function AnalyticsPage({ language, workspace, overview }) {
           )}
         </>
       )}
-      <section className="product-card">
-        <div className="product-heading">
-          <h2>{t('Analysis queue', 'قائمة التحليل')}</h2>
-          {canManage(workspace) && (
-            <button
-              disabled={mutation.busy}
-              onClick={async () => {
-                const result = await mutation.run((signal) =>
-                  productApi.send(
-                    '/analysis/retry',
-                    { filters: requestFilters(filters, workspace?.reportingTimezone) },
-                    'POST',
-                    signal,
-                  ),
-                );
-                if (result) {
-                  jobs.reload();
-                  resource.reload();
-                }
-              }}
-            >
-              {t('Retry eligible analysis', 'إعادة محاولة التحليل المتاح')}
-            </button>
-          )}
-        </div>
-        <ErrorNotice error={mutation.error} language={language} />
-        <ResourceState resource={jobs} language={language} />
-        {(jobs.data?.jobs || []).slice(0, 10).map((job) => (
-          <div className="product-inline" key={job.id}>
-            <a href={job.reportId ? '#/reports' : '#/feedback-details?id=' + job.responseId}>
-              {job.reportId ? t('Report', 'التقرير') : t('Response', 'الرد')}{' '}
-              {job.responseId?.slice(0, 8)}
-            </a>
-            <Status value={job.status} language={language} />
-            <p>{job.capability}</p>
+      <details className="analysis-queue-disclosure">
+        <summary>{t('Analysis queue', 'قائمة التحليل')}</summary>
+        <section className="product-card">
+          <div className="product-heading">
+            <h2>{t('Analysis queue', 'قائمة التحليل')}</h2>
+            {canManage(workspace) && (
+              <button
+                disabled={mutation.busy}
+                onClick={async () => {
+                  const result = await mutation.run((signal) =>
+                    productApi.send(
+                      '/analysis/retry',
+                      { filters: requestFilters(filters, workspace?.reportingTimezone) },
+                      'POST',
+                      signal,
+                    ),
+                  );
+                  if (result) {
+                    jobs.reload();
+                    resource.reload();
+                  }
+                }}
+              >
+                {t('Retry eligible analysis', 'إعادة محاولة التحليل المتاح')}
+              </button>
+            )}
           </div>
-        ))}
-        {jobs.data && !jobs.data.jobs?.length && (
-          <p>{t('No analysis jobs yet.', 'لا توجد مهام تحليل بعد.')}</p>
-        )}
-      </section>
-    </>
+          <ErrorNotice error={mutation.error} language={language} />
+          <ResourceState resource={jobs} language={language} />
+          {(jobs.data?.jobs || []).slice(0, 10).map((job) => (
+            <div className="product-inline" key={job.id}>
+              <a href={job.reportId ? '#/reports' : '#/feedback-details?id=' + job.responseId}>
+                {job.reportId ? t('Report', 'التقرير') : t('Response', 'الرد')}{' '}
+                {job.responseId?.slice(0, 8)}
+              </a>
+              <Status value={job.status} language={language} />
+              <p>{job.capability}</p>
+            </div>
+          ))}
+          {jobs.data && !jobs.data.jobs?.length && (
+            <p>{t('No analysis jobs yet.', 'لا توجد مهام تحليل بعد.')}</p>
+          )}
+        </section>
+      </details>
+      {overview && (
+        <section className="product-card overview-quick-actions">
+          <div>
+            <h2>{t('Quick actions', 'إجراءات سريعة')}</h2>
+            <p>
+              {t(
+                'Turn customer feedback into your next move.',
+                'حوّل آراء العملاء إلى خطوتك التالية.',
+              )}
+            </p>
+          </div>
+          <div className="product-actions">
+            <a className="product-button" href="#/feedbacks">
+              {t('View all responses', 'عرض كل الردود')}
+            </a>
+            <a className="product-button" href="#/reports">
+              {t('View reports', 'عرض التقارير')}
+            </a>
+            {canManage(workspace) && (
+              <a className="product-button primary" href="#/survey-builder">
+                {t('Create survey', 'إنشاء استبيان')}
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }

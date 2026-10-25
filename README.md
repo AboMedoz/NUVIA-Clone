@@ -176,6 +176,7 @@ pnpm test                 # Web and API package suites
 pnpm build
 pnpm test:backend:unit
 pnpm test:e2e:accounts
+pnpm test:e2e:product:browser # Connected survey/response/export UI with isolated data
 pnpm test:ai              # Optional Python/uv environment required
 ```
 
@@ -187,7 +188,8 @@ GitHub Actions is configured for web formatting/lint/tests/build, API/browser an
 product collection checks, Python service and Node-to-Python contracts, and the
 optional container stack. This describes configured checks, not evidence of a
 remote CI run for this clone. Local results and remaining limits are recorded in
-[the delivery report](docs/development/clone-validation.md). SMTP, Atlas,
+[the comprehensive QA report](docs/development/comprehensive-qa.md) and
+[the earlier delivery report](docs/development/clone-validation.md). SMTP, Atlas,
 production deployment and trained-model quality require separate acceptance.
 
 ## Documentation

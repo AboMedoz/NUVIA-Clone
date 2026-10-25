@@ -50,6 +50,7 @@ export function OverviewDateDialog({ open, onClose, filters, onApply, language, 
     e.preventDefault();
     if (!draft.start || !draft.end || draft.start > draft.end) {
       setError(tr('Choose a valid start and end date.'));
+      e.currentTarget.querySelector('input[type="date"]')?.focus();
       return;
     }
     onApply({ start: draft.start, end: draft.end });
@@ -78,7 +79,7 @@ export function OverviewDateDialog({ open, onClose, filters, onApply, language, 
         }
       }}
     >
-      <form onSubmit={apply}>
+      <form onSubmit={apply} noValidate>
         <div className="overview-dialog-heading">
           <h2 id="overview-period-title">{tr('Choose date range')}</h2>
           <button
@@ -116,6 +117,8 @@ export function OverviewDateDialog({ open, onClose, filters, onApply, language, 
             <input
               type="date"
               required
+              aria-invalid={!!error || undefined}
+              aria-describedby={error ? 'overview-date-error' : undefined}
               value={draft.start}
               max={draft.end || undefined}
               onChange={(e) => setDraft((old) => ({ ...old, start: e.target.value }))}
@@ -126,6 +129,8 @@ export function OverviewDateDialog({ open, onClose, filters, onApply, language, 
             <input
               type="date"
               required
+              aria-invalid={!!error || undefined}
+              aria-describedby={error ? 'overview-date-error' : undefined}
               min={draft.start || undefined}
               value={draft.end}
               onChange={(e) => setDraft((old) => ({ ...old, end: e.target.value }))}
@@ -133,7 +138,7 @@ export function OverviewDateDialog({ open, onClose, filters, onApply, language, 
           </label>
         </div>
         {error && (
-          <p className="overview-date-error" role="alert">
+          <p id="overview-date-error" className="overview-date-error" role="alert">
             {error}
           </p>
         )}

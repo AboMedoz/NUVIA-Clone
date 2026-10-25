@@ -11,6 +11,19 @@ function openRoute(route) {
 }
 
 describe('bilingual frontend flows', () => {
+  it('updates the browser title when the route and interface language change', async () => {
+    const user = userEvent.setup();
+    openRoute('login');
+    await waitFor(() => expect(document.title).toBe('NUVIA — Sign in · Design preview'));
+    await user.click(screen.getByRole('button', { name: 'Language / اللغة' }));
+    await user.click(screen.getByRole('option', { name: /العربية/ }));
+    await waitFor(() => expect(document.title).toBe('NUVIA — تسجيل الدخول · معاينة التصميم'));
+    await act(async () => {
+      location.hash = '/dashboard';
+    });
+    await waitFor(() => expect(document.title).toBe('NUVIA — نظرة عامة · معاينة التصميم'));
+  });
+
   it('switches the landing page to Arabic and persists the language preference', async () => {
     const user = userEvent.setup();
     openRoute('landing');

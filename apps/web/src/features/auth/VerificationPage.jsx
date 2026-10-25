@@ -3,6 +3,7 @@ import { authApi } from './api.js';
 export default function VerificationPage({ language, preview = false }) {
   const ar = language === 'ar';
   const [email, setEmail] = useState(''),
+    [emailError, setEmailError] = useState(false),
     [state, setState] = useState('pending');
   const started = useRef(null);
   const token = new URLSearchParams(location.hash.split('?')[1]).get('token');
@@ -19,13 +20,20 @@ export default function VerificationPage({ language, preview = false }) {
   }, [token, preview]);
   async function resend(e) {
     e.preventDefault();
+    if (state === 'busy') return;
+    if (email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setEmailError(true);
+      e.currentTarget.elements.namedItem('verification-email')?.focus();
+      return;
+    }
+    setEmailError(false);
     if (preview) {
       setState('preview');
       return;
     }
     setState('busy');
     try {
-      await authApi.resend(email);
+      await authApi.resend(email.trim());
       setState('sent');
     } catch {
       setState('error');
@@ -58,16 +66,28 @@ export default function VerificationPage({ language, preview = false }) {
       <h1>{ar ? 'تأكيد البريد الإلكتروني' : 'Verify your email'}</h1>
       <p role="status">{messages[state]}</p>
       {state !== 'verified' && (
-        <form onSubmit={resend}>
+        <form onSubmit={resend} noValidate>
           <label>
             {ar ? 'البريد الإلكتروني' : 'Email'}
             <input
               type="email"
+              name="verification-email"
+              maxLength={254}
+              aria-invalid={emailError || undefined}
+              aria-describedby={emailError ? 'verification-email-error' : undefined}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false);
+              }}
               required
               autoComplete="email"
             />
+            {emailError && (
+              <span id="verification-email-error" role="alert">
+                {ar ? 'أدخل بريدًا إلكترونيًا صالحًا.' : 'Enter a valid email address.'}
+              </span>
+            )}
           </label>
           <button className="primary" disabled={state === 'busy'}>
             {ar ? 'إعادة إرسال رابط التأكيد' : 'Resend verification link'}

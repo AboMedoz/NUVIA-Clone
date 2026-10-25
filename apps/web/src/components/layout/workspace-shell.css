@@ -3237,3 +3237,23 @@
   min-height: 2210px;
   margin-inline: auto;
 }
+.ds-overview .workspace-search-clear {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.ds-overview .workspace-search-clear:hover {
+  background: var(--border);
+}
+.ds-overview .workspace-search-shortcut {
+  width: auto;
+  white-space: nowrap;
+}

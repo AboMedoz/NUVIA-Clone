@@ -6,6 +6,7 @@ import Filters from '../product/Filters.jsx';
 import { requestFilters } from '../product/product-state.js';
 import { EvidenceLinks } from '../analytics/AnalyticsPage.jsx';
 import AiTaskState from '../product/AiTaskState.jsx';
+import AutoGrowTextarea from '../../components/ui/AutoGrowTextarea.jsx';
 export default function AssistantPage({ language, workspace }) {
   const t = (a, b) => (language === 'ar' ? b : a),
     [message, setMessage] = useState(''),
@@ -30,7 +31,7 @@ export default function AssistantPage({ language, workspace }) {
   }
   async function submit(e) {
     e.preventDefault();
-    if (message.trim())
+    if (!mutation.busy && message.trim() && message.length <= 2000)
       await requestAnswer({
         message,
         locale: language,
@@ -74,10 +75,11 @@ export default function AssistantPage({ language, workspace }) {
           <EvidenceLinks evidence={item.evidence} language={language} />
         </section>
       ))}
-      <form className="product-card product-form" onSubmit={submit}>
+      <form className="product-card product-form" onSubmit={submit} noValidate>
         <label>
           {t('Your question', 'سؤالك')}
-          <textarea
+          <AutoGrowTextarea
+            rows={3}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={2000}

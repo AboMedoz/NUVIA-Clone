@@ -1,5 +1,5 @@
 import { LanguageMenu } from '../ui/ChoiceMenu.jsx';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { asset } from '../../lib/assets.js';
 import { useProductView } from '../../app/providers/ProductProvider.jsx';
 import './workspace-shell.css';
@@ -55,6 +55,24 @@ const imgNotifications = asset('dashboard/overview/notifications.svg');
 export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
   const ui = useProductView();
   const tr = ui.tr;
+  const search = useRef(null);
+  useEffect(() => {
+    const focusSearch = (event) => {
+      if (
+        window.innerWidth > 850 &&
+        (event.ctrlKey || event.metaKey) &&
+        !event.altKey &&
+        !event.shiftKey &&
+        !event.isComposing &&
+        event.key.toLowerCase() === 'k'
+      ) {
+        event.preventDefault();
+        search.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', focusSearch);
+    return () => window.removeEventListener('keydown', focusSearch);
+  }, []);
   return (
     <div className="product-view ds-overview feedback-shell">
       <div
@@ -178,17 +196,19 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
             >
               {tr('Feedbacks')}
             </p>
-            <div className="f21" data-node-id="127:283" data-name="Unread count">
-              <p
-                className="f22"
-                data-node-id="127:284"
-                style={{
-                  fontVariationSettings: '"opsz" 14',
-                }}
-              >
-                {tr('12')}
-              </p>
-            </div>
+            {ui.preview && (
+              <div className="f21" data-node-id="127:283" data-name="Unread count">
+                <p
+                  className="f22"
+                  data-node-id="127:284"
+                  style={{
+                    fontVariationSettings: '"opsz" 14',
+                  }}
+                >
+                  {tr('12')}
+                </p>
+              </div>
+            )}
           </button>
           <button
             className="f19"
@@ -447,25 +467,47 @@ export default function WorkspaceShell({ children, title = 'Feedbacks' }) {
                 <img alt="" className="f5" src={imgSearch} />
               </div>
               <input
+                ref={search}
                 className="f45"
                 data-node-id="127:338"
                 style={{
                   fontVariationSettings: '"opsz" 14',
                 }}
-                aria-label={tr('Search your workspace')}
-                placeholder={tr('Search your workspace')}
+                aria-label={tr(ui.preview ? 'Search your workspace' : 'Search feedback…')}
+                placeholder={tr(ui.preview ? 'Search your workspace' : 'Search feedback…')}
+                maxLength={200}
                 value={ui.query}
                 onChange={(event) => ui.setQuery(event.target.value)}
-              />
-              <p
-                className="f46"
-                data-node-id="127:339"
-                style={{
-                  fontVariationSettings: '"opsz" 14',
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.nativeEvent.isComposing && !ui.preview) {
+                    event.preventDefault();
+                    ui.action('Search feedback');
+                  }
                 }}
-              >
-                {tr('⌘ K')}
-              </p>
+              />
+              {ui.query ? (
+                <button
+                  className="workspace-search-clear"
+                  type="button"
+                  aria-label={ui.language === 'ar' ? 'مسح البحث' : 'Clear search'}
+                  onClick={() => {
+                    ui.setQuery('');
+                    search.current?.focus();
+                  }}
+                >
+                  ×
+                </button>
+              ) : (
+                <p
+                  className="f46 workspace-search-shortcut"
+                  data-node-id="127:339"
+                  style={{
+                    fontVariationSettings: '"opsz" 14',
+                  }}
+                >
+                  {/Mac/i.test(navigator.platform) ? '⌘ K' : 'Ctrl K'}
+                </p>
+              )}
             </div>
             <div className="f47" data-node-id="127:340" data-name="Language">
               <div className="f35" data-node-id="127:341" data-name="globe">

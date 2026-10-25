@@ -42,6 +42,18 @@ Existing headers use 76px desktop / 72px mobile geometry and responsive product 
 - Hash routes support refresh and persisted onboarding. Public account routes remain reachable; product routes require a verified owner and completed setup.
 - Arabic changes document direction, labels and navigation semantics. User-entered names are displayed as entered. Dates use the user's locale and workspace reporting defaults.
 - Private product routes show saved identity/workspace data and honest empty/unavailable states. Sample records, canned assistant replies and synthetic subscription/usage claims belong only to explicit `/preview/` routes.
-- Account feedback routes reuse `FeedbackShell` and `FeedbackList` with the reviewed empty layout: heading, six filters, zero-response table, illustration, actions and getting-started steps. Sample responses open `/preview/#/feedbacks`; survey sharing reports its unavailable state until a real publishing API exists. Keep the approved empty Overview copy in previews, with availability-aware copy in account routes.
+- Connected feedback routes use `ProductWorkspace` and `ConnectedFeedback` with the shared workspace shell, real filters and response state. The reviewed `FeedbackShell`/`FeedbackList` references remain in previews. Sample responses open `/preview/#/feedbacks`; connected survey sharing uses the published branch link and local QR. Keep the approved empty Overview copy in previews, with availability-aware copy in account routes.
 - Preserve visible focus, keyboard-operable menus, password visibility controls, native form semantics and reduced-motion behavior. No additional decorative motion is introduced.
 - Verify changes through frontend tests and the account browser scenario at desktop and 393px mobile widths in both languages. Reference screenshots remain previews, not proof of real backend/AI behavior.
+
+The [interaction contract](docs/ui/interaction-contract.md) records native
+select/date ownership and shared form, filter, scrolling and CRUD behavior.
+Native picker chrome follows the browser/OS; application labels and options
+follow EN/AR. Current Figma alignment uses the original `gradproject` file
+`ugEDZY82qMAPHkxRjwsoze`, including surveys `258:1329`, builder `259:4272`,
+overview `325:5862`, feedback `267:15016`, reports `299:763`, branches `569:328`
+and login `159:1342`. Builder question editing `262:10407` and sharing `262:11716`
+guide the local three-step workflow; advancing to sharing saves the current draft
+and never publishes implicitly. Runtime styles remain canonical; do not copy illustrative
+metrics or unavailable subscription controls into account routes to imitate a
+reference screenshot.

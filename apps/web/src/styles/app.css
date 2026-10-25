@@ -4,12 +4,40 @@
   --muted: #64738a;
   --border: #dfe7f2;
   --error: #f04438;
+  --scrollbar-thumb: #a3b1c5;
+  --scrollbar-thumb-hover: #64738a;
+  --scrollbar-thumb-active: #1e68ef;
+  --scrollbar-track: #f5f8fc;
   font-family: 'DM Sans', sans-serif;
   color: var(--dark);
   font-synthesis: none;
 }
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: var(--scrollbar-track);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 3px solid var(--scrollbar-track);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+*::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+}
+@media (forced-colors: active) {
+  * {
+    scrollbar-color: auto;
+    scrollbar-width: auto;
+  }
 }
 body {
   margin: 0;

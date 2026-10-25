@@ -1,11 +1,31 @@
 import React from 'react';
 const colors = ['#1e68ef', '#b54750', '#557b9d', '#8f70b9', '#087f70', '#b76e18'];
+const sentimentColors = {
+  positive: '#1e68ef',
+  neutral: '#a7bfe2',
+  negative: '#b54750',
+  mixed: '#8f70b9',
+};
 const labels = {
   positive: ['Positive', 'إيجابي'],
   negative: ['Negative', 'سلبي'],
   neutral: ['Neutral', 'محايد'],
   mixed: ['Mixed', 'مختلط'],
 };
+function periodLabel(value, language, interval) {
+  // Period keys already use the workspace calendar: format without shifting the date.
+  const date = new Date(
+    `${value.slice(0, interval === 'month' ? 7 : 10)}${interval === 'month' ? '-01' : ''}T00:00:00Z`,
+  );
+  if (!Number.isFinite(date.getTime())) return value;
+  return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG' : 'en-GB', {
+    calendar: 'gregory',
+    timeZone: 'UTC',
+    year: 'numeric',
+    month: 'short',
+    ...(interval === 'month' ? {} : { day: 'numeric' }),
+  }).format(date);
+}
 export function AspectScoreChart({ rows = [], language }) {
   const data = rows.filter((row) => Number.isFinite(row.score)),
     ar = language === 'ar';
@@ -36,15 +56,18 @@ export function AspectScoreChart({ rows = [], language }) {
 }
 export function SentimentChart({ distribution = {}, language }) {
   const ar = language === 'ar',
-    rows = Object.entries(distribution).filter(([, value]) => Number.isFinite(value) && value > 0),
+    rows = Object.keys(sentimentColors).map((label) => [
+      label,
+      Number.isFinite(distribution[label]) ? Math.max(0, distribution[label]) : 0,
+    ]),
     total = rows.reduce((n, [, value]) => n + value, 0);
   let position = 0;
   if (!total) return null;
   const stops = rows
-    .map(([, value], index) => {
+    .map(([label, value]) => {
       const start = position;
       position += (value / total) * 100;
-      return `${colors[index % colors.length]} ${start}% ${position}%`;
+      return `${sentimentColors[label]} ${start}% ${position}%`;
     })
     .join(',');
   return (
@@ -62,9 +85,9 @@ export function SentimentChart({ distribution = {}, language }) {
         </div>
       </div>
       <figcaption>
-        {rows.map(([label, value], index) => (
+        {rows.map(([label, value]) => (
           <div key={label}>
-            <i style={{ background: colors[index % colors.length] }} />
+            <i style={{ background: sentimentColors[label] }} />
             <span>{labels[label]?.[ar ? 1 : 0] || label}</span>
             <strong>{((value / total) * 100).toFixed(1)}%</strong>
             <small>{value.toLocaleString(language)}</small>
@@ -85,6 +108,145 @@ function adjacentPeriod(previous, current, interval) {
     Date.parse(current.slice(0, 10) + 'T00:00:00Z') -
     Date.parse(previous.slice(0, 10) + 'T00:00:00Z');
   return elapsed === (interval === 'week' ? 7 : 1) * 86400000;
+}
+export function ResponseTrendChart({ rows = [], language, interval = 'day' }) {
+  const ar = language === 'ar';
+  if (!rows.length) return null;
+  const width = 640,
+    height = 210,
+    left = 34,
+    right = 45,
+    bottom = 38,
+    top = 20;
+  const maximum = Math.max(1, ...rows.map((row) => row.totalResponses || 0));
+  const dateValue = (date) =>
+    interval === 'month'
+      ? Number(date.slice(0, 4)) * 12 + Number(date.slice(5, 7))
+      : Date.parse(date.slice(0, 10) + 'T00:00:00Z') / 86400000;
+  const start = dateValue(rows[0].date),
+    span = Math.max(1, dateValue(rows.at(-1).date) - start);
+  const x = (index) =>
+    rows.length === 1
+      ? width / 2
+      : left + 28 + ((dateValue(rows[index].date) - start) / span) * (width - left - right - 56);
+  const y = (value) => top + (1 - value) * (height - top - bottom);
+  const barWidth = Math.max(3, Math.min(52, (width - left - right) / (rows.length * 2)));
+  const positive = rows.map((row) => {
+    const total = Object.values(row.sentimentDistribution || {}).reduce(
+      (sum, value) => sum + value,
+      0,
+    );
+    return total ? (row.sentimentDistribution.positive || 0) / total : null;
+  });
+  let active = false;
+  const line = rows
+    .map((row, index) => {
+      if (positive[index] === null) {
+        active = false;
+        return '';
+      }
+      const command =
+        active && adjacentPeriod(rows[index - 1]?.date, row.date, interval) ? 'L' : 'M';
+      active = true;
+      return `${command}${x(index)},${y(positive[index])}`;
+    })
+    .join(' ');
+  return (
+    <figure className="response-trend-chart">
+      <figcaption>
+        <span>
+          <i />
+          {ar ? 'الردود' : 'Responses'}
+        </span>
+        <span>
+          <i />
+          {ar ? 'نسبة المشاعر الإيجابية' : 'Positive sentiment'}
+        </span>
+      </figcaption>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={
+          ar
+            ? 'عدد الردود ونسبة المشاعر الإيجابية عبر الزمن'
+            : 'Response count and positive sentiment over time'
+        }
+      >
+        {[0, 0.5, 1].map((value) => (
+          <g key={value}>
+            <line x1={left} x2={width - right} y1={y(value)} y2={y(value)} stroke="#edf1f7" />
+            <text x={left - 8} y={y(value) + 4} textAnchor="end">
+              {Math.round(maximum * value).toLocaleString(language)}
+            </text>
+            <text x={width - right + 8} y={y(value) + 4}>
+              {(value * 100).toLocaleString(language)}%
+            </text>
+          </g>
+        ))}
+        {rows.map((row, index) => (
+          <g key={row.date}>
+            <rect
+              x={x(index) - barWidth / 2}
+              y={y((row.totalResponses || 0) / maximum)}
+              width={barWidth}
+              height={y(0) - y((row.totalResponses || 0) / maximum)}
+              fill="#eaf2ff"
+              rx="2"
+            >
+              <title>
+                {periodLabel(row.date, language, interval)}: {row.totalResponses}{' '}
+                {ar ? 'ردود' : 'responses'}
+              </title>
+            </rect>
+            <line
+              x1={x(index) - barWidth / 2}
+              x2={x(index) + barWidth / 2}
+              y1={y((row.totalResponses || 0) / maximum)}
+              y2={y((row.totalResponses || 0) / maximum)}
+              stroke="#1e68ef"
+              strokeWidth="2.5"
+            />
+            {rows.length <= 8 && (
+              <text x={x(index)} y={y((row.totalResponses || 0) / maximum) - 7} textAnchor="middle">
+                {row.totalResponses}
+              </text>
+            )}
+          </g>
+        ))}
+        <path
+          d={line}
+          fill="none"
+          stroke="#218269"
+          strokeWidth="2.5"
+          data-series="positive-sentiment"
+        />
+        {rows.map(
+          (row, index) =>
+            positive[index] !== null && (
+              <circle key={row.date} cx={x(index)} cy={y(positive[index])} r="3.5" fill="#218269">
+                <title>
+                  {periodLabel(row.date, language, interval)}: {(positive[index] * 100).toFixed(1)}%{' '}
+                  {ar ? 'إيجابي' : 'positive'}
+                </title>
+              </circle>
+            ),
+        )}
+        {rows
+          .filter(
+            (_, index) =>
+              rows.length <= 4 ||
+              index === 0 ||
+              index === rows.length - 1 ||
+              index === Math.floor(rows.length / 2),
+          )
+          .map((row) => (
+            <text key={row.date} x={x(rows.indexOf(row))} y={height - 12} textAnchor="middle">
+              {periodLabel(row.date, language, interval)}
+            </text>
+          ))}
+      </svg>
+    </figure>
+  );
 }
 export function TrendChart({ rows = [], language, interval = 'day' }) {
   const ar = language === 'ar',
@@ -161,7 +323,7 @@ export function TrendChart({ rows = [], language, interval = 'day' }) {
                     fill={colors[index % colors.length]}
                   >
                     <title>
-                      {row.date}: {aspect} {score}/10
+                      {periodLabel(row.date, language, interval)}: {aspect} {score}/10
                     </title>
                   </circle>
                 ) : null;
@@ -184,7 +346,7 @@ export function TrendChart({ rows = [], language, interval = 'day' }) {
                     : 'middle'
               }
             >
-              {row.date}
+              {periodLabel(row.date, language, interval)}
             </text>
           ))}
       </svg>

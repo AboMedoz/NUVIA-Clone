@@ -130,7 +130,10 @@ export default function ConnectedFeedback({ page, language, workspace }) {
         <div>
           <h1>{t('Feedback', 'آراء العملاء')}</h1>
           <p>
-            {total.toLocaleString(language)} {t('responses', 'ردود')}
+            {t(
+              'Listen to your customers. Understand every experience.',
+              'استمع لعملائك وافهم كل تجربة.',
+            )}
           </p>
         </div>
         <a
@@ -144,30 +147,58 @@ export default function ConnectedFeedback({ page, language, workspace }) {
         </a>
       </div>
       <Filters {...{ filters, setFilters, workspace, language }} />
-      <section className="product-card">
+      <section className="product-card product-list-card">
+        <div className="product-list-toolbar">
+          <strong>
+            {total.toLocaleString(language)} {t('responses', 'ردود')}
+          </strong>
+          <small>{t('Newest first', 'الأحدث أولًا')}</small>
+        </div>
         <DataTable
           headings={[
             t('Response', 'الرد'),
-            t('Survey / branch', 'الاستبيان / الفرع'),
-            t('Analysis', 'التحليل'),
+            t('Sentiment', 'المشاعر'),
             t('Date', 'التاريخ'),
+            t('Language', 'اللغة'),
+            t('Related aspects', 'الجوانب المرتبطة'),
+            t('Details', 'التفاصيل'),
           ]}
         >
           {rows.map((row) => (
             <tr key={row.id}>
               <td>
-                <a href={'#/feedback-details?id=' + row.id}>
+                <a className="product-response-preview" href={'#/feedback-details?id=' + row.id}>
                   {row.text || t('View structured answers', 'عرض الإجابات')}
                 </a>
+                <span className="product-response-meta">
+                  {row.branchName} · {row.surveyTitle}
+                </span>
               </td>
               <td>
-                {row.surveyTitle}
-                <p>{row.branchName}</p>
-              </td>
-              <td>
-                <Status value={row.analysisStatus} language={language} />
+                <Status
+                  value={row.analysis?.sentiment?.label || row.analysisStatus}
+                  language={language}
+                />
               </td>
               <td>{new Date(row.createdAt).toLocaleDateString(language)}</td>
+              <td>
+                {{
+                  en: t('English', 'الإنجليزية'),
+                  ar: t('Arabic', 'العربية'),
+                  mixed: t('Mixed', 'مختلطة'),
+                  unknown: t('Unknown', 'غير محددة'),
+                }[row.language] || '—'}
+              </td>
+              <td>
+                {[
+                  ...new Set(
+                    (row.analysis?.aspects?.mentions || []).map((mention) => mention.aspect),
+                  ),
+                ].join(', ') || '—'}
+              </td>
+              <td>
+                <a href={'#/feedback-details?id=' + row.id}>{t('View details', 'عرض التفاصيل')}</a>
+              </td>
             </tr>
           ))}
         </DataTable>

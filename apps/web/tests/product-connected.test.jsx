@@ -192,6 +192,34 @@ it('omits empty filters while preserving explicit segment filters and viewer res
   expect(canManage({ role: 'manager' })).toBe(true);
 });
 
+it('clears corrected public answer and consent errors without hiding other invalid fields', async () => {
+  history.replaceState(null, '', '/#/s/token');
+  vi.spyOn(productApi, 'publicSurvey').mockResolvedValue({
+    survey: {
+      title: 'Customer feedback',
+      questions: [
+        { id: 'text', type: 'short_text', label: 'Your experience', required: true },
+        { id: 'n', type: 'nps', label: 'Recommend', required: true },
+      ],
+    },
+  });
+  const submit = vi.spyOn(productApi, 'submitResponse');
+  render(<PublicSurvey language="en" setLanguage={() => {}} />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Send feedback' }));
+  expect(screen.getAllByRole('alert')).toHaveLength(3);
+  fireEvent.change(screen.getByLabelText('Your experience'), { target: { value: '   ' } });
+  expect(screen.getAllByRole('alert')).toHaveLength(3);
+  fireEvent.change(screen.getByLabelText('Your experience'), {
+    target: { value: 'Friendly staff' },
+  });
+  expect(screen.getAllByRole('alert')).toHaveLength(2);
+  fireEvent.change(screen.getByLabelText('Recommend'), { target: { value: '0' } });
+  expect(screen.getAllByRole('alert')).toHaveLength(1);
+  fireEvent.click(screen.getByLabelText(/agree/));
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(submit).not.toHaveBeenCalled();
+});
+
 it('submits real public answers and retains its idempotency key after a failed request', async () => {
   history.replaceState(null, '', '/#/s/token');
   vi.spyOn(productApi, 'publicSurvey').mockResolvedValue({
@@ -228,6 +256,7 @@ it('saves a six-type editable draft and only publishes with selected branches', 
     <SurveyBuilder language="en" workspace={{ branches: [{ id: 'branch', name: 'Main' }] }} />,
   );
   fireEvent.change(screen.getByLabelText('Survey title'), { target: { value: 'Visit feedback' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to questions' }));
   fireEvent.change(screen.getByLabelText('Question 1'), {
     target: { value: 'How was your visit?' },
   });

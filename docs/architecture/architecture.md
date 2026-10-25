@@ -24,6 +24,13 @@ JavaScript/JSX and `.mjs` remain in use. The source layout is ready for delibera
 
 Account product routes use saved identity/workspace data. `/preview/` is the only owner of synthetic metrics, sample feedback and canned assistant replies. Existing imported design variants are reference/preview code, not implemented product APIs. The shared scale hook preserves the reviewed desktop/mobile geometry.
 
+Private workspace remount keys include actual hash-navigation epochs and saved
+account/workspace/role/branch scope. Silent `history.replaceState` updates do not
+trigger a later remount merely because the interface locale changes. This keeps
+unsaved drafts while preserving resets on real navigation or authorization scope
+changes. Committed feedback search travels in the URL fragment so it survives
+that protected route remount; it still queries only the server-authorized cohort.
+
 ## API ownership
 
 `src/config` resolves the repository root and private configuration independently of package working directory. `modules/auth`, `modules/workspaces` and `modules/mail` implement existing business behavior. `middleware` contains request security, limits and safe errors. `integrations/mail` owns delivery adapters; `integrations/ai-service` owns authenticated task transport, safe capability metadata and independent result validation before persistence. `shared/database` owns connection-scoped Mongoose models and explicit transaction handling.

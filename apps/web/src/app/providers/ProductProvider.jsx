@@ -23,7 +23,19 @@ export function ProductProvider({
   preview = false,
 }) {
   const identity = useAuth()?.user;
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() =>
+    !preview && location.hash.split('?')[0] === '#/feedbacks'
+      ? new URLSearchParams(location.hash.split('?')[1]).get('search') || ''
+      : '',
+  );
+  useEffect(() => {
+    if (preview || location.hash.split('?')[0] !== '#/feedbacks') return;
+    const params = new URLSearchParams(location.hash.split('?')[1]);
+    if (query) params.set('search', query);
+    else params.delete('search');
+    const suffix = params.toString();
+    history.replaceState(null, '', '#/feedbacks' + (suffix ? '?' + suffix : ''));
+  }, [query, preview]);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 850);
   useEffect(() => {
     const resize = () => setIsMobile(window.innerWidth <= 850);
@@ -50,7 +62,6 @@ export function ProductProvider({
         'Cafe &workspace': workspace?.industry || '',
         B: Array.from(workspace?.businessName || '')[0] || '',
         'Sara Ahmed': identity?.name || '',
-        12: '0',
         'All 3 branches': language === 'ar' ? 'كل الفروع' : 'All branches',
       };
       if (Object.hasOwn(actual, text)) return actual[text];
@@ -60,6 +71,12 @@ export function ProductProvider({
   const [notice, setNotice] = useState('');
   const action = (label) => {
     if (!preview) {
+      if (label === 'Search feedback') {
+        onNavigate?.();
+        const params = new URLSearchParams(query ? { search: query } : {});
+        location.hash = '/feedbacks' + (params.size ? '?' + params.toString() : '');
+        return;
+      }
       const destinations = {
         Overview: 'dashboard',
         Feedbacks: 'feedbacks',

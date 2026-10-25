@@ -1,4 +1,4 @@
-import { currentRoute } from './routes.js';
+import { currentRoute, routeTitle } from './routes.js';
 import AuthPage from '../../features/auth/AuthPage.jsx';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Field from '../../components/ui/Field.jsx';
@@ -32,6 +32,7 @@ export default function AppRouter() {
     branchName: '',
   });
   const [page, setPage] = useState(currentRoute),
+    [navigationEpoch, setNavigationEpoch] = useState(0),
     [language, setLanguage] = useState(() => localStorage.getItem('nuvia-language') || 'en'),
     [values, setValues] = useState({
       name: '',
@@ -56,6 +57,7 @@ export default function AppRouter() {
       requestGeneration.current += 1;
       setBusy(false);
       setPage(currentRoute());
+      setNavigationEpoch((epoch) => epoch + 1);
       setErrors({});
       setNotice('');
       setValues({ name: '', email: '', password: '', confirm: '', terms: false, remember: false });
@@ -94,6 +96,11 @@ export default function AppRouter() {
     pendingInvitation: auth.pendingInvitation,
   });
   const redirect = policy.redirect;
+  useEffect(() => {
+    const visiblePage =
+      !preview && !policy.allow ? (auth.status === 'error' ? 'error' : 'loading') : page;
+    document.title = routeTitle(visiblePage, language, preview);
+  }, [page, language, preview, policy.allow, auth.status]);
   useEffect(() => {
     if (auth.status === 'ready' && redirect) location.hash = '/' + redirect;
   }, [auth.status, redirect]);
@@ -277,7 +284,7 @@ export default function AppRouter() {
         <ProductWorkspace
           key={JSON.stringify([
             page,
-            location.hash,
+            navigationEpoch,
             auth.user?.id,
             auth.workspace?.id,
             auth.workspace?.role,

@@ -24,6 +24,69 @@ function RefreshSession() {
   return <button onClick={() => auth.refresh()}>Refresh test session</button>;
 }
 
+it('hands committed header searches across the protected route remount and clears the URL query', async () => {
+  history.replaceState(null, '', '/#/reports');
+  vi.spyOn(authApi, 'session').mockResolvedValue(session());
+  vi.spyOn(productApi, 'get').mockImplementation((path) => {
+    if (path === '/reports') return Promise.resolve({ reports: [] });
+    if (path === '/surveys') return Promise.resolve({ surveys: [] });
+    if (path.startsWith('/feedback')) {
+      const filtered = new URLSearchParams(path.split('?')[1]).get('search') === 'match';
+      return Promise.resolve({
+        total: 1,
+        responses: [
+          {
+            id: 'saved',
+            text: filtered ? 'Matched saved feedback' : 'All saved feedback',
+            createdAt: '2026-10-01',
+            analysisStatus: 'waiting_for_model',
+          },
+        ],
+      });
+    }
+    return Promise.resolve({ jobs: [] });
+  });
+  render(<App />);
+  await screen.findByRole('heading', { name: 'AI Reports' });
+  fireEvent.change(screen.getByRole('textbox', { name: 'Search feedback…' }), {
+    target: { value: 'match' },
+  });
+  fireEvent.keyDown(screen.getByRole('textbox', { name: 'Search feedback…' }), { key: 'Enter' });
+  expect(await screen.findByRole('link', { name: 'Matched saved feedback' })).toBeVisible();
+  expect(screen.getByRole('textbox', { name: 'Search feedback…' })).toHaveValue('match');
+  fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+  expect(await screen.findByRole('link', { name: 'All saved feedback' })).toBeVisible();
+  expect(new URLSearchParams(location.hash.split('?')[1]).has('search')).toBe(false);
+});
+
+it('retains a saved wizard draft and later edits across a language change after replacing its URL', async () => {
+  history.replaceState(null, '', '/#/survey-builder');
+  vi.spyOn(authApi, 'session').mockResolvedValue(session());
+  let persisted;
+  vi.spyOn(productApi, 'get').mockImplementation((path) =>
+    Promise.resolve(path === '/survey-templates' ? { templates: [] } : { survey: persisted }),
+  );
+  vi.spyOn(productApi, 'send').mockImplementation((_path, body) => {
+    persisted = { ...body, id: 'saved-survey', revision: 1, status: 'draft', links: [] };
+    return Promise.resolve({ survey: persisted });
+  });
+  render(<App />);
+  fireEvent.change(await screen.findByLabelText('Survey title'), {
+    target: { value: 'Saved title' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to questions' }));
+  fireEvent.change(screen.getByLabelText('Question 1'), { target: { value: 'Saved question' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to sharing' }));
+  await screen.findByRole('heading', { name: 'Share survey' });
+  fireEvent.click(screen.getByRole('button', { name: /Build questions/ }));
+  fireEvent.change(screen.getByLabelText('Question 1'), {
+    target: { value: 'Unsaved edit after saving' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Language / اللغة' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: /العربية/ }));
+  expect(await screen.findByLabelText('السؤال 1')).toHaveValue('Unsaved edit after saving');
+});
+
 it.each([
   ['survey-builder', 'Survey title', 'عنوان الاستبيان'],
   ['settings', 'Description', 'الوصف'],
@@ -135,7 +198,7 @@ it('returns to page one when feedback search changes after paging', async () => 
   await screen.findByRole('link', { name: 'First page response' });
   fireEvent.click(screen.getByRole('button', { name: 'Next', exact: true }));
   await screen.findByRole('link', { name: 'Second page response' });
-  fireEvent.change(screen.getByRole('textbox', { name: 'Search your workspace' }), {
+  fireEvent.change(screen.getByRole('textbox', { name: 'Search feedback…' }), {
     target: { value: 'match' },
   });
   expect(await screen.findByRole('link', { name: 'Matching response' })).toBeVisible();

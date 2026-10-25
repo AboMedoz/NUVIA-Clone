@@ -3,11 +3,13 @@ import { useResource, useMutation } from '../product/useResource.js';
 import { productApi } from '../product/api.js';
 import { isOwner } from '../product/product-state.js';
 import { ErrorNotice, ResourceState } from '../product/ui.jsx';
+import AutoGrowTextarea from '../../components/ui/AutoGrowTextarea.jsx';
 export default function BusinessPageSettings({ language, workspace }) {
   const t = (a, b) => (language === 'ar' ? b : a),
     resource = useResource(isOwner(workspace) ? '/business-page' : null),
     mutation = useMutation(),
     [initialized, setInitialized] = useState(false),
+    [errors, setErrors] = useState({}),
     [draft, setDraft] = useState({
       enabled: false,
       slug: '',
@@ -25,6 +27,43 @@ export default function BusinessPageSettings({ language, workspace }) {
     }
   }, [resource.data, initialized]);
   const editable = isOwner(workspace) && initialized && !resource.loading && !resource.error;
+  const update = (field, value) => {
+    setDraft((old) => ({ ...old, [field]: value }));
+    setErrors((old) => ({ ...old, [field]: undefined }));
+  };
+  const validate = () => {
+    const next = {};
+    if (!/^[a-z0-9-]{3,80}$/.test(draft.slug)) next.slug = 'slug';
+    for (const field of ['logoUrl', 'contactUrl']) {
+      if (!draft[field]) continue;
+      try {
+        const url = new URL(draft[field]);
+        if (url.protocol !== 'https:' || url.username || url.password || draft[field].length > 2000)
+          throw new Error('invalid');
+      } catch {
+        next[field] = 'url';
+      }
+    }
+    if ((draft.description || '').length > 2000) next.description = 'length';
+    return next;
+  };
+  const messages = {
+    slug: t(
+      'Use 3–80 lowercase letters, numbers or hyphens.',
+      'استخدم من ٣ إلى ٨٠ حرفًا إنجليزيًا صغيرًا أو رقمًا أو شرطة.',
+    ),
+    url: t(
+      'Enter an HTTPS URL without a username or password.',
+      'أدخل رابط HTTPS بدون اسم مستخدم أو كلمة مرور.',
+    ),
+    length: t('Use 2,000 characters or fewer.', 'استخدم ٢٠٠٠ حرف أو أقل.'),
+  };
+  const errorFor = (field) =>
+    errors[field] && (
+      <span id={`business-page-${field}-error`} role="alert">
+        {messages[errors[field]]}
+      </span>
+    );
   return (
     <>
       <div className="product-heading">
@@ -46,9 +85,17 @@ export default function BusinessPageSettings({ language, workspace }) {
       <ResourceState resource={resource} language={language} />
       <form
         className="product-card product-form"
+        noValidate
         onSubmit={async (e) => {
           e.preventDefault();
-          if (!editable) return;
+          if (!editable || mutation.busy) return;
+          const next = validate();
+          setErrors(next);
+          const invalid = Object.keys(next)[0];
+          if (invalid) {
+            e.currentTarget.elements.namedItem(invalid)?.focus();
+            return;
+          }
           await mutation.run((signal) =>
             productApi.send(
               '/business-page',
@@ -80,37 +127,57 @@ export default function BusinessPageSettings({ language, workspace }) {
               {t('Page address', 'عنوان الصفحة')}
               <input
                 required
+                name="slug"
                 pattern="[a-z0-9-]+"
+                aria-invalid={!!errors.slug || undefined}
+                aria-describedby={errors.slug ? 'business-page-slug-error' : undefined}
                 value={draft.slug}
-                onChange={(e) => setDraft((old) => ({ ...old, slug: e.target.value }))}
+                onChange={(e) => update('slug', e.target.value)}
                 placeholder="my-business"
                 maxLength={80}
               />
+              {errorFor('slug')}
             </label>
             <label>
               {t('Logo URL (HTTPS, optional)', 'رابط الشعار (HTTPS، اختياري)')}
               <input
                 type="url"
+                name="logoUrl"
+                aria-invalid={!!errors.logoUrl || undefined}
+                aria-describedby={errors.logoUrl ? 'business-page-logoUrl-error' : undefined}
                 value={draft.logoUrl || ''}
-                onChange={(e) => setDraft((old) => ({ ...old, logoUrl: e.target.value }))}
+                onChange={(e) => update('logoUrl', e.target.value)}
                 maxLength={2000}
               />
+              {errorFor('logoUrl')}
             </label>
             <label>
               {t('Contact URL (HTTPS, optional)', 'رابط التواصل (HTTPS، اختياري)')}
               <input
                 type="url"
+                name="contactUrl"
+                maxLength={2000}
+                aria-invalid={!!errors.contactUrl || undefined}
+                aria-describedby={errors.contactUrl ? 'business-page-contactUrl-error' : undefined}
                 value={draft.contactUrl || ''}
-                onChange={(e) => setDraft((old) => ({ ...old, contactUrl: e.target.value }))}
+                onChange={(e) => update('contactUrl', e.target.value)}
               />
+              {errorFor('contactUrl')}
             </label>
             <label>
               {t('Description', 'الوصف')}
-              <textarea
+              <AutoGrowTextarea
+                name="description"
+                rows={4}
+                aria-invalid={!!errors.description || undefined}
+                aria-describedby={
+                  errors.description ? 'business-page-description-error' : undefined
+                }
                 value={draft.description || ''}
-                onChange={(e) => setDraft((old) => ({ ...old, description: e.target.value }))}
+                onChange={(e) => update('description', e.target.value)}
                 maxLength={2000}
               />
+              {errorFor('description')}
             </label>
           </div>
         </fieldset>

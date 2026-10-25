@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useProductView } from '../../../app/providers/ProductProvider.jsx';
 import { asset } from '../../../lib/assets.js';
+import AutoGrowTextarea from '../../../components/ui/AutoGrowTextarea.jsx';
 function AssistantIcon() {
   return (
     <img
@@ -202,13 +203,14 @@ export default function Assistant() {
             <div ref={end} />
           </div>
           <form
+            noValidate
             onSubmit={(e) => {
               e.preventDefault();
               ask(draft);
             }}
           >
             <label className="assistant-compose">
-              <textarea
+              <AutoGrowTextarea
                 rows="1"
                 aria-label={ar ? 'رسالتك للمساعد' : 'Message NUVIA'}
                 placeholder={ar ? 'اسأل عن تجربة عملائك…' : 'Ask about your customer experience…'}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LanguageMenu } from '../../components/ui/ChoiceMenu.jsx';
+import AutoGrowTextarea from '../../components/ui/AutoGrowTextarea.jsx';
 import { productApi } from '../product/api.js';
 import { validateAnswers } from '../product/product-state.js';
 import { useMutation } from '../product/useResource.js';
@@ -32,7 +33,17 @@ export default function PublicSurvey({ language, setLanguage }) {
       controller.abort();
     };
   }, [token]);
-  const update = (q, value) => setValues((old) => ({ ...old, [q.id]: value }));
+  const update = (q, value) => {
+    setValues((old) => ({ ...old, [q.id]: value }));
+    setErrors((old) => {
+      if (!old[q.id]) return old;
+      const next = { ...old };
+      const error = validateAnswers([q], { [q.id]: value })[q.id];
+      if (error) next[q.id] = error;
+      else delete next[q.id];
+      return next;
+    });
+  };
   async function submit(event) {
     event.preventDefault();
     const next = validateAnswers(state.data.survey.questions, values);
@@ -115,7 +126,7 @@ export default function PublicSurvey({ language, setLanguage }) {
                   </label>
                 ))
               ) : q.type === 'long_text' ? (
-                <textarea
+                <AutoGrowTextarea
                   aria-label={q.label}
                   value={values[q.id] || ''}
                   maxLength={10000}
@@ -156,7 +167,16 @@ export default function PublicSurvey({ language, setLanguage }) {
             <input
               type="checkbox"
               checked={consent}
-              onChange={(e) => setConsent(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setConsent(checked);
+                if (checked)
+                  setErrors((old) => {
+                    const next = { ...old };
+                    delete next.consent;
+                    return next;
+                  });
+              }}
             />
             {t(
               'I agree to share these answers with this business.',

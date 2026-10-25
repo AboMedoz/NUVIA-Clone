@@ -1,5 +1,9 @@
 # NUVIA Clone delivery and validation
 
+The subsequent [comprehensive QA pass](comprehensive-qa.md) records current
+feature/Figma/browser checks, live Gemini product evidence and later repairs.
+Counts below describe the earlier delivery checkpoints.
+
 This record distinguishes connected product behavior, model-ready plumbing and
 trained-model/scientific acceptance. The user approved the completion design and
 requested parallel execution in this clone. Trained models are supplied later;

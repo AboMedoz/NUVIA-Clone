@@ -54,12 +54,26 @@ export default function TeamPage({ language, workspace, page }) {
     [role, setRole] = useState('viewer'),
     [branchIds, setBranchIds] = useState([]),
     [accepted, setAccepted] = useState(false),
+    [emailError, setEmailError] = useState(false),
     [invitationUrl, setInvitationUrl] = useState('');
   const token = new URLSearchParams(location.hash.split('?')[1]).get('token');
   async function invite(e) {
     e.preventDefault();
+    if (mutation.busy) return;
+    if (email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setEmailError(true);
+      e.currentTarget.elements.namedItem('invitation-email')?.focus();
+      return;
+    }
+    if (!branchIds.length) return;
+    setEmailError(false);
     const result = await mutation.run((signal) =>
-      productApi.send('/team/invitations', { email, role, branchIds }, 'POST', signal),
+      productApi.send(
+        '/team/invitations',
+        { email: email.trim(), role, branchIds },
+        'POST',
+        signal,
+      ),
     );
     if (result) {
       setInvitationUrl(result.invitation?.acceptUrl || '');
@@ -208,16 +222,28 @@ export default function TeamPage({ language, workspace, page }) {
       {isOwner(workspace) && (
         <section className="product-card">
           <h2>{t('Invite a teammate', 'دعوة عضو')}</h2>
-          <form className="product-form" onSubmit={invite}>
+          <form className="product-form" onSubmit={invite} noValidate>
             <div className="product-inline">
               <label>
                 {t('Email', 'البريد الإلكتروني')}
                 <input
                   type="email"
+                  name="invitation-email"
                   required
+                  maxLength={254}
+                  aria-invalid={emailError || undefined}
+                  aria-describedby={emailError ? 'invitation-email-error' : undefined}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError(false);
+                  }}
                 />
+                {emailError && (
+                  <span id="invitation-email-error" role="alert">
+                    {t('Enter a valid email address.', 'أدخل بريدًا إلكترونيًا صالحًا.')}
+                  </span>
+                )}
               </label>
               <label>
                 {t('Role', 'الدور')}
