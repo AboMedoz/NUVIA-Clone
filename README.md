@@ -93,7 +93,7 @@ pnpm dev:api
 pnpm mail:work
 ```
 
-Run those in separate terminals if you choose that mode. Windows users can double-click `START-LAPTOP.cmd` to start the connected development group after configuration. `pnpm dev:network` exposes only the frontend for LAN previews; connected LAN access also requires correct backend host/origin/mail-link settings.
+Run those in separate terminals if you choose that mode. Windows users can double-click `START-FULL.cmd` (or `START-LAPTOP.cmd`, which delegates to it) to prepare locked JavaScript/Python dependencies, preserve/create private settings, check MongoDB and start web/API/mail/AI together. Install Node.js >=22.13, pnpm 11.25.0 and uv 0.12.15 first; dependency setup may need Internet access. Configure a usable Atlas/replica-set URI before startup. The script never changes the database selection or downloads trained models; missing learned capabilities remain unavailable. Keep its window open and use Ctrl+C to stop the group. `START-FULL.cmd --help` shows prerequisites without setup or starting services. For web/API/mail without Python, use `pnpm dev`. `pnpm dev:network` exposes only the frontend for LAN previews; connected LAN access also requires correct backend host/origin/mail-link settings.
 
 ## Try what is implemented
 
