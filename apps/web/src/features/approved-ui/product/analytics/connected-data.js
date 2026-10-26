@@ -27,6 +27,31 @@ export function analyticsQuery(filters, extra = {}, timezone) {
   );
 }
 
+export function matchingOverviewReport(reports, filters, locale, total) {
+  const cohort = (value) => {
+    const rest = Object.fromEntries(
+      Object.entries(value || {}).filter(
+        ([key]) => !['page', 'pageSize', 'order', 'expectedWorkspaceId'].includes(key),
+      ),
+    );
+    return JSON.stringify(
+      Object.entries({ interval: 'day', ...rest })
+        .filter(([, v]) => v !== undefined && v !== '' && v !== null)
+        .sort(([a], [b]) => a.localeCompare(b)),
+    );
+  };
+  return (
+    reports
+      .filter(
+        (report) =>
+          report.locale === locale &&
+          report.metrics?.totalResponses === total &&
+          cohort(report.filters) === cohort(filters),
+      )
+      .toSorted((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null
+  );
+}
+
 function totals(data = {}) {
   const distribution = data.sentimentDistribution || {};
   const analyzed = Object.values(distribution).reduce((sum, value) => sum + value, 0);

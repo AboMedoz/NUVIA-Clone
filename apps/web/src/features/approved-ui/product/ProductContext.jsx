@@ -36,6 +36,9 @@ export function ProductProvider({
     connected && auth.workspace ? '/workspaces/' + auth.workspace.id + '/branches' : null,
   );
   const workspaceResource = useResource(connected ? '/workspaces' : null);
+  const notifications = useResource(connected ? '/account/notifications' : null, {
+    refreshInterval: 30000,
+  });
   const workspaceMutation = useMutation();
   const switchWorkspace = async (id) =>
     workspaceMutation.run(async (signal) => {
@@ -212,6 +215,8 @@ export function ProductProvider({
         onLogout: auth?.logout,
         branches: branchResource.data?.branches || branchResource.data || [],
         billing: billing.data,
+        unreadNotifications: notifications.data?.unreadCount || 0,
+        unreadFeedback: notifications.data?.feedbackUnreadCount || 0,
         workspaces: workspaceResource.data?.workspaces || [],
         switchWorkspace,
         switchingWorkspace: workspaceMutation.busy,

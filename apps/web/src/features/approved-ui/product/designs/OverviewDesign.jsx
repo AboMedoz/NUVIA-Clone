@@ -1,6 +1,7 @@
 import { ArrowText as DashboardArrowText } from '../../components/UiArrow.jsx';
 import ControlIcon from '../../components/ControlIcon.jsx';
 import NavigationIcon from '../NavigationIcon.jsx';
+import NotificationBell from '../NotificationBell.jsx';
 import WorkspaceScopeControls from '../WorkspaceScopeControls.jsx';
 import { ScopeMetric, ScopeTrend, ScopeSentiment, OverviewScopeStatus } from '../OverviewScope.jsx';
 import '../overview-scope.css';
@@ -31,7 +32,6 @@ const imgCircleHelp = asset('dashboard/overview/circle-help.svg');
 const imgSearch = asset('dashboard/overview/search.svg');
 const imgGlobe = asset('dashboard/overview/globe.svg');
 const imgChevronDown = asset('dashboard/overview/chevron-down.svg');
-const imgNotifications = asset('dashboard/overview/notifications.svg');
 
 const imgPlus = asset('dashboard/overview/plus.svg');
 const imgMessageSquare1 = asset('dashboard/overview/message-square1.svg');
@@ -172,7 +172,12 @@ export default function OverviewDesign() {
             >
               {tr('Feedbacks')}
             </p>
-            <div className="f21" data-node-id="127:283" data-name="Unread count">
+            <div
+              className="f21"
+              data-node-id="127:283"
+              data-name="Unread count"
+              hidden={ui.connected && !ui.unreadFeedback}
+            >
               <p
                 className="f22"
                 data-node-id="127:284"
@@ -180,7 +185,7 @@ export default function OverviewDesign() {
                   fontVariationSettings: '"opsz" 14',
                 }}
               >
-                {ui.connected ? '' : tr('12')}
+                {ui.connected ? ui.formatNumber(ui.unreadFeedback) : tr('12')}
               </p>
             </div>
           </button>
@@ -497,7 +502,7 @@ export default function OverviewDesign() {
               data-node-id="127:346"
               data-name="Notifications"
             >
-              <img alt="" className="f5" src={imgNotifications} />
+              <NotificationBell />
             </button>
             <div className="f50" data-node-id="127:350" data-name="Divider" />
             <button

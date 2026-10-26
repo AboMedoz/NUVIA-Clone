@@ -97,6 +97,24 @@ quality evaluation of models supplied later.
 
 ## Runtime and operational boundaries
 
+Private web GET resources share a bounded in-memory navigation cache with a
+30-second freshness window, request deduplication and background revalidation.
+Successful writes invalidate active resources. Session reset, workspace selection
+and refreshed identity/branch permissions clear cached private results and cancel
+old reads. Results are never stored in local/session storage by this cache.
+Polled analytics and notification resources refresh while the document is visible.
+Workspace selection, business creation and invitation acceptance defer resource invalidation to their
+session refresh so no refetch uses the previously selected workspace header.
+Scheduled polling bypasses the navigation freshness window and still deduplicates
+in-flight reads, so response latency cannot skip the first refresh interval.
+
+Overview insight cards reuse saved report content only when locale, exact cohort
+filters and response count match. Owners/managers can generate a scoped report
+from the cards; queued, unavailable and failed states remain explicit. Report
+timestamps identify saved snapshots; analysis-only updates do not automatically
+regenerate an earlier report. No daily scheduler or fabricated recommendation is
+introduced.
+
 - JavaScript packages use pinned pnpm workspaces and each app declares its own dependencies. The root owns shared tooling and cross-app browser tests.
 - Python dependencies/lockfile are owned by `apps/ai-service`; Python is optional for existing web/API work.
 - Root `.env`, `.local/config`, `.local/mail` and test binaries remain root-relative. Production reads process environment only.

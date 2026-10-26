@@ -65,6 +65,10 @@ test('notifications isolate recipients and reads, enqueue private mail and sched
     );
     const notes = (await http.get('/account/notifications')).body.notifications;
     assert.equal(notes.length, 1);
+    const unread = (await http.get('/account/notifications')).body;
+    assert.equal(unread.unreadCount, 1);
+    assert.equal(unread.feedbackUnreadCount, 1);
+    assert.equal((await other.http.get('/account/notifications')).body.feedbackUnreadCount, 0);
     assert.equal((await other.http.get('/account/notifications')).body.notifications.length, 0);
     await other.http.mutate('post', '/account/notifications/read', { ids: [notes[0].id] });
     assert.equal((await http.get('/account/notifications')).body.notifications[0].readAt, null);
@@ -85,6 +89,27 @@ test('notifications isolate recipients and reads, enqueue private mail and sched
     now = new Date('2026-10-26T09:40:00Z');
     await scheduleNotificationDigests(deps);
     assert.equal(await deps.models.MailOutbox.countDocuments({ kind: 'notification' }), 1);
+    await http.mutate('post', '/account/notifications/read', { ids: [notes[0].id] });
+    assert.equal((await http.get('/account/notifications')).body.unreadCount, 0);
+    assert.equal((await http.get('/account/notifications')).body.feedbackUnreadCount, 0);
+    await deps.models.Notification.insertMany(
+      Array.from({ length: 101 }, (_, index) => ({
+        _id: randomUUID(),
+        userId: user._id,
+        workspaceId: workspace.id,
+        branchIds: [workspace.primaryBranchId],
+        kind: 'feedback',
+        title: 'Saved feedback ' + index,
+        body: 'Synthetic notification',
+        path: '/feedbacks',
+        readAt: null,
+        createdAt: deps.now(),
+      })),
+    );
+    const allUnread = (await http.get('/account/notifications')).body;
+    assert.equal(allUnread.notifications.length, 100);
+    assert.equal(allUnread.unreadCount, 101);
+    assert.equal(allUnread.feedbackUnreadCount, 101);
   } finally {
     await deps.cleanup();
   }

@@ -324,6 +324,7 @@ async function runProductExtensions({
     await choose('Report language', 'العربية');
     await page.getByRole('button', { name: 'Create report', exact: true }).click();
     await page.waitForURL('**/#/report-details?id=*');
+    const createdReportId = new URL(page.url()).hash.split('id=')[1];
     await page.getByRole('heading', { name: 'Source evidence', exact: true }).waitFor();
     const pdfDownload = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export PDF', exact: true }).click();
@@ -331,11 +332,23 @@ async function runProductExtensions({
     assert.equal((await readFile(await pdf.path())).subarray(0, 5).toString(), '%PDF-');
     await pdf.saveAs(join(output, 'report-ar.pdf'));
     await go('reports');
-    await page.getByRole('heading', { name: 'Customer feedback report', exact: true }).waitFor();
+    const reportCard = page.locator('[data-report-id="' + createdReportId + '"]');
+    await reportCard
+      .getByRole('heading', { name: 'Customer feedback report', exact: true })
+      .waitFor();
+    const englishReport = await deps.models.Report.findOne({
+      workspaceId: workspace.id,
+      locale: 'en',
+    }).lean();
+    assert.ok(englishReport, 'The earlier overview scenario saved an English report');
     await choose('Language', 'English');
-    await page.getByRole('heading', { name: 'No reports yet', exact: true }).waitFor();
+    await page.locator('[data-report-id="' + englishReport._id + '"]').waitFor();
+    assert.equal(await reportCard.count(), 0);
     await choose('Language', 'Arabic');
-    await page.getByRole('heading', { name: 'Customer feedback report', exact: true }).waitFor();
+    await reportCard
+      .getByRole('heading', { name: 'Customer feedback report', exact: true })
+      .waitFor();
+    assert.equal(await page.locator('[data-report-id="' + englishReport._id + '"]').count(), 0);
     check(
       'Arabic saved evidence report, honest missing-model status, real PDF and report library language filtering',
     );

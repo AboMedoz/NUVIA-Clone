@@ -1,6 +1,8 @@
 import React from 'react';
 import { useProductView } from './ProductContext.jsx';
 import { overviewDateLabel } from './OverviewControls.jsx';
+import AiTaskState from '../../product/AiTaskState.jsx';
+import { EvidenceLinks } from '../../analytics/AnalyticsPage.jsx';
 export default function ScopedInsights({ kind, children }) {
   const { dashboard, language, tr, formatNumber } = useProductView();
   if (dashboard?.connected) return <ConnectedInsights {...{ dashboard, language, kind }} />;
@@ -111,6 +113,9 @@ function ConnectedInsights({ dashboard, language, kind }) {
   };
   const aspects = data?.aspectScores || [];
   const alerts = data?.alerts || [];
+  const insight = dashboard.insight;
+  const report = insight?.report;
+  const sections = report?.content?.sections || [];
   return (
     <>
       <div className="scope-heading">
@@ -121,6 +126,94 @@ function ConnectedInsights({ dashboard, language, kind }) {
         <p role="status">{t('Loading saved feedback…', 'جارٍ تحميل الآراء المحفوظة…')}</p>
       ) : dashboard.resource.error ? (
         <p role="alert">{t('Could not load this data.', 'تعذر تحميل هذه البيانات.')}</p>
+      ) : ['daily', 'recommendations'].includes(kind) && insight ? (
+        <div className="scoped-branch-rows" onClick={(event) => event.stopPropagation()}>
+          {insight.loading ? (
+            <p role="status">{t('Loading insights…', 'جارٍ تحميل الرؤى…')}</p>
+          ) : insight.error ? (
+            <p role="alert">
+              {t('Could not load insights. Please retry.', 'تعذر تحميل الرؤى. حاول مرة أخرى.')}{' '}
+              <button onClick={insight.reload}>{t('Retry', 'إعادة المحاولة')}</button>
+            </p>
+          ) : report?.status === 'succeeded' && report.content ? (
+            <>
+              {kind === 'daily' ? (
+                <p>{report.content.summary}</p>
+              ) : (
+                sections.map((section, index) => (
+                  <div key={index}>
+                    <strong>{section.title}</strong>
+                    <p>{section.text}</p>
+                    <EvidenceLinks
+                      evidence={(report.content.evidence || []).filter((item) =>
+                        section.evidenceIds?.includes(item.id),
+                      )}
+                      language={language}
+                    />
+                  </div>
+                ))
+              )}
+              <a href={'#/report-details?id=' + encodeURIComponent(report.id)}>
+                {t('View saved report and evidence', 'عرض التقرير المحفوظ والأدلة')}
+              </a>
+              {report.createdAt && (
+                <small>
+                  {t('Report saved', 'حُفظ التقرير')}:{' '}
+                  {new Date(report.createdAt).toLocaleDateString(language)}
+                </small>
+              )}
+            </>
+          ) : report ? (
+            <AiTaskState status={report.status} language={language} />
+          ) : (
+            <p>
+              {data?.totalResponses
+                ? t(
+                    'Generate insights from the feedback in this branch and period.',
+                    'أنشئ رؤى من آراء هذا الفرع والفترة.',
+                  )
+                : t('No responses in this period', 'لا توجد ردود في هذه الفترة')}
+            </p>
+          )}
+          {insight.editable &&
+            data?.totalResponses > 0 &&
+            !['queued', 'running', 'waiting_for_model'].includes(report?.status) && (
+              <button
+                type="button"
+                className="button"
+                disabled={insight.busy}
+                onClick={insight.generate}
+              >
+                {insight.busy
+                  ? t('Generating…', 'جارٍ الإنشاء…')
+                  : t('Generate insights', 'إنشاء الرؤى')}
+              </button>
+            )}
+          {kind === 'recommendations' &&
+            data?.atRiskAspects?.map((aspect, index) => (
+              <div key={index}>
+                <strong>
+                  {t('Review low-scoring feedback', 'راجع الآراء منخفضة التقييم')}: {aspect.aspect}
+                </strong>
+                <a href={'#/feedbacks?aspect=' + encodeURIComponent(aspect.aspect)}>
+                  {t('View feedback', 'عرض الآراء')}
+                </a>
+              </div>
+            ))}
+          {kind === 'daily' &&
+            alerts.map((alert, index) => (
+              <div key={index}>
+                <strong>{alert.aspect}</strong>
+                <p>
+                  {t('Observed score change', 'التغير المرصود في التقييم')}: {n(alert.change)} ·{' '}
+                  {alert.from} – {alert.to}
+                </p>
+                <a href={'#/feedbacks?aspect=' + encodeURIComponent(alert.aspect)}>
+                  {t('Review feedback', 'مراجعة الآراء')}
+                </a>
+              </div>
+            ))}
+        </div>
       ) : kind === 'aspects' && aspects.length ? (
         <div className="scoped-branch-rows">
           {aspects.map((row) => (

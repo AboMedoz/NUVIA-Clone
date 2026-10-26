@@ -1071,6 +1071,9 @@
     transform: translateY(0);
   }
 }
+.survey-toast button {
+  pointer-events: auto;
+}
 @media (prefers-reduced-motion: reduce) {
   .survey-toast {
     animation: none;

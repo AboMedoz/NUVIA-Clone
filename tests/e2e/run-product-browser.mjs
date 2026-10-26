@@ -14,7 +14,9 @@ import { createApp } from '../../apps/api/src/app.mjs';
 import { runProductBrowserScenario } from './product-browser.spec.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const output = resolve(root, 'test-results/product-browser');
+const output = process.env.NUVIA_QA_OUTPUT
+  ? resolve(process.env.NUVIA_QA_OUTPUT)
+  : resolve(root, 'test-results/product-browser');
 const mailDirectory = await mkdtemp(join(tmpdir(), 'nuvia-product-browser-mail-'));
 const results = {
   status: 'running',

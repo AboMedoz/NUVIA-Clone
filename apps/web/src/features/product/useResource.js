@@ -1,53 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { productApi } from './api.js';
+import {
+  emptyResource,
+  resourceEntry,
+  readResource,
+  subscribeResource,
+} from '../../lib/http/resource-cache.js';
 export function useResource(path, { refreshInterval = 0 } = {}) {
-  const [state, setState] = useState({ data: null, error: null, loading: true });
-  const [revision, setRevision] = useState(0);
+  const entry = resourceEntry(path);
+  const subscribe = useCallback((listener) => subscribeResource(entry, listener), [entry]);
+  const snapshot = useCallback(() => entry?.snapshot || emptyResource, [entry]);
+  const state = useSyncExternalStore(subscribe, snapshot);
   useEffect(() => {
-    if (!path) {
-      setState({ data: null, error: null, loading: false });
-      return;
-    }
-    let controller,
-      current = true,
-      pending = false;
-    setState({ data: null, error: null, loading: true });
-    const read = () => {
-      if (pending) return;
-      pending = true;
-      controller = new AbortController();
-      productApi
-        .get(path, controller.signal)
-        .then(
-          (data) => {
-            if (current) setState({ data, error: null, loading: false });
-          },
-          (error) => {
-            if (current && error.name !== 'AbortError')
-              setState((old) => ({ ...old, error, loading: false }));
-          },
-        )
-        .finally(() => {
-          pending = false;
-        });
-    };
+    if (!entry) return;
+    const read = (force = false) =>
+      readResource(entry, (signal) => productApi.get(path, signal), force);
     read();
     const timer =
       refreshInterval > 0
         ? setInterval(
             () => {
-              if (document.visibilityState === 'visible') read();
+              if (document.visibilityState === 'visible') read(true);
             },
             Math.max(refreshInterval, 30000),
           )
         : null;
     return () => {
-      current = false;
-      controller?.abort();
       if (timer) clearInterval(timer);
     };
-  }, [path, revision, refreshInterval]);
-  return { ...state, reload: () => setRevision((v) => v + 1) };
+  }, [entry, path, refreshInterval]);
+  return {
+    ...state,
+    reload: () => readResource(entry, (signal) => productApi.get(path, signal), true),
+  };
 }
 export function useMutation() {
   const [state, setState] = useState({ busy: false, error: null, success: false });

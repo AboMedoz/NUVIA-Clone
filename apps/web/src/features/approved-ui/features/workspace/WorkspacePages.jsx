@@ -540,7 +540,10 @@ export default function WorkspacePages({ language, setLanguage, initialEmpty = f
     if (!connected || !['branch-edit', 'branch-history'].includes(page)) return;
     const id = new URLSearchParams(location.hash.split('?')[1]).get('id');
     const current = branches.find((b) => b.id === id);
-    if (current) setDraft((old) => (old.id === current.id ? old : { ...current }));
+    if (current)
+      setDraft((old) =>
+        page === 'branch-history' || old.id !== current.id ? { ...current } : old,
+      );
   }, [connected, page, branches]);
   const persistBusiness = async () => {
     if (!validate(['name', 'industry'])) return;

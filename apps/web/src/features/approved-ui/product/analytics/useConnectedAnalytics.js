@@ -19,7 +19,11 @@ export default function useConnectedAnalytics(filters, extra) {
     connected,
     resource,
     report: overviewFromAnalytics(resource.data),
-    branches: branches.data?.branches || branches.data || [],
+    branches: Array.isArray(branches.data?.branches)
+      ? branches.data.branches
+      : Array.isArray(branches.data)
+        ? branches.data
+        : [],
     surveys: surveys.data?.surveys || [],
     workspace: auth?.workspace,
   };

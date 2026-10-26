@@ -160,7 +160,7 @@ export function copyEditorQuestion(questions, id) {
 }
 export function removeEditorQuestion(questions, id) {
   const ids = editorQuestionIds(questions);
-  if (ids.length <= 1) return { id, questions };
+  if (!ids.length) return { id: 1, questions };
   const remaining = ids.filter((value) => value !== id);
   return {
     id: Math.min(id, remaining.length),

@@ -88,6 +88,15 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
     mutation = useMutation(),
     generator = useMutation();
   const generation = useRef(0);
+  useEffect(() => {
+    generation.current++;
+  }, [kind, goal, editorLanguage]);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(''), 6000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+  useEffect(() => setNotice(''), [kind]);
   useEffect(
     () => () => {
       generation.current++;
@@ -147,9 +156,17 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
   const go = (next, surveyId = draft.id) => {
     location.hash = '/survey-' + next + (surveyId ? '?id=' + encodeURIComponent(surveyId) : '');
   };
-  const updateQuestion = (key, patch) =>
-    editable &&
+  const updateQuestion = (key, patch) => {
+    if (!editable) return;
+    setNotice('');
     setDraft((old) => ({ ...old, questions: updateEditorQuestion(old.questions, key, patch) }));
+  };
+  const requireTitle = () => {
+    if (draft.title.trim()) return true;
+    setNotice(t('Add a survey name.', 'أضف اسم الاستبيان.'));
+    document.querySelector('[data-node-id="259:4683"] input')?.focus();
+    return false;
+  };
   async function saveDraft(next) {
     if (!editable || mutation.busy) return null;
     let body;
@@ -214,6 +231,12 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
     go(/Share|QR/.test(action) ? 'share' : 'questions', item.id);
   };
   async function generate() {
+    if (generator.busy) return;
+    if (!goal.trim()) {
+      setNotice(t('Add a survey goal.', 'أضف هدف الاستبيان.'));
+      document.querySelector('[aria-label="' + t('Survey goal', 'هدف الاستبيان') + '"]')?.focus();
+      return;
+    }
     const current = ++generation.current;
     const result = await generator.run((signal) =>
       productApi.send(
@@ -230,10 +253,12 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
       go('ai-review');
     } else if (result)
       setNotice(
-        t(
-          'Survey generation is waiting for a compatible AI model.',
-          'إنشاء الأسئلة ينتظر موديل ذكاء اصطناعي متوافق.',
-        ),
+        result.status === 'failed'
+          ? t('Survey generation failed. Please retry.', 'فشل إنشاء الأسئلة. حاول مرة أخرى.')
+          : t(
+              'Survey generation is waiting for a compatible AI model.',
+              'إنشاء الأسئلة ينتظر موديل ذكاء اصطناعي متوافق.',
+            ),
       );
   }
   const action = async (event) => {
@@ -270,26 +295,29 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
       return;
     }
     if (name === 'Template option') {
-      const template = /Quick/.test(label)
-        ? 'quick'
-        : /scratch/.test(label)
-          ? 'scratch'
-          : 'customer';
+      if (!requireTitle()) return;
+      if (target.dataset.nodeId === '262:12005') {
+        go('ai');
+        return;
+      }
+      const template =
+        target.dataset.nodeId === '259:4752'
+          ? 'quick'
+          : target.dataset.nodeId === '259:4759'
+            ? 'scratch'
+            : 'customer';
       const qs = createStartingQuestions(template);
       for (const q of Object.values(qs)) {
         q.text.en = q.text.en.replaceAll('Bloom & Co.', workspace.businessName);
         q.text.ar = q.text.ar.replaceAll('بلوم آند كو', workspace.businessName);
       }
-      setDraft((old) => ({ ...old, questions: qs }));
+      setDraft((old) => ({ ...old, startingPoint: template, questions: qs }));
       setQuestion(1);
       go('questions');
       return;
     }
     if (/Continue to questions|Build questions/.test(label)) {
-      if (!draft.title.trim()) {
-        setNotice(t('Add a survey name.', 'أضف اسم الاستبيان.'));
-        return;
-      }
+      if (!requireTitle()) return;
       go('questions');
       return;
     }
@@ -310,6 +338,7 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
       return;
     }
     if (/Generate with|NUVIA AI/.test(label)) {
+      if (!requireTitle()) return;
       go('ai');
       return;
     }
@@ -495,6 +524,7 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
     copy: {
       '258:1874': all.length,
       '258:1875': workspace.branches.length + ' ' + tr('Branches'),
+      '259:4715': branchIds.length + ' ' + t('branches selected', 'فروع محددة'),
       '258:1882': all.filter((s) => s.status === 'published').length,
       '258:1890': all.reduce((sum, s) => sum + (s.responseCount || 0), 0),
       '258:1891': '—',
@@ -541,6 +571,7 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
           ? draft.description
           : draft.title,
     setField: (key, value, multiline) => {
+      setNotice('');
       if (kind === 'ai') {
         if (multiline) setGoal(value);
         return;
@@ -727,7 +758,8 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
         if (/^Showing \d/.test(text.trim())) text = visible.length + ' ' + tr('Surveys');
         if (/^All \d+ branches$/.test(text.trim()))
           text = workspace.branches.length + ' ' + tr('Branches');
-        if (/^All\s+\d+$/.test(text.trim())) text = tr('All') + ' ' + all.length;
+        if (/^All(?: surveys)?\s+\d+$/.test(text.trim()))
+          text = tr('All surveys') + ' ' + all.length;
         if (/^Live\s+\d+$/.test(text.trim()))
           text = tr('Live') + ' ' + all.filter((s) => s.status === 'published').length;
         if (/^Drafts\s+\d+$/.test(text.trim()))
@@ -754,7 +786,7 @@ export default function ConnectedSurveyPage({ page, language, setLanguage }) {
       <SurveyRuntimeContext.Provider value={runtime}>
         <SurveyEditorContext.Provider
           value={{
-            startingPoint: 'scratch',
+            startingPoint: draft.startingPoint || 'scratch',
             question: questionId,
             language: editorLanguage,
             viewMode: editorLanguage,

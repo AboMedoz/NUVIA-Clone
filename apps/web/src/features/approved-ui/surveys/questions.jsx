@@ -33,6 +33,15 @@ const imgClock3 = asset('surveys-figma/questions-imgClock3.svg');
 export default function SurveyContent({ question = 1 }) {
   const editor = useSurveyEditor();
   const item = editor.questions[question];
+  if (!item)
+    return (
+      <section className="sv162">
+        <h2>{editor.language === 'ar' ? 'لا توجد أسئلة بعد' : 'No questions yet'}</h2>
+        <button type="button" className="survey-primary" data-survey-action="Add question">
+          {editor.language === 'ar' ? 'إضافة سؤال' : 'Add question'}
+        </button>
+      </section>
+    );
   const model = { type: item.type, text: item.text[editor.language], ar: item.text.ar };
   const starCount = item.count;
   const setStarCount = (count) => editor.updateQuestion(question, { count });
@@ -96,7 +105,7 @@ export default function SurveyContent({ question = 1 }) {
           editorField="text"
           initialValue={model.text}
           multiline={false}
-          key={question + '-' + model.text}
+          key={question}
         />
       </div>
       {editor.viewMode === 'both' && (

@@ -70,8 +70,22 @@ Primary-branch and owner-only structure rules remain enforced by Node.
 
 ## Focused browser verification
 
+The editor validates its survey name before any starting-point transition,
+including AI generation. A draft may temporarily have zero questions while it is
+being edited; the save/publication contract still requires 1–50 valid questions.
+Question inputs retain their React identity while typing. Selected branch counts
+come from the current workspace selection. Correcting a field clears its transient
+notice, which also expires after six seconds.
+
 `node tests/e2e/run-approved-survey-browser.mjs` uses an isolated replica set,
 synthetic saved identity/workspace, UI login, the supplied details/question/menu/
 sharing/public screens, real publication and response APIs, and desktop English
 plus narrow Arabic rendering. Set `MONGOMS_SYSTEM_BINARY` for a local binary.
 It does not establish SMTP, Atlas, external provider or scientific model quality.
+Set `NUVIA_QA_OUTPUT` to an absolute temporary directory to keep screenshots and
+QA results outside the repository. The scenario also checks continuous typing,
+empty-question recovery, AI unavailable states, unread badges, navigation caching
+and scoped overview report generation.
+The composed `run-product-browser.mjs` runner accepts the same output override.
+Its report-library assertions target saved report IDs and verify both locales,
+including the English report created by the earlier overview scenario.

@@ -127,6 +127,14 @@ The pump selects queued work, due transient retries and expired leases **before*
 
 ## Authorized header search
 
+`GET /account/notifications` returns the latest 100 authorized in-app
+`notifications` plus `unreadCount` and `feedbackUnreadCount` across the whole
+authorized unread set. Feedback counts include `kind:'feedback'` only, excluding
+separate low-rating alerts for the same response. Counts use the same current
+workspace/branch and global-security visibility as the notification list, and
+decrease after `POST /account/notifications/read`. They are notification counts,
+not a separate per-response read-tracking model.
+
 `GET /search?q=...&branchId=...` returns up to four saved feedback, survey and
 report matches per category as `{results:[{id,title,section,description,path}]}`.
 The query is bounded to 200 characters; empty queries return no records. Current

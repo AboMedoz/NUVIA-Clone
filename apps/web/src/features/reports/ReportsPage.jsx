@@ -12,7 +12,10 @@ export default function ReportsPage({ language, workspace }) {
     resource = useResource('/reports', { refreshInterval: 30000 }),
     mutation = useMutation(),
     [filters, setFilters] = useState({}),
-    [selection, setSelected] = useState(null),
+    [selection, setSelected] = useState(() => {
+      const id = new URLSearchParams(location.hash.split('?')[1]).get('id');
+      return id ? { id } : null;
+    }),
     [reportLocale, setReportLocale] = useState(language),
     [generationOpen, setGenerationOpen] = useState(false),
     [libraryLocale, setLibraryLocale] = useState(''),

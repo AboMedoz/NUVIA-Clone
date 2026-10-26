@@ -300,6 +300,11 @@ export interface NotificationView {
   createdAt: string;
   readAt: string | null;
 }
+export interface NotificationListView {
+  notifications: NotificationView[];
+  unreadCount: number;
+  feedbackUnreadCount: number;
+}
 export interface ActionView {
   id: string;
   title: string;

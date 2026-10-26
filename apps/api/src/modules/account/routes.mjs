@@ -208,11 +208,15 @@ export function accountRoutes(deps) {
     res.json(input);
   });
   router.get('/notifications', async (req, res) => {
-    const records = await deps.models.Notification.find(await notificationFilter(req.user.id, deps))
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .lean();
+    const filter = await notificationFilter(req.user.id, deps);
+    const [records, unreadCount, feedbackUnreadCount] = await Promise.all([
+      deps.models.Notification.find(filter).sort({ createdAt: -1 }).limit(100).lean(),
+      deps.models.Notification.countDocuments({ ...filter, readAt: null }),
+      deps.models.Notification.countDocuments({ ...filter, readAt: null, kind: 'feedback' }),
+    ]);
     res.json({
+      unreadCount,
+      feedbackUnreadCount,
       notifications: records.map(({ _id, title, body, readAt, createdAt, path, workspaceId }) => ({
         id: _id,
         title,

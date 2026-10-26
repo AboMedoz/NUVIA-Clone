@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import { it, expect, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import SurveyBuilder from '../src/features/surveys/SurveyBuilder.jsx';
 import SurveysPage from '../src/features/surveys/SurveysPage.jsx';
 import { productApi } from '../src/features/product/api.js';
@@ -69,8 +70,9 @@ it('saves each edited revision before sharing and only publishes on the explicit
   expect(send.mock.calls[1][0]).toBe('/surveys/saved');
   expect(send.mock.calls[1][1].revision).toBe(1);
   expect(send.mock.calls[1][1].questions[0].label).toBe('Updated question');
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Main' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Publish survey' }));
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('checkbox', { name: 'Main' }));
+  await user.click(screen.getByRole('button', { name: 'Publish survey' }));
   await waitFor(() => expect(send).toHaveBeenCalledTimes(3));
   expect(send.mock.calls[2][0]).toBe('/surveys/saved/publish');
   expect(send.mock.calls[2][1]).toEqual({ branchIds: ['main'] });

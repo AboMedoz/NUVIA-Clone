@@ -1,5 +1,6 @@
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import useConnectedAnalytics from '../product/analytics/useConnectedAnalytics.js';
+import useOverviewInsight from '../product/analytics/useOverviewInsight.js';
 import { connectedDefaults } from '../product/analytics/connected-data.js';
 import { useRouteState } from '../product/navigation.js';
 import useWorkspaceScale from '../product/useWorkspaceScale.js';
@@ -27,6 +28,13 @@ export default function DashboardPage({ language, setLanguage }) {
     ...defaults,
   }));
   const live = useConnectedAnalytics(filters);
+  const insight = useOverviewInsight(
+    connected,
+    auth?.workspace,
+    filters,
+    language,
+    live.resource.data?.totalResponses,
+  );
   const [dateOpen, setDateOpen] = useState(false);
   const filtered =
     filters.branch !== 'all' ||
@@ -36,6 +44,7 @@ export default function DashboardPage({ language, setLanguage }) {
     isFiltered: connected || filtered,
     connected,
     resource: live.resource,
+    insight,
     branches: live.branches,
     surveys: live.surveys,
     reset: () => setFilters({ ...defaults }),

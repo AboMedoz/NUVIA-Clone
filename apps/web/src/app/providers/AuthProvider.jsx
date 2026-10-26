@@ -18,7 +18,10 @@ export function AuthProvider({ children, preview = false }) {
     try {
       const data = await authApi.session();
       if (id !== generation.current) return null;
-      setApiWorkspace(data.workspace?.id);
+      setApiWorkspace(
+        data.workspace?.id,
+        JSON.stringify([data.user?.id, data.workspace?.role, data.workspace?.allowedBranchIds]),
+      );
       setView({
         status: 'ready',
         user: data.user,

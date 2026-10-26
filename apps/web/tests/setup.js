@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach } from 'vitest';
+import { resetApiSession } from '../src/lib/http/client.js';
 
 // jsdom does not implement the browser dialog lifecycle used by feature cards.
 HTMLDialogElement.prototype.showModal = function () {
@@ -11,6 +12,7 @@ HTMLDialogElement.prototype.close = function () {
 };
 
 beforeEach(() => {
+  resetApiSession();
   localStorage.clear();
   history.replaceState(null, '', '/#/landing');
   document.documentElement.dir = 'ltr';
