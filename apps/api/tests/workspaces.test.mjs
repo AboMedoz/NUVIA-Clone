@@ -51,8 +51,17 @@ test('workspace onboarding persists, survives retries and isolates owners and br
       422,
     );
     const second = (
-      await a.mutate('post', `/workspaces/${workspace.id}/branches`, { name: 'Giza' }, 201)
+      await a.mutate(
+        'post',
+        `/workspaces/${workspace.id}/branches`,
+        { name: 'Giza', country: 'Egypt', city: 'Giza', address: 'Saved branch address' },
+        201,
+      )
     ).body;
+    assert.equal(second.address, 'Saved branch address');
+    const branchList = (await a.get(`/workspaces/${workspace.id}/branches`)).body;
+    assert.equal(branchList.find((branch) => branch.id === second.id).city, 'Giza');
+    assert.equal(branchList.find((branch) => branch.id === second.id).responses, 0);
     await a.mutate('post', `/workspaces/${workspace.id}/branches`, { name: ' giza ' }, 409);
     await a.mutate(
       'patch',

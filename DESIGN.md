@@ -26,13 +26,15 @@ components:
 
 # NUVIA design context
 
+The current canonical interface is the user-approved October 26 `Frontend.zip`, imported into `apps/web/src/features/approved-ui`. Supplied CSS/assets stay unchanged; adapters replace data and behavior. See `docs/development/approved-frontend.md`.
+
 The maintained visual references are the ordered galleries in `docs/ui/frontend/` and the existing account/onboarding/product components. This change connects behavior and adds verification state; it does not introduce a new visual identity. The brand reference is the approved geometric NUVIA mark, blue actions, white surfaces, and restrained line illustrations.
 
 Owners create an account and business workspace, then review customer feedback on desktop or phone. English and Arabic/RTL are supported; locale does not imply a deployment country. Marketing landing and product workspace use the same brand, with denser navigation and controls inside the product.
 
 ## Runtime ownership
 
-Runtime CSS remains canonical (mapping model B). `apps/web/src/styles/app.css` defines `--primary`, `--dark`, `--muted`, `--border`, and `--error`, mirrored above. Authentication, verification and loading states consume those variables. Font files are bundled by `main.jsx`. Existing styles own the layout/type scales; no duplicate theme adapter or new color palette is introduced. `setup.css` and `site-chrome.css` retain onboarding geometry and shared branding.
+Runtime CSS remains canonical (mapping model B). `apps/web/src/features/approved-ui/styles/app.css` defines `--primary`, `--dark`, `--muted`, `--border`, and `--error`, mirrored above. Authentication, verification and loading states consume those variables. Font files are bundled by `main.jsx`. Existing styles own the layout/type scales; no duplicate theme adapter or new color palette is introduced. `setup.css` and `site-chrome.css` retain onboarding geometry and shared branding.
 
 Existing headers use 76px desktop / 72px mobile geometry and responsive product navigation. The mobile breakpoint for account/business chrome is 850px. Preserve stacked narrow layouts, natural vertical scrolling and 16px mobile input text; never clip forms to force viewport fit. Verification uses the same action color, border, typography and 8px field radius as sibling account controls.
 
@@ -42,7 +44,7 @@ Existing headers use 76px desktop / 72px mobile geometry and responsive product 
 - Hash routes support refresh and persisted onboarding. Public account routes remain reachable; product routes require a verified owner and completed setup.
 - Arabic changes document direction, labels and navigation semantics. User-entered names are displayed as entered. Dates use the user's locale and workspace reporting defaults.
 - Private product routes show saved identity/workspace data and honest empty/unavailable states. Sample records, canned assistant replies and synthetic subscription/usage claims belong only to explicit `/preview/` routes.
-- Connected feedback routes use `ProductWorkspace` and `ConnectedFeedback` with the shared workspace shell, real filters and response state. The reviewed `FeedbackShell`/`FeedbackList` references remain in previews. Sample responses open `/preview/#/feedbacks`; connected survey sharing uses the published branch link and local QR. Keep the approved empty Overview copy in previews, with availability-aware copy in account routes.
+- Connected product routes use `approved-ui/ApprovedWorkspace.jsx` and its supplied workspace shell. Adapters provide authorized saved data and explicit loading, empty and unavailable states. Illustrative records remain under `/preview/`; sharing uses published branch links and generated QR.
 - Preserve visible focus, keyboard-operable menus, password visibility controls, native form semantics and reduced-motion behavior. No additional decorative motion is introduced.
 - Verify changes through frontend tests and the account browser scenario at desktop and 393px mobile widths in both languages. Reference screenshots remain previews, not proof of real backend/AI behavior.
 

@@ -21,6 +21,11 @@ const timezone = z
       return false;
     }
   });
+const locationFields = {
+  country: z.string().trim().max(120).optional(),
+  city: z.string().trim().max(120).optional(),
+  address: z.string().trim().max(500).optional(),
+};
 export function workspaceRoutes(deps) {
   const router = Router();
   router.use(async (req, _res, next) => {
@@ -86,7 +91,7 @@ export function workspaceRoutes(deps) {
         await createBranch(
           req.user.id,
           uuid(req.params.id),
-          parse(z.object({ name }).strict(), req.body),
+          parse(z.object({ name, ...locationFields }).strict(), req.body),
           deps,
         ),
       ),
@@ -101,6 +106,7 @@ export function workspaceRoutes(deps) {
           z
             .object({
               name: name.optional(),
+              ...locationFields,
               archived: z.boolean().optional(),
               isPrimary: z.literal(true).optional(),
             })

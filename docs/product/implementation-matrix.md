@@ -70,4 +70,4 @@ Gemini اختياري صريح للمشاعر والجوانب والتمثيل�
   لحساب مستخدم. الحزم `testOnly` لا تدخل سجل تشغيل المنتج.
 - النشر الإنتاجي وHTTPS وSMTP والنسخ الاحتياطي وقياسات 10,000 رد وبيئة4G
   ليست نتيجة تلقائية لنجاح الاختبارات المحلية.
-- تظل SUB-01..SUB-06 مؤجلة. لا تنفيذ دفع أو اشتراكات أو تدريب مودلز في هذه المهمة.
+- Stripe hosted checkout and subscription management are now prepared for operator configuration. Real activation requires provider keys/prices and acceptance testing; paid entitlements and model training are not invented.

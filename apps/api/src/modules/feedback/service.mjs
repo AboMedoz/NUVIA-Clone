@@ -4,6 +4,8 @@ import { branchAllowed, scopedBranches } from '../team/access.mjs';
 export const filterSchema = z
   .object({
     page: z.coerce.number().int().min(1).max(100000).default(1),
+    expectedWorkspaceId: z.uuid().optional(),
+    order: z.enum(['newest', 'oldest']).default('newest'),
     pageSize: z.coerce.number().int().min(1).max(100).default(25),
     search: z.string().max(200).optional(),
     branchId: z.uuid().optional(),
@@ -61,6 +63,7 @@ export const responseView = (r) => ({
   branchId: r.branchId,
   branchName: r.branchName,
   answers: r.answers,
+  ...(r.respondent ? { respondent: r.respondent } : {}),
   questions: r.questions,
   text: r.text,
   segments: r.segments,
@@ -75,7 +78,10 @@ export async function listFeedback(filters, access, deps) {
   const query = filterQuery(filters, access),
     total = await deps.models.Response.countDocuments(query);
   const responses = await deps.models.Response.find(query)
-    .sort({ createdAt: -1, _id: -1 })
+    .sort({
+      createdAt: filters.order === 'oldest' ? 1 : -1,
+      _id: filters.order === 'oldest' ? 1 : -1,
+    })
     .skip((filters.page - 1) * filters.pageSize)
     .limit(filters.pageSize)
     .lean();
@@ -94,6 +100,25 @@ export async function findResponse(id, access, deps) {
   }).lean();
   if (!response) throw new ApiError(404, 'NOT_FOUND');
   return response;
+}
+export async function responseNavigation(response, access, deps) {
+  const scope = { workspaceId: access.workspace._id, ...scopedBranches(access) };
+  const neighbor = async (direction) => {
+    const operator = direction === 1 ? '$gt' : '$lt';
+    const result = await deps.models.Response.findOne({
+      ...scope,
+      $or: [
+        { createdAt: { [operator]: response.createdAt } },
+        { createdAt: response.createdAt, _id: { [operator]: response._id } },
+      ],
+    })
+      .sort({ createdAt: direction, _id: direction })
+      .select('_id')
+      .lean();
+    return result?._id || null;
+  };
+  const [previousId, nextId] = await Promise.all([neighbor(1), neighbor(-1)]);
+  return { previousId, nextId };
 }
 export function csvRow(values) {
   return (

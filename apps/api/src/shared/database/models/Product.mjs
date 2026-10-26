@@ -7,7 +7,14 @@ export const surveySchema = defineSchema('surveys', {
   title: text,
   description: { type: String, default: '' },
   locale: { type: String, enum: ['ar', 'en'], required: true },
-  status: { type: String, enum: ['draft', 'published', 'closed'], required: true },
+  anonymous: { type: Boolean, default: true },
+  enabledLanguages: { type: [String], enum: ['en', 'ar'], default: undefined },
+  status: {
+    type: String,
+    enum: ['draft', 'published', 'paused', 'closed', 'archived'],
+    required: true,
+  },
+  deletedAt: { type: Date, default: null },
   questions: { type: [mixed], required: true },
   revision: positiveInteger,
   draftBranchIds: { type: [String], default: null },
@@ -23,6 +30,8 @@ export const surveyRevisionSchema = defineSchema('survey_revisions', {
   title: text,
   description: { type: String, default: '' },
   locale: text,
+  anonymous: { type: Boolean, default: true },
+  enabledLanguages: { type: [String], enum: ['en', 'ar'], default: undefined },
   questions: { type: [mixed], required: true },
   createdAt: date,
 });
@@ -39,6 +48,20 @@ export const surveyLinkSchema = defineSchema('survey_links', {
 });
 surveyLinkSchema.index({ token: 1 }, { unique: true });
 surveyLinkSchema.index({ workspaceId: 1, surveyId: 1, enabled: 1 });
+export const surveyStartSchema = defineSchema('survey_starts', {
+  workspaceId: reference('Workspace'),
+  surveyId: reference('Survey'),
+  linkId: reference('SurveyLink'),
+  branchId: reference('Branch'),
+  startId: text,
+  revision: positiveInteger,
+  channel: { type: String, enum: ['qr', 'link'], required: true },
+  createdAt: date,
+  completedAt: { type: Date, default: null },
+  responseId: reference('Response', false),
+});
+surveyStartSchema.index({ linkId: 1, startId: 1 }, { unique: true });
+surveyStartSchema.index({ workspaceId: 1, branchId: 1, createdAt: -1 });
 export const responseSchema = defineSchema('responses', {
   workspaceId: reference('Workspace'),
   surveyId: reference('Survey'),
@@ -48,11 +71,13 @@ export const responseSchema = defineSchema('responses', {
   surveyTitle: text,
   revision: positiveInteger,
   answers: { type: [mixed], required: true },
+  respondent: { type: mixed, default: undefined },
   questions: { type: [mixed], required: true },
   segments: { type: mixed, required: true },
   text: { type: String, default: '' },
   language: { type: String, enum: ['ar', 'en', 'mixed', 'unknown'], required: true },
   submittedLocale: text,
+  sourceChannel: { type: String, enum: ['qr', 'link', 'unknown'], default: 'unknown' },
   consentAt: date,
   createdAt: date,
   idempotencyKey: text,
@@ -132,6 +157,8 @@ export const invitationSchema = defineSchema('team_invitations', {
 invitationSchema.index({ tokenDigest: 1 }, { unique: true });
 invitationSchema.index({ workspaceId: 1, email: 1 });
 export const reportSchema = defineSchema('reports', {
+  scheduleKey: { type: String, maxlength: 200 },
+  schedule: { type: mixed, default: null },
   workspaceId: reference('Workspace'),
   createdBy: reference('User'),
   locale: text,
@@ -157,6 +184,10 @@ export const reportSchema = defineSchema('reports', {
   updatedAt: date,
 });
 reportSchema.index({ workspaceId: 1, createdAt: -1 });
+reportSchema.index(
+  { scheduleKey: 1 },
+  { unique: true, partialFilterExpression: { scheduleKey: { $type: 'string' } } },
+);
 export const businessPageSchema = defineSchema('business_pages', {
   workspaceId: reference('Workspace'),
   slug: text,

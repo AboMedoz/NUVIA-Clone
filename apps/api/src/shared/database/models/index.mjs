@@ -5,10 +5,16 @@ import { workspaceSchema } from './Workspace.mjs';
 import { branchSchema } from './Branch.mjs';
 import { mailOutboxSchema } from './MailOutbox.mjs';
 import { schemaVersionSchema } from './SchemaVersion.mjs';
+import { notificationSchema } from './Account.mjs';
+import { oauthStateSchema } from './OAuthState.mjs';
+import { billingAccountSchema, billingEventSchema } from './Billing.mjs';
+import { actionSchema } from './Actions.mjs';
+import { contactSchema } from './ContactRequest.mjs';
 import {
   surveySchema,
   surveyRevisionSchema,
   surveyLinkSchema,
+  surveyStartSchema,
   responseSchema,
   analysisJobSchema,
   membershipSchema,
@@ -20,6 +26,12 @@ import {
 export function createModels(connection) {
   const schemas = {
     User: userSchema,
+    Notification: notificationSchema,
+    OAuthState: oauthStateSchema,
+    BillingAccount: billingAccountSchema,
+    BillingEvent: billingEventSchema,
+    Action: actionSchema,
+    ContactRequest: contactSchema,
     Session: sessionSchema,
     AuthToken: authTokenSchema,
     Workspace: workspaceSchema,
@@ -29,6 +41,7 @@ export function createModels(connection) {
     Survey: surveySchema,
     SurveyRevision: surveyRevisionSchema,
     SurveyLink: surveyLinkSchema,
+    SurveyStart: surveyStartSchema,
     Response: responseSchema,
     AnalysisJob: analysisJobSchema,
     Membership: membershipSchema,

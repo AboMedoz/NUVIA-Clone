@@ -12,8 +12,13 @@ import '@fontsource/dm-sans/700.css';
 import '@fontsource/noto-sans-arabic/400.css';
 import '@fontsource/noto-sans-arabic/700.css';
 import App from './app/App.jsx';
-import './styles/app.css';
-import './styles/site-chrome.css';
+import './features/approved-ui/styles/app.css';
+import './features/approved-ui/styles/site-chrome.css';
+import './features/approved-ui/styles/review.css';
+import './features/approved-ui/styles/mobile-workspace.css';
+import './features/approved-ui/styles/tablet-workspace.css';
+import './features/approved-ui/styles/account-controls.css';
+import './styles/integration.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

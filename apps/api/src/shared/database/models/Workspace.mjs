@@ -12,5 +12,7 @@ export const workspaceSchema = defineSchema('workspaces', {
   version: positiveInteger,
   createdAt: date,
   updatedAt: date,
+  weeklyReportCheckedAt: Date,
 });
-workspaceSchema.index({ ownerUserId: 1 }, { unique: true });
+// Existing databases keep their legacy unique index until an explicit reviewed migration.
+workspaceSchema.index({ ownerUserId: 1, createdAt: 1 }, { name: 'workspace_owner_created' });

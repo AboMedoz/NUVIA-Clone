@@ -5,7 +5,9 @@ export const authTokenSchema = defineSchema(
   'auth_tokens',
   {
     userId: reference('User'),
-    purpose: { type: String, enum: ['verify', 'reset'], required: true },
+    purpose: { type: String, enum: ['verify', 'reset', 'change-email'], required: true },
+    targetEmail: String,
+    credentialsVersion: { type: Number, min: 1, validate: Number.isInteger },
     digest: text,
     expiresAt: date,
     createdAt: date,

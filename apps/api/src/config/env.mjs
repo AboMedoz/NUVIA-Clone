@@ -58,6 +58,27 @@ export function loadConfig(env = process.env, { rootDir = repositoryRoot } = {})
   const trustProxy = values.TRUST_PROXY || false;
   if (trustProxy && !['loopback', 'linklocal', 'uniquelocal'].includes(trustProxy))
     invalid('TRUST_PROXY');
+  const googleRedirectUri =
+    values.GOOGLE_REDIRECT_URI || appOrigin + '/api/v1/auth/google/callback';
+  try {
+    const redirect = new URL(googleRedirectUri);
+    if (
+      redirect.origin !== appOrigin ||
+      redirect.pathname !== '/api/v1/auth/google/callback' ||
+      redirect.search ||
+      redirect.hash
+    )
+      invalid('GOOGLE_REDIRECT_URI');
+  } catch {
+    invalid('GOOGLE_REDIRECT_URI');
+  }
+  const stripePrices = {
+    starter: values.STRIPE_PRICE_STARTER || '',
+    pro: values.STRIPE_PRICE_PRO || '',
+    business: values.STRIPE_PRICE_BUSINESS || '',
+  };
+  for (const [plan, price] of Object.entries(stripePrices))
+    if (price && !/^price_[a-zA-Z0-9]+$/.test(price)) invalid('STRIPE_PRICE_' + plan.toUpperCase());
   return {
     mode,
     mongoUri,
@@ -75,6 +96,23 @@ export function loadConfig(env = process.env, { rootDir = repositoryRoot } = {})
     aiServiceKey: values.AI_SERVICE_KEY || '',
     aiTimeoutMs: integer('AI_SERVICE_TIMEOUT_MS', 75000, 100, 120000),
     dataRetentionDays: integer('DATA_RETENTION_DAYS', 0, 0, 3650),
+    google: {
+      clientId: values.GOOGLE_CLIENT_ID || '',
+      clientSecret: values.GOOGLE_CLIENT_SECRET || '',
+      redirectUri: googleRedirectUri,
+    },
+    billing: {
+      secretKey: values.STRIPE_SECRET_KEY || '',
+      webhookSecret: values.STRIPE_WEBHOOK_SECRET || '',
+      apiVersion: '2026-09-30.endive',
+      prices: stripePrices,
+    },
+    siteContent: Object.fromEntries(
+      ['TERMS', 'PRIVACY', 'ABOUT', 'HELP', 'SECURITY', 'STORIES', 'PRICING'].map((page) => [
+        page.toLowerCase(),
+        (values['PUBLIC_' + page + '_TEXT'] || '').slice(0, 100000),
+      ]),
+    ),
     smtp: {
       host: values.SMTP_HOST,
       port: integer('SMTP_PORT', 587, 1, 65535),

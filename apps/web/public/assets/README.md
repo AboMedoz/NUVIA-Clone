@@ -14,10 +14,4 @@ Names describe their placement: `header-*`, `footer-*`, `form-*`, `story-*`, `he
 
 The file `src/assets.js` maps Figma source identifiers to these descriptive paths.
 
-`brand/`: approved combined NUVIA logo, with transparent light/dark SVG variants and a blue V.
-
-`dashboard/`: original overview, feedback list, empty state, and feedback detail assets.
-
-## Approved Overview additions
-
-figma-overview/ contains only icons referenced by the approved insight, recommendation and Quick Actions components. overview-empty/ contains the original Figma artwork parts used by the first-time Overview state. Shared navigation and branding continue to use their existing asset folders.
+The user-approved October 26 Frontend.zip is the current visual source. Runtime integration keeps these supplied SVG/bitmap contents intact; actual account data replaces illustrative labels in React.

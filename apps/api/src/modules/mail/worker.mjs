@@ -5,6 +5,8 @@ export async function deliverPendingMail(
   deps,
   { limit = 10, adapter = createMailAdapter(deps.config) } = {},
 ) {
+  await (await import('../reports/weekly.mjs')).scheduleWeeklyReports(deps);
+  await (await import('../notifications/service.mjs')).scheduleNotificationDigests(deps);
   const jobs = deps.models.MailOutbox;
   await jobs.updateMany(
     { expiresAt: { $lte: deps.now() } },
@@ -33,6 +35,33 @@ export async function deliverPendingMail(
     if (!job) break;
     const match = { _id: job._id, status: 'sending', leaseId };
     try {
+      if (job.kind === 'notification') {
+        const user = await deps.models.User.findById(job.userId).lean();
+        const message = job.payload ? decryptPayload(job.payload, deps.config.mailKey) : null;
+        if (
+          !user ||
+          !message ||
+          (user.notificationPreferences?.email === false && !message.essential)
+        ) {
+          await jobs.updateOne(match, {
+            $set: { status: 'expired' },
+            $unset: { payload: '', leaseUntil: '' },
+          });
+          continue;
+        }
+        await adapter.send({
+          id: job._id,
+          to: user.email,
+          subject: message.subject,
+          text: message.text,
+        });
+        await jobs.updateOne(match, {
+          $set: { status: 'sent', sentAt: deps.now() },
+          $unset: { payload: '', leaseUntil: '' },
+        });
+        result.sent++;
+        continue;
+      }
       if (job.kind === 'invitation') {
         const invitation = await deps.models.Invitation.findOne({
           _id: job.invitationId,
@@ -78,7 +107,7 @@ export async function deliverPendingMail(
         continue;
       }
       const { token } = decryptPayload(job.payload, deps.config.mailKey);
-      const verify = job.kind === 'verify',
+      const verify = job.kind === 'verify' || job.kind === 'change-email',
         ar = user.locale === 'ar';
       const link = `${deps.config.appOrigin}/#/${verify ? 'verify-email' : 'reset'}?token=${encodeURIComponent(token)}`;
       const subject = verify
@@ -90,7 +119,7 @@ export async function deliverPendingMail(
           : 'Reset your NUVIA password';
       await adapter.send({
         id: job._id,
-        to: user.email,
+        to: job.kind === 'change-email' ? current.targetEmail : user.email,
         subject,
         text: `${subject}\n${link}\n${ar ? 'تجاهل الرسالة إذا لم تطلبها.' : 'Ignore this message if you did not request it.'}`,
       });

@@ -5,6 +5,7 @@ import { queueDatasetJobs } from './datasets.mjs';
 import { filterSchema } from '../feedback/service.mjs';
 import { transaction } from '../../shared/database/connection.mjs';
 import { queueClusterSummaries } from './summaries.mjs';
+import { emitWorkspaceNotification } from '../notifications/service.mjs';
 
 export async function queueResponseJobs(response, deps, session) {
   if (!response.text) return;
@@ -114,7 +115,7 @@ export async function runJob(job, deps) {
       modelVersion: result.modelVersion,
       pipelineVersion: result.pipelineVersion,
     });
-  await transaction(deps, async (session) => {
+  const reportCompleted = await transaction(deps, async (session) => {
     const saved = await deps.models.AnalysisJob.updateOne(
       { _id: job._id, status: 'running', leaseId },
       {
@@ -199,7 +200,20 @@ export async function runJob(job, deps) {
         },
         { session },
       );
+    return Boolean(job.reportId && status === 'succeeded');
   });
+  if (reportCompleted)
+    await emitWorkspaceNotification(
+      job.workspaceId,
+      {
+        type: 'reports',
+        title: 'Your report is ready',
+        body: 'Open the saved report to review the analysis and supporting evidence.',
+        path: '/report-details?id=' + job.reportId,
+        branchIds: job.branchIds,
+      },
+      deps,
+    ).catch(() => {});
 }
 export async function retryJobs(access, responseId, deps, filters = filterSchema.parse({})) {
   const query = {

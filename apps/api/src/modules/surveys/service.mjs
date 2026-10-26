@@ -4,6 +4,7 @@ import { transaction } from '../../shared/database/connection.mjs';
 import { assertBranches, requireWrite } from '../team/access.mjs';
 import { validateAnswers } from './validation.mjs';
 import { queueResponseJobs } from '../analysis/service.mjs';
+import { emitWorkspaceNotification } from '../notifications/service.mjs';
 
 export async function surveyView(s, access, deps) {
   const links = await deps.models.SurveyLink.find({
@@ -17,9 +18,29 @@ export async function surveyView(s, access, deps) {
     title: s.title,
     description: s.description,
     locale: s.locale,
+    anonymous: s.anonymous !== false,
+    enabledLanguages: s.enabledLanguages?.length ? s.enabledLanguages : ['en', 'ar'],
     questions: s.questions,
     revision: s.revision,
     status: s.status,
+    responseCount: await deps.models.Response.countDocuments({
+      surveyId: s._id,
+      workspaceId: access.workspace._id,
+      ...(access.branchIds ? { branchId: { $in: access.branchIds } } : {}),
+    }),
+    responsesByChannel: Object.fromEntries(
+      await Promise.all(
+        ['qr', 'link'].map(async (channel) => [
+          channel,
+          await deps.models.Response.countDocuments({
+            surveyId: s._id,
+            workspaceId: access.workspace._id,
+            ...(access.branchIds ? { branchId: { $in: access.branchIds } } : {}),
+            sourceChannel: channel,
+          }),
+        ]),
+      ),
+    ),
     createdAt: s.createdAt,
     updatedAt: s.updatedAt,
     links: links.map((l) => ({
@@ -34,7 +55,7 @@ export async function surveyView(s, access, deps) {
 }
 export async function findSurvey(id, access, deps, session) {
   const survey = await deps.models.Survey.findOne(
-    { _id: id, workspaceId: access.workspace._id },
+    { _id: id, workspaceId: access.workspace._id, deletedAt: null },
     null,
     { session },
   ).lean();
@@ -55,7 +76,11 @@ export async function findSurvey(id, access, deps, session) {
   return survey;
 }
 export async function listSurveys(access, deps) {
-  const surveys = await deps.models.Survey.find({ workspaceId: access.workspace._id })
+  const surveys = await deps.models.Survey.find({
+    workspaceId: access.workspace._id,
+    deletedAt: null,
+    status: { $ne: 'archived' },
+  })
     .sort({ updatedAt: -1 })
     .lean();
   const result = [];
@@ -126,6 +151,8 @@ export async function publishSurvey(id, branchIds, access, deps) {
           title: s.title,
           description: s.description,
           locale: s.locale,
+          anonymous: s.anonymous !== false,
+          enabledLanguages: s.enabledLanguages?.length ? s.enabledLanguages : ['en', 'ar'],
           questions: s.questions,
           createdAt: deps.now(),
         },
@@ -173,6 +200,67 @@ export async function closeSurvey(id, access, deps) {
   });
   return surveyView(await findSurvey(id, access, deps), access, deps);
 }
+export async function manageSurvey(id, action, access, deps) {
+  requireWrite(access);
+  const survey = await findSurvey(id, access, deps);
+  if (action === 'duplicate')
+    return createSurvey(
+      {
+        title: survey.title.slice(0, 110) + ' — Copy',
+        description: survey.description,
+        locale: survey.locale,
+        anonymous: survey.anonymous !== false,
+        enabledLanguages: survey.enabledLanguages?.length ? survey.enabledLanguages : ['en', 'ar'],
+        questions: survey.questions.map((q) => ({ ...q, id: randomUUID() })),
+      },
+      access,
+      deps,
+    );
+  if (action === 'resume') {
+    if (survey.status !== 'paused') throw new ApiError(409, 'SURVEY_NOT_PAUSED');
+    const links = await deps.models.SurveyLink.find({
+      surveyId: id,
+      workspaceId: access.workspace._id,
+    }).lean();
+    const candidates = [...new Set(links.map((l) => l.branchId))];
+    const branches = await deps.models.Branch.find({
+      _id: { $in: candidates },
+      workspaceId: access.workspace._id,
+      archivedAt: null,
+    }).lean();
+    if (!branches.length) throw new ApiError(409, 'ACTIVE_BRANCH_REQUIRED');
+    return publishSurvey(
+      id,
+      branches.map((b) => b._id),
+      access,
+      deps,
+    );
+  }
+  if (action === 'pause' && survey.status !== 'published')
+    throw new ApiError(409, 'SURVEY_NOT_LIVE');
+  if (!['pause', 'archive', 'delete'].includes(action)) throw new ApiError(422, 'INVALID_ACTION');
+  await transaction(deps, async (session) => {
+    await findSurvey(id, access, deps, session);
+    await deps.models.Survey.updateOne(
+      { _id: id, workspaceId: access.workspace._id },
+      {
+        $set: {
+          status: action === 'pause' ? 'paused' : 'archived',
+          ...(action === 'delete' ? { deletedAt: deps.now() } : {}),
+          updatedAt: deps.now(),
+        },
+        $inc: { version: 1 },
+      },
+      { session },
+    );
+    await deps.models.SurveyLink.updateMany(
+      { surveyId: id, workspaceId: access.workspace._id },
+      { $set: { enabled: false }, $inc: { version: 1 } },
+      { session },
+    );
+  });
+  return action === 'delete' ? null : surveyView(await findSurvey(id, access, deps), access, deps);
+}
 export async function publicSurvey(token, deps, session) {
   const link = await deps.models.SurveyLink.findOne({ token, enabled: true }, null, {
     session,
@@ -200,6 +288,8 @@ export const safePublicSurvey = ({ link, branch, business, revision: r }) => ({
     title: r.title,
     description: r.description,
     locale: r.locale,
+    anonymous: r.anonymous !== false,
+    enabledLanguages: r.enabledLanguages?.length ? r.enabledLanguages : ['en', 'ar'],
     questions: r.questions,
     revision: r.revision,
     status: 'published',
@@ -209,11 +299,21 @@ export const safePublicSurvey = ({ link, branch, business, revision: r }) => ({
 });
 export async function submitResponse(token, input, deps) {
   const payloadDigest = createHash('sha256')
-    .update(JSON.stringify({ answers: input.answers, locale: input.locale }))
+    .update(
+      JSON.stringify({
+        answers: input.answers,
+        locale: input.locale,
+        ...(input.respondent ? { respondent: input.respondent } : {}),
+      }),
+    )
     .digest('hex');
   try {
-    return await transaction(deps, async (session) => {
+    const accepted = await transaction(deps, async (session) => {
       const { link, branch, revision } = await publicSurvey(token, deps, session);
+      if (revision.anonymous !== false && input.respondent !== undefined)
+        throw new ApiError(422, 'ANONYMOUS_SURVEY_CONTACT_REJECTED');
+      if (revision.enabledLanguages?.length && !revision.enabledLanguages.includes(input.locale))
+        throw new ApiError(422, 'SURVEY_LANGUAGE_NOT_ENABLED');
       const previous = await deps.models.Response.findOne(
         { linkId: link._id, idempotencyKey: input.idempotencyKey },
         null,
@@ -253,10 +353,14 @@ export async function submitResponse(token, input, deps) {
         revision: link.revision,
         questions: revision.questions,
         answers,
+        ...(revision.anonymous === false && input.respondent
+          ? { respondent: input.respondent }
+          : {}),
         text,
         segments,
         language: 'unknown',
         submittedLocale: input.locale,
+        sourceChannel: input.sourceChannel || 'unknown',
         consentAt: deps.now(),
         createdAt: deps.now(),
         idempotencyKey: input.idempotencyKey,
@@ -266,8 +370,56 @@ export async function submitResponse(token, input, deps) {
       };
       await deps.models.Response.insertOne(response, { session });
       await queueResponseJobs(response, deps, session);
-      return { id: response._id, createdAt: response.createdAt, status: 'received' };
+      if (input.startId)
+        await deps.models.SurveyStart.updateOne(
+          { linkId: link._id, startId: input.startId, completedAt: null },
+          { $set: { completedAt: deps.now(), responseId: response._id } },
+          { session },
+        );
+      return {
+        id: response._id,
+        createdAt: response.createdAt,
+        status: 'received',
+        notification: {
+          workspaceId: link.workspaceId,
+          branchId: link.branchId,
+          lowRating: revision.questions.some(
+            (q) =>
+              q.type === 'rating' &&
+              answerMap.has(q.id) &&
+              (Number(answerMap.get(q.id)) * 5) / (q.ratingMax || 5) <= 2,
+          ),
+        },
+      };
     });
+    if (accepted.notification) {
+      const { workspaceId, branchId } = accepted.notification;
+      await emitWorkspaceNotification(
+        workspaceId,
+        {
+          type: 'feedback',
+          title: 'New customer feedback',
+          body: 'A new survey response is ready to review.',
+          path: '/feedback-details?id=' + accepted.id,
+          branchId,
+        },
+        deps,
+      ).catch(() => console.warn('Feedback notification could not be queued'));
+      if (accepted.notification.lowRating)
+        await emitWorkspaceNotification(
+          workspaceId,
+          {
+            type: 'low',
+            title: 'Low-rating feedback',
+            body: 'A customer rating is at or below two stars on the five-point scale.',
+            path: '/feedback-details?id=' + accepted.id,
+            branchId,
+          },
+          deps,
+        ).catch(() => console.warn('Low-rating notification could not be queued'));
+      delete accepted.notification;
+    }
+    return accepted;
   } catch (error) {
     if (error.code !== 11000) throw error;
     const link = await deps.models.SurveyLink.findOne({ token }).lean();
@@ -281,6 +433,30 @@ export async function submitResponse(token, input, deps) {
       throw new ApiError(409, 'IDEMPOTENCY_CONFLICT');
     return { id: previous._id, createdAt: previous.createdAt, status: 'received' };
   }
+}
+export async function startSurvey(token, { startId, channel }, deps) {
+  const { link } = await publicSurvey(token, deps);
+  try {
+    await deps.models.SurveyStart.updateOne(
+      { linkId: link._id, startId },
+      {
+        $setOnInsert: {
+          _id: randomUUID(),
+          workspaceId: link.workspaceId,
+          surveyId: link.surveyId,
+          branchId: link.branchId,
+          revision: link.revision,
+          channel,
+          createdAt: deps.now(),
+          completedAt: null,
+        },
+      },
+      { upsert: true },
+    );
+  } catch (error) {
+    if (error.code !== 11000) throw error;
+  }
+  return { status: 'started' };
 }
 
 const sectors = {

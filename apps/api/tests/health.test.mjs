@@ -35,6 +35,33 @@ test('database safety refuses ordinary names', () => {
   for (const name of ['nuvia', 'admin', 'nuvia_test_config'])
     assert.throws(() => assertTestDatabase(name));
 });
+
+test('health liveness and public content ignore stale account cookies when storage is unavailable', async () => {
+  let reads = 0;
+  const app = createApp({
+    config: { trustProxy: false, publicContent: {} },
+    now: () => new Date(),
+    models: {
+      Session: {
+        findOne() {
+          reads++;
+          throw new Error('storage offline');
+        },
+      },
+    },
+    db: {
+      command: async () => {
+        throw new Error('storage offline');
+      },
+    },
+  });
+  const cookie = 'nuvia_session=' + 'a'.repeat(64);
+  const live = await request(app).get('/api/v1/health/live').set('Cookie', cookie).expect(200);
+  assert.equal(live.body.status, 'live');
+  await request(app).get('/api/v1/health/ready').set('Cookie', cookie).expect(503);
+  await request(app).get('/api/v1/public/content/help').set('Cookie', cookie);
+  assert.equal(reads, 0);
+});
 test('health readiness supplies a client deadline and maps timeout to safe 503', async () => {
   let options;
   const app = createApp({

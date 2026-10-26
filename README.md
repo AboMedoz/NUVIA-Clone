@@ -4,11 +4,13 @@ Bilingual customer-feedback intelligence for Arabic and English. The product goa
 
 ## Current delivery
 
+The active interface uses the supplied `Frontend.zip` design with real account adapters. See [approved interface integration](docs/development/approved-frontend.md) and [Google/Stripe setup](docs/development/external-integrations.md).
+
 - **Connected product:** owner accounts, saved business/branches, versioned questionnaires, branch-specific public links and QR, anonymous validated submissions, feedback/filtering/CSV, real-data aggregates and report snapshots, public business page, and Owner/Manager/Viewer team permissions.
 - **Model infrastructure:** authenticated Node-to-FastAPI tasks, deterministic bilingual text preparation, capability readiness, validated local model packages, persistent analysis jobs/retries and evidence-backed result contracts. Learned features display waiting/unavailable states until compatible models are installed.
 - **Model handoff:** the user/team supplies trained artifacts later. No trained model or scientific accuracy claim is included. See the [model installation guide](apps/ai-service/README.md).
 - **Preview only:** synthetic metrics, feedback and canned replies remain under `/preview/`; they never count as real account analytics.
-- **Deferred:** all six subscription features and Google OAuth. See the [feature acceptance matrix](docs/product/implementation-matrix.md) for per-feature behavior and validation limits.
+- **External setup:** Google OAuth and Stripe hosted billing integrations require provider credentials and live acceptance. Plan limits and scientific model quality remain separately evaluated. See the [feature acceptance matrix](docs/product/implementation-matrix.md) for per-feature behavior and validation limits.
 
 The JavaScript applications use React/Vite and Node.js/Express/Mongoose. JavaScript/JSX and `.mjs` are intentionally retained; this restructuring does not migrate the applications to TypeScript.
 

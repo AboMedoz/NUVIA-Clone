@@ -32,6 +32,10 @@ export interface BranchView {
   name: string;
   archivedAt: string | null;
   isPrimary: boolean;
+  country?: string;
+  city?: string;
+  address?: string;
+  responses?: number;
 }
 
 export interface WorkspaceView {
@@ -70,6 +74,11 @@ export interface SurveyQuestion {
   required: boolean;
   options?: string[];
   segment?: boolean;
+  labelTranslations?: Record<Locale, string>;
+  optionTranslations?: Record<Locale, string[]>;
+  ratingMax?: number;
+  lowLabel?: Record<Locale, string>;
+  highLabel?: Record<Locale, string>;
 }
 export interface SurveyLink {
   id: string;
@@ -84,7 +93,11 @@ export interface SurveyView {
   title: string;
   description: string;
   locale: Locale;
-  status: 'draft' | 'published' | 'closed';
+  status: 'draft' | 'published' | 'paused' | 'closed' | 'archived';
+  anonymous: boolean;
+  enabledLanguages: Locale[];
+  archivedAt?: string | null;
+  responseCount?: number;
   questions: SurveyQuestion[];
   revision: number;
   links: SurveyLink[];
@@ -115,6 +128,8 @@ export interface ResponseView {
   revision: number;
   branchId: string;
   branchName: string;
+  respondent?: { name?: string; email?: string } | null;
+  sourceChannel?: 'qr' | 'link' | 'unknown';
   answers: ResponseAnswer[];
   questions: SurveyQuestion[];
   text: string;
@@ -138,6 +153,7 @@ export interface ResponseView {
   };
 }
 export interface FeedbackFilters {
+  order?: 'newest' | 'oldest';
   page?: number;
   pageSize?: number;
   search?: string;
@@ -228,6 +244,74 @@ export interface ReportView {
     sections: { title: string; text: string; evidenceIds: string[] }[];
     evidence: { id: string; quote: string }[];
   };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AccountPreferences {
+  language: Locale;
+  region: string;
+  zone: string;
+  date: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+  time: '12-Hour' | '24-Hour';
+}
+export interface AccountProfile {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
+  phone: string;
+  country: string;
+  photo: string;
+  createdAt: string;
+  preferences: AccountPreferences;
+  toggles: Record<
+    | 'email'
+    | 'inapp'
+    | 'feedback'
+    | 'low'
+    | 'weekly'
+    | 'news'
+    | 'security'
+    | 'reports'
+    | 'sound'
+    | 'popup',
+    boolean
+  >;
+  delivery: 'Daily digest' | 'Immediately' | 'Weekly digest';
+  pendingEmail: string | null;
+  twoFA: boolean;
+  googleConnected: boolean;
+  passwordChangedAt?: string | null;
+}
+export interface AccountSession {
+  id: string;
+  current: boolean;
+  createdAt: string;
+  expiresAt: string;
+  userAgent: string;
+}
+export interface NotificationView {
+  id: string;
+  workspaceId?: string | null;
+  title: string;
+  body: string;
+  path: string;
+  createdAt: string;
+  readAt: string | null;
+}
+export interface ActionView {
+  id: string;
+  title: string;
+  summary: string;
+  branchIds: string[];
+  responseIds: string[];
+  reportId: string | null;
+  priority: 'high' | 'medium' | 'opportunity';
+  status: 'todo' | 'progress' | 'done';
+  owner: string;
+  due: string;
+  version: number;
   createdAt: string;
   updatedAt: string;
 }

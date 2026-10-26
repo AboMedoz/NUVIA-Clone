@@ -64,6 +64,7 @@ export async function evidenceSnapshot(filters, access, deps) {
 export async function createReport(input, access, deps) {
   const { responses, evidence, snapshot } = await evidenceSnapshot(input.filters, access, deps);
   const report = {
+    ...(input.scheduleKey ? { scheduleKey: input.scheduleKey, schedule: input.schedule } : {}),
     _id: randomUUID(),
     workspaceId: access.workspace._id,
     createdBy: input.userId,

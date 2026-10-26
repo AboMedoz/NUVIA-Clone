@@ -11,15 +11,26 @@ import {
   resolveSession,
 } from './sessions.mjs';
 import { enqueueAuthMail } from '../mail/outbox.mjs';
+import { verifySecondFactor } from '../account/recovery.mjs';
 
 async function issueToken(userId, purpose, deps, session) {
+  const issuedTo = await deps.models.User.findOne({ _id: userId }, null, { session })
+    .select('credentialsVersion')
+    .lean();
   const token = randomBytes(32).toString('hex');
   const expiresAt = new Date(
     deps.now().getTime() + (purpose === 'verify' ? 24 * 3600000 : 30 * 60000),
   );
   await deps.models.AuthToken.updateOne(
     { userId, purpose },
-    { $set: { digest: digest(token), expiresAt, createdAt: deps.now() } },
+    {
+      $set: {
+        digest: digest(token),
+        credentialsVersion: issuedTo.credentialsVersion,
+        expiresAt,
+        createdAt: deps.now(),
+      },
+    },
     { upsert: true, session },
   );
   await enqueueAuthMail({ userId, kind: purpose, token, expiresAt }, deps, session);
@@ -66,6 +77,11 @@ export async function loginOwner(input, req, res, deps) {
   if (!(await verifyPassword(input.password, user?.passwordHash || dummyHash)) || !user)
     throw new ApiError(401, 'INVALID_CREDENTIALS');
   if (!user.verifiedAt) throw new ApiError(403, 'EMAIL_VERIFICATION_REQUIRED');
+  if (user.twoFactorEnabled) {
+    if (!input.code) throw new ApiError(401, 'TWO_FACTOR_REQUIRED');
+    if (!(await verifySecondFactor(user, input.code, deps)))
+      throw new ApiError(401, 'INVALID_TWO_FACTOR');
+  }
   const previous = await resolveSession(req, deps);
   await revokeSession(req, res, deps, { clearCookie: false });
   const { csrfToken } = await createSession(
@@ -74,6 +90,7 @@ export async function loginOwner(input, req, res, deps) {
       userId: user._id,
       remember: input.remember,
       credentialsVersion: user.credentialsVersion,
+      workspaceId: previous?.user?._id === user._id ? previous.session.workspaceId || null : null,
       pendingInvitationDigest: previous?.session.pendingInvitationDigest || null,
     },
     deps,
@@ -117,7 +134,14 @@ async function consumeToken(token, purpose, deps, apply) {
       { session },
     ).lean();
     if (!record) throw new ApiError(400, 'INVALID_TOKEN');
-    await apply(record.userId, session);
+    if (record.credentialsVersion != null) {
+      const current = await deps.models.User.findOne({ _id: record.userId }, null, { session })
+        .select('credentialsVersion')
+        .lean();
+      if (!current || current.credentialsVersion !== record.credentialsVersion)
+        throw new ApiError(400, 'INVALID_TOKEN');
+    }
+    await apply(record.userId, session, record);
     await deps.models.MailOutbox.updateMany(
       { userId: record.userId, kind: purpose, tokenDigest: record.digest },
       { $set: { status: 'expired' }, $unset: { payload: '' } },
@@ -126,6 +150,41 @@ async function consumeToken(token, purpose, deps, apply) {
   });
 }
 export async function verifyEmail({ token }, deps) {
+  const change = await deps.models.AuthToken.findOne({
+    digest: digest(token),
+    purpose: 'change-email',
+    expiresAt: { $gt: deps.now() },
+  }).lean();
+  if (change) {
+    try {
+      await consumeToken(token, 'change-email', deps, async (userId, session, record) => {
+        if (!Number.isInteger(record.credentialsVersion)) throw new ApiError(400, 'INVALID_TOKEN');
+        const result = await deps.models.User.updateOne(
+          {
+            _id: userId,
+            pendingEmail: record.targetEmail,
+            credentialsVersion: record.credentialsVersion,
+          },
+          {
+            $set: { email: record.targetEmail, verifiedAt: deps.now(), updatedAt: deps.now() },
+            $unset: { pendingEmail: '' },
+            $inc: { credentialsVersion: 1 },
+          },
+          { session },
+        );
+        if (!result.modifiedCount) throw new ApiError(400, 'INVALID_TOKEN');
+        await deps.models.Session.updateMany(
+          { userId, revokedAt: null },
+          { $set: { revokedAt: deps.now() } },
+          { session },
+        );
+      });
+    } catch (error) {
+      if (error.code === 11000) throw new ApiError(409, 'EMAIL_USED');
+      throw error;
+    }
+    return;
+  }
   await consumeToken(token, 'verify', deps, async (userId, session) => {
     await deps.models.User.updateOne(
       { _id: userId },
@@ -139,12 +198,22 @@ export async function resetPassword({ token, password }, deps) {
   await consumeToken(token, 'reset', deps, async (userId, session) => {
     await deps.models.User.updateOne(
       { _id: userId },
-      { $set: { passwordHash, updatedAt: deps.now() }, $inc: { credentialsVersion: 1 } },
+      {
+        $set: { passwordHash, passwordChangedAt: deps.now(), updatedAt: deps.now() },
+        $unset: { pendingEmail: '', twoFactorPending: '' },
+        $inc: { credentialsVersion: 1 },
+      },
       { session },
     );
     await deps.models.Session.updateMany(
       { userId, revokedAt: null },
       { $set: { revokedAt: deps.now() } },
+      { session },
+    );
+    await deps.models.AuthToken.deleteOne({ userId, purpose: 'change-email' }, { session });
+    await deps.models.MailOutbox.updateMany(
+      { userId, kind: 'change-email' },
+      { $set: { status: 'expired' }, $unset: { payload: '' } },
       { session },
     );
   });

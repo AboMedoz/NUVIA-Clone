@@ -47,6 +47,112 @@ const draft = () => ({
   ],
 });
 
+test('approved survey actions persist pause resume duplicate archive and soft deletion without losing evidence', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'approved-survey@example.test'),
+      other = await account(deps, 'approved-survey-other@example.test');
+    const input = draft();
+    input.questions[0].labelTranslations = { en: input.questions[0].label, ar: 'كيف كانت تجربتك؟' };
+    const created = (await owner.mutate('post', '/surveys', input, 201)).body.survey;
+    const live = (
+      await owner.mutate('post', `/surveys/${created.id}/publish`, {
+        branchIds: [owner.workspace.primaryBranchId],
+      })
+    ).body.survey;
+    const link = live.links.find((link) => link.enabled);
+    const publicView = await request(owner.app)
+      .get(`/api/v1/public/surveys/${link.token}`)
+      .expect(200);
+    assert.equal(publicView.body.survey.questions[0].labelTranslations.ar, 'كيف كانت تجربتك؟');
+    await other.mutate('post', `/surveys/${created.id}/pause`, {}, 404);
+    const paused = (await owner.mutate('post', `/surveys/${created.id}/pause`, {})).body.survey;
+    assert.equal(paused.status, 'paused');
+    await request(owner.app).get(`/api/v1/public/surveys/${link.token}`).expect(404);
+    const resumed = (await owner.mutate('post', `/surveys/${created.id}/resume`, {})).body.survey;
+    assert.equal(resumed.status, 'published');
+    const fresh = resumed.links.find((link) => link.enabled);
+    assert.notEqual(fresh.token, link.token);
+    const startId = randomUUID();
+    await Promise.all(
+      [1, 2].map(() =>
+        request(owner.app)
+          .post(`/api/v1/public/surveys/${fresh.token}/start`)
+          .send({ startId, channel: 'qr' })
+          .expect(200),
+      ),
+    );
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${fresh.token}/start`)
+      .send({ startId: randomUUID(), channel: 'link' })
+      .expect(200);
+    assert.equal(await deps.models.SurveyStart.countDocuments({ surveyId: created.id }), 2);
+    const responseKey = randomUUID();
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${fresh.token}/responses`)
+      .send({
+        answers: [
+          { questionId: input.questions[0].id, value: 'Saved evidence' },
+          { questionId: input.questions[1].id, value: 'Delivery' },
+          { questionId: input.questions[2].id, value: 1 },
+        ],
+        locale: 'en',
+        consent: true,
+        startId,
+        sourceChannel: 'qr',
+        idempotencyKey: responseKey,
+      })
+      .expect(201);
+    assert.equal(
+      await deps.models.Notification.countDocuments({ userId: owner.id, kind: 'low' }),
+      1,
+    );
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${fresh.token}/responses`)
+      .send({
+        answers: [
+          { questionId: input.questions[0].id, value: 'Saved evidence' },
+          { questionId: input.questions[1].id, value: 'Delivery' },
+          { questionId: input.questions[2].id, value: 1 },
+        ],
+        locale: 'en',
+        consent: true,
+        startId,
+        sourceChannel: 'qr',
+        idempotencyKey: responseKey,
+      })
+      .expect(201);
+    assert.equal(
+      await deps.models.Notification.countDocuments({ userId: owner.id, kind: 'low' }),
+      1,
+    );
+    assert.equal((await owner.get(`/surveys/${created.id}`)).body.survey.responseCount, 1);
+    assert.equal((await owner.get(`/surveys/${created.id}`)).body.survey.responsesByChannel.qr, 1);
+    const completion = (await owner.get('/analytics')).body;
+    assert.equal(completion.startedSessions, 2);
+    assert.equal(completion.completedSessions, 1);
+    assert.equal(completion.completionRate, 0.5);
+    assert.equal((await other.get('/analytics')).body.startedSessions, 0);
+    assert.equal((await owner.get('/analytics?language=en')).body.completionRate, null);
+    const copy = (await owner.mutate('post', `/surveys/${created.id}/duplicate`, {})).body.survey;
+    assert.notEqual(copy.id, created.id);
+    assert.equal(copy.status, 'draft');
+    assert.notEqual(copy.questions[0].id, input.questions[0].id);
+    await owner.mutate('post', `/surveys/${copy.id}/archive`, {});
+    assert.equal(
+      (await owner.get('/surveys')).body.surveys.some((s) => s.id === copy.id),
+      false,
+    );
+    await owner.mutate('post', `/surveys/${created.id}/delete`, {});
+    await owner.get(`/surveys/${created.id}`, 404);
+    await request(owner.app).get(`/api/v1/public/surveys/${fresh.token}`).expect(404);
+    assert.equal(await deps.models.Response.countDocuments({ surveyId: created.id }), 1);
+    assert.ok(await deps.models.SurveyRevision.countDocuments({ surveyId: created.id }));
+  } finally {
+    await deps.cleanup();
+  }
+});
+
 test('CSV export rejects invalid segment filters before starting a download', async () => {
   const deps = await createTestDatabase();
   try {
@@ -58,6 +164,92 @@ test('CSV export rejects invalid segment filters before starting a download', as
     assert.match(response.headers['content-type'], /application\/json/);
     assert.equal(response.body.error.code, 'VALIDATION_ERROR');
     assert.equal(response.headers['content-disposition'], undefined);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
+test('published survey privacy and enabled languages are immutable and optional contact stays authorized', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'survey-privacy@example.test'),
+      input = draft();
+    const created = (
+      await owner.mutate(
+        'post',
+        '/surveys',
+        { ...input, anonymous: true, enabledLanguages: ['en', 'ar'] },
+        201,
+      )
+    ).body.survey;
+    const live = (
+      await owner.mutate('post', `/surveys/${created.id}/publish`, {
+        branchIds: [owner.workspace.primaryBranchId],
+      })
+    ).body.survey;
+    const first = live.links.find((link) => link.enabled);
+    const body = {
+      answers: [
+        { questionId: input.questions[0].id, value: 'Private survey feedback' },
+        { questionId: input.questions[1].id, value: 'Delivery' },
+      ],
+      locale: 'en',
+      consent: true,
+      idempotencyKey: randomUUID(),
+      respondent: { name: 'Synthetic customer', email: 'customer@example.test' },
+    };
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${first.token}/responses`)
+      .send(body)
+      .expect(422);
+    await owner.mutate('patch', `/surveys/${created.id}`, {
+      anonymous: false,
+      enabledLanguages: ['en'],
+      revision: created.revision,
+    });
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${first.token}/responses`)
+      .send(body)
+      .expect(422);
+    const secondLive = (
+      await owner.mutate('post', `/surveys/${created.id}/publish`, {
+        branchIds: [owner.workspace.primaryBranchId],
+      })
+    ).body.survey;
+    const second = secondLive.links.find((link) => link.enabled);
+    const published = (
+      await request(owner.app).get(`/api/v1/public/surveys/${second.token}`).expect(200)
+    ).body.survey;
+    assert.equal(published.anonymous, false);
+    assert.deepEqual(published.enabledLanguages, ['en']);
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${second.token}/responses`)
+      .send({ ...body, locale: 'ar' })
+      .expect(422);
+    const response = (
+      await request(owner.app)
+        .post(`/api/v1/public/surveys/${second.token}/responses`)
+        .send(body)
+        .expect(201)
+    ).body.response;
+    assert.deepEqual(
+      (await deps.models.Response.findById(response.id).lean()).respondent,
+      body.respondent,
+    );
+    assert.deepEqual(
+      (await owner.get(`/feedback/${response.id}`)).body.response.respondent,
+      body.respondent,
+    );
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${second.token}/responses`)
+      .send({ ...body, idempotencyKey: randomUUID(), respondent: { name: 'x'.repeat(121) } })
+      .expect(422);
+    const { respondent: ignored, ...withoutContact } = body;
+    void ignored;
+    await request(owner.app)
+      .post(`/api/v1/public/surveys/${second.token}/responses`)
+      .send({ ...withoutContact, idempotencyKey: randomUUID() })
+      .expect(201);
   } finally {
     await deps.cleanup();
   }
@@ -774,6 +966,19 @@ test('dataset jobs persist authorized cluster evidence and never reuse another f
     assert.equal(result.topics[0].count, 5);
     assert.equal((await owner.get('/analytics?search=unmatched')).body.topics.length, 0);
     assert.equal((await owner.get('/analytics?search=Slow')).body.topics.length, 1);
+  } finally {
+    await deps.cleanup();
+  }
+});
+
+test('ordinary account and plan reads do not consume protected mutation budgets', async () => {
+  const deps = await createTestDatabase();
+  try {
+    const owner = await account(deps, 'read-budget@example.test');
+    for (let i = 0; i < 121; i++) await owner.get('/account');
+    for (let i = 0; i < 35; i++) await owner.get('/billing');
+    await owner.mutate('patch', '/account', { name: 'Saved after navigation' });
+    assert.equal((await owner.get('/account')).body.name, 'Saved after navigation');
   } finally {
     await deps.cleanup();
   }

@@ -4,6 +4,7 @@ import { it, expect, vi, beforeEach } from 'vitest';
 import App from '../src/app/App.jsx';
 import { authApi } from '../src/features/auth/api.js';
 import { resetApiSession } from '../src/lib/http/client.js';
+import * as transport from '../src/lib/http/client.js';
 beforeEach(() => {
   resetApiSession();
   vi.spyOn(authApi, 'session').mockResolvedValue({ user: null, workspace: null });
@@ -32,7 +33,7 @@ it('real signup creates an account and moves to verification while clearing cred
   });
   fireEvent.click(screen.getByRole('checkbox'));
   fireEvent.click(screen.getByRole('button', { name: 'Create account', exact: true }));
-  expect(await screen.findByRole('heading', { name: 'Verify your email' })).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Check your inbox' })).toBeVisible();
   expect(register).toHaveBeenCalledWith(
     expect.objectContaining({ email: 'owner@example.test', locale: 'en' }),
     expect.any(AbortSignal),
@@ -64,6 +65,34 @@ it('a stale login result cannot navigate or clear a new account submission', asy
   expect(screen.getByRole('heading', { name: 'Create your account' })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Create account', exact: true })).toBeEnabled();
 });
+it('cancels Google start on navigation and suppresses duplicate starts and stale redirects', async () => {
+  let finish, signal;
+  const request = vi.spyOn(transport, 'apiRequest').mockImplementation((path, options) => {
+    expect(path).toBe('/auth/google/start');
+    signal = options.signal;
+    return new Promise((resolve) => {
+      finish = resolve;
+    });
+  });
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+  open('login');
+  const google = screen.getByRole('button', { name: /Google/ });
+  fireEvent.click(google);
+  fireEvent.click(google);
+  await waitFor(() => expect(finish).toBeTypeOf('function'));
+  expect(request).toHaveBeenCalledTimes(1);
+  expect(request.mock.calls[0][1].body.terms).toBe(false);
+  await act(async () => {
+    location.hash = '/forgot';
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  });
+  expect(signal.aborted).toBe(true);
+  await act(async () =>
+    finish({ url: 'https://accounts.google.com/o/oauth2/v2/auth?state=stale' }),
+  );
+  expect(location.hash).toBe('#/forgot');
+  expect(error).not.toHaveBeenCalled();
+});
 it('account-backed Overview uses saved business labels and hides sample feedback and assistant claims', async () => {
   vi.spyOn(authApi, 'session').mockResolvedValue({
     user: { id: 'a', emailVerified: true },
@@ -81,8 +110,9 @@ it('account-backed Overview uses saved business labels and hides sample feedback
   expect((await screen.findAllByText('Saved Cafe', { exact: true }))[0]).toBeVisible();
   expect(screen.queryByText('Bloom & Co.', { exact: true })).not.toBeInTheDocument();
   expect(screen.queryByText('12', { exact: true })).not.toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: 'Open Ask NUVIA' })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Log out' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Open Ask NUVIA' })).toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'Profile', exact: true }));
+  expect(screen.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
 });
 it('consumes a verification link opened while the verification page is already mounted', async () => {
   const verify = vi.spyOn(authApi, 'verify').mockResolvedValue({ status: 'verified' });
@@ -91,7 +121,7 @@ it('consumes a verification link opened while the verification page is already m
     location.hash = '/verify-email?token=' + 'a'.repeat(64);
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
-  expect(await screen.findByText('Email verified. You can log in now.')).toBeVisible();
+  expect(await screen.findByRole('heading', { name: 'Email verified' })).toBeVisible();
   expect(verify).toHaveBeenCalledTimes(1);
   expect(location.hash).not.toContain('token=');
 });
@@ -101,8 +131,12 @@ it('preview verification never bootstraps sessions or sends real verification re
   history.replaceState(null, '', '/preview/#/verify-email');
   render(<App />);
   await act(async () => {});
-  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'owner@example.test' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Resend verification link' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Change', exact: true }));
+  fireEvent.change(screen.getByLabelText('Email address'), {
+    target: { value: 'owner@example.test' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Save email' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Resend verification email' }));
   await act(async () => {});
   await act(async () => {
     location.hash = '/verify-email?token=' + 'a'.repeat(64);

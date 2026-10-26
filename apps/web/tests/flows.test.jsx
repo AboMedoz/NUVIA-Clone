@@ -82,8 +82,9 @@ describe('bilingual frontend flows', () => {
     await user.type(screen.getByLabelText('Confirm password'), 'Synthetic123');
     await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'Create account', exact: true }));
-    expect(await screen.findByRole('status')).toHaveTextContent('No account was created.');
-    expect(location.hash).toBe('#/signup');
+    expect(await screen.findByRole('heading', { name: 'Check your inbox' })).toBeVisible();
+    expect(location.hash).toBe('#/verify-email');
+    expect(screen.getByText('demo@example.com')).toBeVisible();
     expect(JSON.stringify({ ...localStorage })).not.toContain('Synthetic123');
   });
 
@@ -150,7 +151,8 @@ it('ignores a pending login response after navigating to signup, including its b
   await act(async () => {
     finishSignup({ message: 'accountDemo' });
   });
-  expect(screen.getByRole('status')).toHaveTextContent('No account was created.');
+  expect(await screen.findByRole('heading', { name: 'Check your inbox' })).toBeVisible();
+  expect(JSON.stringify({ ...localStorage })).not.toContain('Synthetic123');
 });
 
 it('uses the Arabic return direction on password recovery screens', () => {
@@ -175,7 +177,7 @@ it('shows first-time Overview guidance without populated analytics', () => {
   expect(screen.getByRole('button', { name: 'Create Your First Survey' })).toBeVisible();
   expect(screen.queryByText('Total responses', { exact: true })).not.toBeInTheDocument();
   expect(screen.queryByText('AI Daily Insight', { exact: true })).not.toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Business & Teams' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Business', exact: true })).toBeInTheDocument();
 });
 
 it('keeps Overview layout when selecting a branch and updates the sample totals', async () => {
@@ -183,7 +185,7 @@ it('keeps Overview layout when selecting a branch and updates the sample totals'
   openRoute('dashboard');
   await user.click(screen.getByRole('button', { name: 'Branch', exact: true }));
   await user.click(screen.getByRole('option', { name: /Cairo/ }));
-  expect(screen.getByText('420', { exact: true })).toBeVisible();
+  expect(screen.getByText('421', { exact: true })).toBeVisible();
   expect(screen.getByText('AI Daily Insight', { exact: true })).toBeVisible();
   expect(screen.getByText('Aspect scores', { exact: true })).toBeVisible();
   expect(screen.getByText('What to do next', { exact: true })).toBeVisible();

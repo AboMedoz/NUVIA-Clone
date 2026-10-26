@@ -3,12 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { it, expect, vi } from 'vitest';
 import App from '../src/app/App.jsx';
 import { authApi } from '../src/features/auth/api.js';
+import { productApi } from '../src/features/product/api.js';
 import { workspaceApi } from '../src/features/workspaces/api.js';
 it('failed business save retains fields and stays on the current persisted step', async () => {
   vi.spyOn(authApi, 'session').mockResolvedValue({
     user: { id: 'a', emailVerified: true },
     workspace: null,
   });
+  vi.spyOn(productApi, 'get').mockResolvedValue({ workspaces: [] });
   vi.spyOn(workspaceApi, 'save').mockRejectedValue({ code: 'NETWORK_ERROR' });
   history.replaceState(null, '', '/#/business-information');
   render(<App />);
@@ -19,4 +21,34 @@ it('failed business save retains fields and stays on the current persisted step'
   expect(await screen.findByRole('alert')).toHaveTextContent('Could not save');
   expect(screen.getByLabelText(/Business name/)).toHaveValue('Test Cafe');
   expect(location.hash).toBe('#/business-information');
+});
+
+it('opens the connected overview after finishing saved onboarding instead of a preview-only notice', async () => {
+  vi.spyOn(authApi, 'session').mockResolvedValue({
+    user: { id: 'owner', name: 'Saved owner', emailVerified: true },
+    workspace: {
+      id: 'workspace',
+      businessName: 'Saved Cafe',
+      industry: 'Cafe',
+      role: 'owner',
+      onboardingStep: 'complete',
+      branchType: 'multiple',
+      primaryBranchId: 'branch',
+      branches: [{ id: 'branch', name: 'Saved Branch' }],
+    },
+  });
+  vi.spyOn(productApi, 'get').mockResolvedValue({
+    totalResponses: 0,
+    analyzedResponses: 0,
+    sentimentDistribution: {},
+    aspectScores: [],
+    trends: [],
+    comparisons: [],
+    capabilities: {},
+  });
+  history.replaceState(null, '', '/#/get-started');
+  render(<App />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Get Started', exact: true }));
+  expect(await screen.findByRole('heading', { name: 'Overview' })).toBeVisible();
+  expect(location.hash).toBe('#/dashboard');
 });

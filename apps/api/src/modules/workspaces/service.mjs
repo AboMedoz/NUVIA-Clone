@@ -1,25 +1,32 @@
 import { randomUUID } from 'node:crypto';
 import { ApiError } from '../../middleware/errors.mjs';
 import { transaction } from '../../shared/database/connection.mjs';
+import { selectedWorkspaceId } from './request-context.mjs';
 import { resolveAccess } from '../team/access.mjs';
 const normalized = (name) => name.normalize('NFKC').trim().toLowerCase();
 const branchView = (branch, primaryId) => ({
   id: branch._id,
   name: branch.name,
+  country: branch.country || '',
+  city: branch.city || '',
+  address: branch.address || '',
   archivedAt: branch.archivedAt?.toISOString() ?? null,
   isPrimary: branch._id === primaryId,
 });
 async function owned(userId, id, deps, session) {
+  const selected = selectedWorkspaceId(userId) || (await resolveAccess(userId, deps)).workspace._id;
+  if (id && id !== selected) throw new ApiError(404, 'NOT_FOUND');
+  const target = id || selected;
   const workspace = await deps.models.Workspace.findOne(
-    { ownerUserId: userId, ...(id ? { _id: id } : {}) },
+    { ownerUserId: userId, ...(target ? { _id: target } : {}) },
     null,
     { session },
   ).lean();
   if (!workspace) throw new ApiError(404, 'NOT_FOUND');
   return workspace;
 }
-export async function getWorkspace(userId, deps) {
-  const access = await resolveAccess(userId, deps),
+export async function getWorkspace(userId, deps, workspaceId) {
+  const access = await resolveAccess(userId, deps, workspaceId ? { workspaceId } : {}),
     w = access.workspace;
   const branches = await deps.models.Branch.find({
     workspaceId: w._id,
@@ -60,17 +67,40 @@ export async function saveWorkspace(userId, input, deps) {
     createdAt: deps.now(),
     version: 1,
   };
-  try {
-    await deps.models.Workspace.updateOne(
-      { ownerUserId: userId },
-      { $set: update, $setOnInsert: create },
-      { upsert: true },
+  let savedId;
+  await transaction(deps, async (session) => {
+    // Serialize first-workspace onboarding after the former unique-owner index is migrated.
+    await deps.models.User.updateOne(
+      { _id: userId },
+      { $set: { updatedAt: deps.now() }, $inc: { workspaceVersion: 1 } },
+      { session },
     );
-  } catch (e) {
-    if (e.code !== 11000) throw e;
-    await deps.models.Workspace.updateOne({ ownerUserId: userId }, { $set: update });
-  }
-  return getWorkspace(userId, deps);
+    const selected = selectedWorkspaceId(userId);
+    const existing = await deps.models.Workspace.findOne(
+      { ownerUserId: userId, ...(selected ? { _id: selected } : {}) },
+      null,
+      { session },
+    )
+      .sort({ createdAt: 1, _id: 1 })
+      .lean();
+    if (selected && !existing) throw new ApiError(403, 'FORBIDDEN');
+    if (!existing) {
+      const membership = await deps.models.Membership.findOne({ userId, revokedAt: null }, null, {
+        session,
+      }).lean();
+      if (membership) throw new ApiError(403, 'FORBIDDEN');
+      await deps.models.Workspace.insertOne({ ...create, ...update }, { session });
+      savedId = create._id;
+    } else {
+      await deps.models.Workspace.updateOne(
+        { _id: existing._id, ownerUserId: userId },
+        { $set: update },
+        { session },
+      );
+      savedId = existing._id;
+    }
+  });
+  return getWorkspace(userId, deps, savedId);
 }
 async function mutateWorkspace(userId, workspaceId, deps, action) {
   try {
@@ -134,9 +164,19 @@ export async function listBranches(userId, workspaceId, { includeArchived = fals
   })
     .sort({ createdAt: 1, _id: 1 })
     .lean();
-  return items.map((b) => branchView(b, w.primaryBranchId));
+  return Promise.all(
+    items.map(async (b) => ({
+      ...branchView(b, w.primaryBranchId),
+      responses: await deps.models.Response.countDocuments({ workspaceId, branchId: b._id }),
+    })),
+  );
 }
-export async function createBranch(userId, workspaceId, { name }, deps) {
+export async function createBranch(
+  userId,
+  workspaceId,
+  { name, country = '', city = '', address = '' },
+  deps,
+) {
   return mutateWorkspace(userId, workspaceId, deps, async (w, session) => {
     if (w.onboardingStep !== 'complete' || w.branchMode !== 'multiple')
       throw new ApiError(409, 'MULTIPLE_BRANCHES_REQUIRED');
@@ -144,6 +184,9 @@ export async function createBranch(userId, workspaceId, { name }, deps) {
       _id: randomUUID(),
       workspaceId,
       name,
+      country,
+      city,
+      address,
       normalizedName: normalized(name),
       archivedAt: null,
       createdAt: deps.now(),
@@ -167,6 +210,8 @@ export async function updateBranch(userId, workspaceId, branchId, input, deps) {
     const update = { updatedAt: deps.now() };
     if (input.name !== undefined)
       Object.assign(update, { name: input.name, normalizedName: normalized(input.name) });
+    for (const key of ['country', 'city', 'address'])
+      if (input[key] !== undefined) update[key] = input[key];
     if (input.archived !== undefined) update.archivedAt = input.archived ? deps.now() : null;
     await branches.updateOne({ _id: branchId, workspaceId }, { $set: update }, { session });
     if (input.archived)

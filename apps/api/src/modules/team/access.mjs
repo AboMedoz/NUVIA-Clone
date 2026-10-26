@@ -1,10 +1,24 @@
 import { ApiError } from '../../middleware/errors.mjs';
+import { selectedWorkspaceId } from '../workspaces/request-context.mjs';
 
 // Resolve membership on every request so revocations and branch changes apply immediately.
-export async function resolveAccess(userId, deps) {
-  let workspace = await deps.models.Workspace.findOne({ ownerUserId: userId }).lean();
+export async function resolveAccess(
+  userId,
+  deps,
+  { workspaceId = selectedWorkspaceId(userId) } = {},
+) {
+  let workspace = await deps.models.Workspace.findOne({
+    ownerUserId: userId,
+    ...(workspaceId ? { _id: workspaceId } : {}),
+  })
+    .sort({ createdAt: 1, _id: 1 })
+    .lean();
   if (workspace) return { workspace, role: 'owner', branchIds: null };
-  const membership = await deps.models.Membership.findOne({ userId, revokedAt: null })
+  const membership = await deps.models.Membership.findOne({
+    userId,
+    revokedAt: null,
+    ...(workspaceId ? { workspaceId } : {}),
+  })
     .sort({ createdAt: 1 })
     .lean();
   if (!membership) throw new ApiError(404, 'NOT_FOUND');

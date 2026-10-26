@@ -1,4 +1,12 @@
 const publicRoutes = [
+  'help',
+  'about',
+  'security',
+  'status',
+  'terms',
+  'privacy',
+  'stories',
+  'pricing',
   'landing',
   'login',
   'signup',

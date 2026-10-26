@@ -10,6 +10,8 @@ import { loadConfig } from '../../apps/api/src/config/env.mjs';
 import { connectDatabase, ensureSchema } from '../../apps/api/src/shared/database/connection.mjs';
 import { createApp } from '../../apps/api/src/app.mjs';
 import { runAccountScenario } from './accounts.spec.mjs';
+import { runAccountSettingsScenario } from './account-settings-browser.spec.mjs';
+const settingsScenario = process.argv.includes('--settings');
 let replica, connection, apiServer, frontend, browser;
 const mailDirectory = await mkdtemp(join(tmpdir(), 'nuvia-browser-mail-'));
 try {
@@ -42,7 +44,9 @@ try {
     configLoader: 'runner',
     server: {
       host: '127.0.0.1',
-      port: 5188,
+      hmr: false,
+      watch: null,
+      port: settingsScenario ? 0 : 5188,
       strictPort: true,
       proxy: { '/api': `http://127.0.0.1:${apiServer.address().port}` },
     },
@@ -60,9 +64,16 @@ try {
     headless: true,
     ...(executable ? { executablePath: executable } : {}),
   });
-  const output = resolve('test-results/accounts');
+  const output = resolve(
+    settingsScenario ? 'test-results/account-settings' : 'test-results/accounts',
+  );
   await mkdir(output, { recursive: true });
-  await runAccountScenario({ browser, origin, deps, output });
+  await (settingsScenario ? runAccountSettingsScenario : runAccountScenario)({
+    browser,
+    origin,
+    deps,
+    output,
+  });
 } catch (error) {
   console.error(error);
   process.exitCode = 1;

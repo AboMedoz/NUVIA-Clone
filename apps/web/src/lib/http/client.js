@@ -1,12 +1,24 @@
 import { API_PREFIX } from '@nuvia/shared-types';
 let csrfToken = null,
+  apiWorkspaceId = null,
   pendingBootstrap = null,
   epoch = 0;
 export function resetApiSession() {
   epoch++;
   csrfToken = null;
+  apiWorkspaceId = null;
   pendingBootstrap = null;
 }
+export function setApiWorkspace(id) {
+  apiWorkspaceId = id || null;
+}
+const workspaceBoundPath = (path, method = 'GET') =>
+  (/^\/(?:workspace(?:$|\/|\?)|workspaces\/[^/]+\/branches(?:$|\/|\?)|surveys(?:$|\/|\?)|survey-templates(?:$|\?)|feedback(?:$|\/|\?)|analytics(?:$|\?)|reports(?:$|\/|\?)|ai(?:$|\/|\?)|analysis(?:$|\/|\?)|assistant(?:$|\/|\?)|team(?:$|\/|\?)|business-page(?:$|\?)|billing(?:$|\/|\?)|actions(?:$|\/|\?)|search(?:$|\?))/.test(
+    path,
+  ) &&
+    !/^\/team\/accept(?:$|\?)/.test(path)) ||
+  (/^\/account\/notifications(?:$|\?)/.test(path) && ['GET', 'HEAD'].includes(method)) ||
+  (/^\/account\/notifications\/read(?:$|\?)/.test(path) && method === 'POST');
 async function request(path, options = {}) {
   let response;
   try {
@@ -33,7 +45,10 @@ export function bootstrapSession() {
   const version = epoch;
   const promise = request('/auth/session')
     .then((data) => {
-      if (version === epoch) csrfToken = data.csrfToken;
+      if (version === epoch) {
+        csrfToken = data.csrfToken;
+        setApiWorkspace(data.workspace?.id);
+      }
       return data;
     })
     .finally(() => {
@@ -44,6 +59,7 @@ export function bootstrapSession() {
 }
 export async function apiRequest(path, { method = 'GET', body, signal } = {}) {
   if (path === '/auth/session' && method === 'GET') return bootstrapSession();
+  const expectedWorkspace = apiWorkspaceId;
   if (method !== 'GET' && !csrfToken) await bootstrapSession();
   const version = epoch;
   let data;
@@ -52,10 +68,18 @@ export async function apiRequest(path, { method = 'GET', body, signal } = {}) {
       method,
       signal,
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
-      headers: method === 'GET' ? {} : { 'X-CSRF-Token': csrfToken },
+      headers: {
+        ...(method === 'GET' ? {} : { 'X-CSRF-Token': csrfToken }),
+        ...(workspaceBoundPath(path, method) && (expectedWorkspace || apiWorkspaceId)
+          ? { 'X-Workspace-ID': expectedWorkspace || apiWorkspaceId }
+          : {}),
+      },
     });
   } catch (error) {
-    if (version === epoch && ['AUTH_REQUIRED', 'CSRF_REJECTED'].includes(error.code)) {
+    if (
+      version === epoch &&
+      ['AUTH_REQUIRED', 'CSRF_REJECTED', 'WORKSPACE_CHANGED'].includes(error.code)
+    ) {
       resetApiSession();
       window.dispatchEvent(new Event('nuvia:session-expired'));
     }

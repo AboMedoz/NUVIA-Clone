@@ -7,21 +7,20 @@ passed. Runtime results belong in the QA report.
 
 ## Canonical UI Map
 
-| Capability     | Canonical owner                                                                      | Source of truth                              | Allowed variants                                                       | Verification                                                                         |
-| -------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Select/Listbox | Native HTML select with shared product styles; existing ChoiceMenu for account menus | DESIGN.md and feature schemas                | Native product selection; established account menu                     | Keyboard selection, localized option text and narrow-browser checks                  |
-| Date           | Native date input in shared Filters and preview OverviewControls                     | Workspace timezone and API filter contract   | Native date-only entry; no implicit timezone conversion by the browser | Timezone filter tests and browser keyboard/date entry                                |
-| Form           | Feature validation with shared fields/status styles and server validation            | Public API schemas and feature form handlers | Create, edit, public response and account flows                        | Invalid-submit, draft retention, failure and duplicate-submit regressions            |
-| Scrollbar      | Global application CSS and workspace geometry                                        | DESIGN.md                                    | Visible native scrolling; sidebar/table geometry overrides             | Computed styles and EN/AR narrow/desktop scrolling                                   |
-| CRUD           | Existing hash router, session/workspace providers and feature API clients            | Implemented API and module boundaries        | Account, survey, branch, team, feedback and report workflows           | Account/invitation browser runners, product acceptance and feature interaction tests |
+| Capability     | Canonical owner                                                            | Source of truth                              | Allowed variants                                                       | Verification                                                                         |
+| -------------- | -------------------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Select/Listbox | Supplied ChoiceMenu; native selects in retained team/public business forms | DESIGN.md and feature schemas                | Native product selection; established account menu                     | Keyboard selection, localized option text and narrow-browser checks                  |
+| Date           | Native date input in shared Filters and preview OverviewControls           | Workspace timezone and API filter contract   | Native date-only entry; no implicit timezone conversion by the browser | Timezone filter tests and browser keyboard/date entry                                |
+| Form           | Feature validation with shared fields/status styles and server validation  | Public API schemas and feature form handlers | Create, edit, public response and account flows                        | Invalid-submit, draft retention, failure and duplicate-submit regressions            |
+| Scrollbar      | Global application CSS and workspace geometry                              | DESIGN.md                                    | Visible native scrolling; sidebar/table geometry overrides             | Computed styles and EN/AR narrow/desktop scrolling                                   |
+| CRUD           | Existing hash router, session/workspace providers and feature API clients  | Implemented API and module boundaries        | Account, survey, branch, team, feedback and report workflows           | Account/invitation browser runners, product acceptance and feature interaction tests |
 
 ## Established behavior
 
-`WorkspaceShell` and `ProductProvider` own the header's feedback search. Enter
-commits a `search` fragment parameter and opens the protected Feedback route;
-clearing removes the parameter. Ctrl/Meta K focuses the desktop input without
-intercepting composition. This is feedback search, not a global workspace index.
-Survey lists retain their separate local title search.
+The approved ProductContext owns saved identity, workspace switching and header
+navigation. GlobalSearch queries authorized saved feedback, surveys and reports;
+Enter can commit feedback text search to the protected route. Searches cancel when
+the query or session scope changes. Survey lists retain local title search.
 
 - Keep native selects and date inputs; use translated labels/options and real
   labels. Native picker chrome is controlled by the browser/OS and may follow its
@@ -39,8 +38,8 @@ Survey lists retain their separate local title search.
 - Dialogs retain the established focus trap, Escape and focus-return behavior.
   Controls and responsive tables remain keyboard operable and scrollable.
 - Figma fixture metrics, subscription controls and illustrative AI prose do not
-  become account data. Use saved metrics or explicit absence; retain deferred
-  subscription scope and model readiness limits.
+  become account data. Use saved metrics or explicit absence; retain provider-configuration
+  and model readiness limits.
 
 Static `premium-ui.json` declarations identify owners and validation commands;
 they do not execute tests or waive runtime findings. Exact Figma source frames,

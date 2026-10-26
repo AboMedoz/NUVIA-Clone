@@ -31,6 +31,7 @@ function period(date, timezone, interval) {
   return value;
 }
 export function aggregateResponses(responses, timezone = 'Africa/Cairo', interval = 'day') {
+  const ratings = [];
   const sentiments = {},
     aspects = new Map(),
     series = new Map(),
@@ -41,7 +42,13 @@ export function aggregateResponses(responses, timezone = 'Africa/Cairo', interva
     if (label) sentiments[label] = (sentiments[label] || 0) + 1;
     const p = period(r.createdAt, timezone, interval);
     if (!series.has(p))
-      series.set(p, { date: p, totalResponses: 0, sentimentDistribution: {}, aspects: new Map() });
+      series.set(p, {
+        date: p,
+        totalResponses: 0,
+        sentimentDistribution: {},
+        aspects: new Map(),
+        ratings: [],
+      });
     const bucket = series.get(p);
     bucket.totalResponses++;
     if (label) bucket.sentimentDistribution[label] = (bucket.sentimentDistribution[label] || 0) + 1;
@@ -52,8 +59,24 @@ export function aggregateResponses(responses, timezone = 'Africa/Cairo', interva
         totalResponses: 0,
         sentimentDistribution: {},
         aspects: new Map(),
+        ratings: [],
       });
     const branch = comparisons.get(r.branchId);
+    const ratingQuestions = new Map(
+      (r.questions || []).filter((q) => q.type === 'rating').map((q) => [q.id, q.ratingMax || 5]),
+    );
+    for (const answer of r.answers || []) {
+      if (
+        ratingQuestions.has(answer.questionId) &&
+        Number.isInteger(answer.value) &&
+        answer.value >= 1 &&
+        answer.value <= ratingQuestions.get(answer.questionId)
+      ) {
+        ratings.push((answer.value * 5) / ratingQuestions.get(answer.questionId));
+        bucket.ratings.push((answer.value * 5) / ratingQuestions.get(answer.questionId));
+        branch.ratings.push((answer.value * 5) / ratingQuestions.get(answer.questionId));
+      }
+    }
     branch.totalResponses++;
     if (label) branch.sentimentDistribution[label] = (branch.sentimentDistribution[label] || 0) + 1;
     for (const mention of r.analysis?.aspects?.mentions || []) {
@@ -78,11 +101,21 @@ export function aggregateResponses(responses, timezone = 'Africa/Cairo', interva
           segment.sentimentDistribution[label] = (segment.sentimentDistribution[label] || 0) + 1;
       }
   }
+  const ratingMetrics = (values) => ({
+    averageRating: values.length
+      ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2))
+      : null,
+    ratingAnswerCount: values.length,
+  });
   const aspectScores = (map) =>
     [...map].map(([aspect, mentions]) => ({ aspect, ...score(mentions) }));
   const trends = [...series.values()]
     .sort((a, b) => a.date.localeCompare(b.date))
-    .map(({ aspects, ...bucket }) => ({ ...bucket, aspectScores: aspectScores(aspects) }));
+    .map(({ aspects, ratings: values, ...bucket }) => ({
+      ...bucket,
+      ...ratingMetrics(values),
+      aspectScores: aspectScores(aspects),
+    }));
   const analyzedResponses = responses.filter((r) => r.analysisStatus === 'succeeded').length;
   const alerts = [];
   // Deterministic, explicitly versioned observed change alerts; never forecasts.
@@ -108,13 +141,15 @@ export function aggregateResponses(responses, timezone = 'Africa/Cairo', interva
     }
   return {
     totalResponses: responses.length,
+    ...ratingMetrics(ratings),
     analyzedResponses,
     pendingResponses: responses.length - analyzedResponses,
     sentimentDistribution: sentiments,
     aspectScores: aspectScores(aspects),
     trends,
-    comparisons: [...comparisons.values()].map(({ aspects, ...branch }) => ({
+    comparisons: [...comparisons.values()].map(({ aspects, ratings: values, ...branch }) => ({
       ...branch,
+      ...ratingMetrics(values),
       aspectScores: aspectScores(aspects),
     })),
     segmentComparisons: [...segmentGroups.values()],
@@ -132,6 +167,26 @@ export async function analytics(filters, access, deps) {
     access.workspace.reportingTimezone,
     filters.interval,
   );
+  const completionSupported =
+    !filters.language &&
+    !filters.sentiment &&
+    !filters.aspect &&
+    !filters.search &&
+    !filters.segment;
+  metrics.completionMethod = 'first-interaction-session-v1';
+  metrics.startedSessions = null;
+  metrics.completedSessions = null;
+  metrics.completionRate = null;
+  if (completionSupported) {
+    const startQuery = filterQuery(filters, access);
+    const [started, completed] = await Promise.all([
+      deps.models.SurveyStart.countDocuments(startQuery),
+      deps.models.SurveyStart.countDocuments({ ...startQuery, completedAt: { $ne: null } }),
+    ]);
+    metrics.startedSessions = started;
+    metrics.completedSessions = completed;
+    metrics.completionRate = started ? completed / started : null;
+  }
   const readiness = datasetReadiness(responses, metrics),
     key = datasetKey(responses, filters.interval, access.workspace.reportingTimezone);
   const jobs = await deps.models.AnalysisJob.find({

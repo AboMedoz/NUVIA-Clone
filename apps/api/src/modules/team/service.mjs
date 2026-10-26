@@ -123,16 +123,6 @@ export async function acceptInvitation(token, user, deps, { invitationDigest, se
       { returnDocument: 'after', session },
     ).lean();
     if (!invitation) throw new ApiError(400, 'INVALID_TOKEN');
-    const existingWorkspace = await deps.models.Workspace.findOne({ ownerUserId: user.id }, null, {
-      session,
-    }).lean();
-    const existingMembership = await deps.models.Membership.findOne(
-      { userId: user.id, workspaceId: { $ne: invitation.workspaceId }, revokedAt: null },
-      null,
-      { session },
-    ).lean();
-    if (existingWorkspace || existingMembership)
-      throw new ApiError(409, 'WORKSPACE_ALREADY_SELECTED');
     await deps.models.Membership.updateOne(
       { workspaceId: invitation.workspaceId, userId: user.id },
       {
@@ -149,7 +139,7 @@ export async function acceptInvitation(token, user, deps, { invitationDigest, se
     if (sessionId)
       await deps.models.Session.updateOne(
         { _id: sessionId, userId: user.id },
-        { $set: { pendingInvitationDigest: null } },
+        { $set: { pendingInvitationDigest: null, workspaceId: invitation.workspaceId } },
         { session },
       );
     return { status: 'accepted', workspaceId: invitation.workspaceId };

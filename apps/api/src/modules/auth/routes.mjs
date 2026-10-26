@@ -1,3 +1,4 @@
+import { secondFactorPattern } from '../account/recovery.mjs';
 import { Router } from 'express';
 import { z, parse, name, email, password, locale, token } from '../../shared/validation.mjs';
 import { csrfMiddleware } from '../../middleware/security.mjs';
@@ -79,6 +80,7 @@ export function authRoutes(deps) {
               email,
               password: z.string().min(1).max(128),
               remember: z.boolean().default(false),
+              code: z.string().regex(secondFactorPattern).optional(),
             })
             .strict(),
           req.body,

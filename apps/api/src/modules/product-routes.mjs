@@ -14,9 +14,11 @@ import {
   editSurvey,
   publishSurvey,
   closeSurvey,
+  manageSurvey,
   publicSurvey,
   safePublicSurvey,
   submitResponse,
+  startSurvey,
   surveyTemplates,
 } from './surveys/service.mjs';
 import {
@@ -24,6 +26,7 @@ import {
   filterQuery,
   listFeedback,
   findResponse,
+  responseNavigation,
   responseView,
   csvRow,
 } from './feedback/service.mjs';
@@ -72,6 +75,15 @@ export function productRoutes(deps) {
     );
     res.status(201).json({ response });
   });
+  router.post('/public/surveys/:token/start', async (req, res) =>
+    res.json(
+      await startSurvey(
+        parse(token, req.params.token),
+        parse(z.object({ startId: z.uuid(), channel: z.enum(['qr', 'link']) }).strict(), req.body),
+        deps,
+      ),
+    ),
+  );
   router.get('/public/business/:slug', async (req, res) =>
     res.json(await publicPage(parse(z.string().regex(/^[a-z0-9-]{3,80}$/), req.params.slug), deps)),
   );
@@ -167,6 +179,14 @@ export function productRoutes(deps) {
     parse(z.object({}).strict(), req.body);
     res.json({ survey: await closeSurvey(uuid(req.params.id), req.access, deps) });
   });
+  for (const action of ['duplicate', 'pause', 'resume', 'archive', 'delete'])
+    router.post('/surveys/:id/' + action, async (req, res) => {
+      parse(z.object({}).strict(), req.body);
+      res.json({
+        survey: await manageSurvey(uuid(req.params.id), action, req.access, deps),
+        status: action === 'delete' ? 'deleted' : 'saved',
+      });
+    });
   router.get('/feedback', async (req, res) =>
     res.json(await listFeedback(parse(filterSchema, req.query), req.access, deps)),
   );
@@ -215,9 +235,13 @@ export function productRoutes(deps) {
     }
     res.end();
   });
-  router.get('/feedback/:id', async (req, res) =>
-    res.json({ response: responseView(await findResponse(uuid(req.params.id), req.access, deps)) }),
-  );
+  router.get('/feedback/:id', async (req, res) => {
+    const response = await findResponse(uuid(req.params.id), req.access, deps);
+    res.json({
+      response: responseView(response),
+      navigation: await responseNavigation(response, req.access, deps),
+    });
+  });
   router.get('/analytics', async (req, res) =>
     res.json({
       ...(await analytics(parse(filterSchema, req.query), req.access, deps)),

@@ -4,6 +4,7 @@ export const sessionSchema = defineSchema('sessions', {
   digest: text,
   csrfDigest: text,
   userId: reference('User', false),
+  workspaceId: reference('Workspace', false),
   credentialsVersion: {
     type: Number,
     min: 1,
@@ -12,6 +13,7 @@ export const sessionSchema = defineSchema('sessions', {
   createdAt: date,
   expiresAt: date,
   revokedAt: Date,
+  userAgent: { type: String, maxlength: 500 },
   pendingInvitationDigest: { type: String, default: null, match: /^[a-f0-9]{64}$/ },
 });
 sessionSchema.index({ digest: 1 }, { unique: true });

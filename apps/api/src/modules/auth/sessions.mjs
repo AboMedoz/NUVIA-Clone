@@ -46,7 +46,13 @@ export async function resolveSession(req, deps) {
 }
 export async function createSession(
   res,
-  { userId = null, remember = false, credentialsVersion = null, pendingInvitationDigest = null },
+  {
+    userId = null,
+    remember = false,
+    credentialsVersion = null,
+    pendingInvitationDigest = null,
+    workspaceId = null,
+  },
   deps,
 ) {
   const raw = randomBytes(32).toString('hex'),
@@ -57,6 +63,7 @@ export async function createSession(
     digest: digest(raw),
     csrfDigest: digest(csrfToken),
     userId,
+    workspaceId,
     credentialsVersion,
     pendingInvitationDigest,
     createdAt: deps.now(),

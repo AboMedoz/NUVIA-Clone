@@ -12,3 +12,12 @@ docs/model-research/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before
 docs/model-research/*.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Imported provenance prose is also retained verbatim, including its original spaces.
 docs/model-research/real50-SOURCE-README.md -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Approved source branding retains original SVG whitespace and bytes.
+apps/web/public/assets/brand/nuvia-logo.svg -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+apps/web/public/assets/brand/nuvia-logo-on-dark.svg -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Preserve supplied design source bytes, including original line endings/spaces.
+apps/web/src/features/approved-ui/**/*.css -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+apps/web/src/features/approved-ui/product/empty-assets/*.svg -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+apps/web/public/assets/brand/*.svg -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

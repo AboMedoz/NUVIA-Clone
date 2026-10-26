@@ -15,7 +15,7 @@ export function validateAnswers(questions, values) {
       ['nps', 'rating'].includes(q.type) &&
       (!Number.isInteger(Number(value)) ||
         Number(value) < (q.type === 'nps' ? 0 : 1) ||
-        Number(value) > (q.type === 'nps' ? 10 : 5))
+        Number(value) > (q.type === 'nps' ? 10 : q.ratingMax || 5))
     )
       errors[q.id] = 'invalid';
     if (q.type === 'single_choice' && !q.options?.includes(value)) errors[q.id] = 'invalid';

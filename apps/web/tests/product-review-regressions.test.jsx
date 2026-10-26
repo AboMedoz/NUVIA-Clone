@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { it, expect, vi } from 'vitest';
+import { it, expect, vi, beforeEach } from 'vitest';
+beforeEach(() => sessionStorage.clear());
 import App from '../src/app/App.jsx';
 import AppRouter from '../src/app/router/AppRouter.jsx';
 import { AuthProvider, useAuth } from '../src/app/providers/AuthProvider.jsx';
@@ -48,14 +49,16 @@ it('hands committed header searches across the protected route remount and clear
   });
   render(<App />);
   await screen.findByRole('heading', { name: 'AI Reports' });
-  fireEvent.change(screen.getByRole('textbox', { name: 'Search feedback…' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Search across pages' }), {
     target: { value: 'match' },
   });
-  fireEvent.keyDown(screen.getByRole('textbox', { name: 'Search feedback…' }), { key: 'Enter' });
-  expect(await screen.findByRole('link', { name: 'Matched saved feedback' })).toBeVisible();
-  expect(screen.getByRole('textbox', { name: 'Search feedback…' })).toHaveValue('match');
+  fireEvent.keyDown(screen.getByRole('combobox', { name: 'Search across pages' }), {
+    key: 'Enter',
+  });
+  expect(await screen.findByText('Matched saved feedback', { exact: true })).toBeVisible();
+  expect(screen.getByRole('combobox', { name: 'Search across pages' })).toHaveValue('match');
   fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
-  expect(await screen.findByRole('link', { name: 'All saved feedback' })).toBeVisible();
+  expect(await screen.findByText('All saved feedback', { exact: true })).toBeVisible();
   expect(new URLSearchParams(location.hash.split('?')[1]).has('search')).toBe(false);
 });
 
@@ -75,22 +78,30 @@ it('retains a saved wizard draft and later edits across a language change after 
     target: { value: 'Saved title' },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Continue to questions' }));
-  fireEvent.change(screen.getByLabelText('Question 1'), { target: { value: 'Saved question' } });
+  fireEvent.change(
+    (await screen.findAllByLabelText('Question text')).find((field) => field.lang === 'en'),
+    { target: { value: 'Saved question' } },
+  );
   fireEvent.click(screen.getByRole('button', { name: 'Continue to sharing' }));
   await screen.findByRole('heading', { name: 'Share survey' });
   fireEvent.click(screen.getByRole('button', { name: /Build questions/ }));
-  fireEvent.change(screen.getByLabelText('Question 1'), {
-    target: { value: 'Unsaved edit after saving' },
-  });
+  fireEvent.change(
+    (await screen.findAllByLabelText('Question text')).find((field) => field.lang === 'en'),
+    {
+      target: { value: 'Unsaved edit after saving' },
+    },
+  );
   fireEvent.click(screen.getByRole('button', { name: 'Language / اللغة' }));
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: /العربية/ }));
-  expect(await screen.findByLabelText('السؤال 1')).toHaveValue('Unsaved edit after saving');
+  expect(
+    (await screen.findAllByLabelText('نص السؤال')).find((field) => field.lang === 'en'),
+  ).toHaveValue('Unsaved edit after saving');
 });
 
 it.each([
   ['survey-builder', 'Survey title', 'عنوان الاستبيان'],
-  ['settings', 'Description', 'الوصف'],
-  ['assistant', 'Your question', 'سؤالك'],
+  ['business-page', 'Description', 'الوصف'],
+  ['assistant', 'Ask a follow-up about this feedback…', 'اسأل سؤالًا إضافيًا عن هذه الآراء…'],
 ])('preserves unsaved %s text when the UI language changes', async (route, english, arabic) => {
   history.replaceState(null, '', '/#/' + route);
   vi.spyOn(authApi, 'session').mockResolvedValue(session());
@@ -195,13 +206,16 @@ it('returns to page one when feedback search changes after paging', async () => 
     });
   });
   render(<App />);
-  await screen.findByRole('link', { name: 'First page response' });
+  await screen.findByText('First page response', { exact: true });
   fireEvent.click(screen.getByRole('button', { name: 'Next', exact: true }));
-  await screen.findByRole('link', { name: 'Second page response' });
-  fireEvent.change(screen.getByRole('textbox', { name: 'Search feedback…' }), {
+  await screen.findByText('Second page response', { exact: true });
+  fireEvent.change(screen.getByRole('combobox', { name: 'Search across pages' }), {
     target: { value: 'match' },
   });
-  expect(await screen.findByRole('link', { name: 'Matching response' })).toBeVisible();
+  fireEvent.keyDown(screen.getByRole('combobox', { name: 'Search across pages' }), {
+    key: 'Enter',
+  });
+  expect(await screen.findByText('Matching response', { exact: true })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();
   await act(async () => {});
 });
@@ -389,9 +403,9 @@ it('continues a fresh invitation through signup, verification and login without 
   });
   fireEvent.click(screen.getByRole('checkbox'));
   fireEvent.click(screen.getByRole('button', { name: 'Create account', exact: true }));
-  await screen.findByRole('heading', { name: 'Verify your email' });
+  await screen.findByRole('heading', { name: 'Check your inbox' });
   await navigate('#/verify-email?token=verification-token');
-  await screen.findByText('Email verified. You can log in now.');
+  await screen.findByRole('heading', { name: 'Email verified' });
   await navigate(screen.getByRole('link', { name: 'Back to log in' }).getAttribute('href'));
   fireEvent.change(await screen.findByLabelText('Work email'), {
     target: { value: 'invitee@example.test' },

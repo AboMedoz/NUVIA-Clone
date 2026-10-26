@@ -53,9 +53,9 @@ export async function runAccountScenario({ browser, origin, deps, output }) {
     await page.getByLabel('Confirm password').fill('Synthetic123');
     await page.getByRole('checkbox').check();
     await page.getByRole('button', { name: 'Create account', exact: true }).click();
-    await page.getByRole('heading', { name: 'Verify your email' }).waitFor();
+    await page.getByRole('heading', { name: 'Check your inbox' }).waitFor();
     await page.goto(await mailLink('verify-email'));
-    await page.getByText('Email verified. You can log in now.').waitFor();
+    await page.getByRole('heading', { name: 'Email verified' }).waitFor();
     await page.screenshot({ path: join(output, 'verification-en-desktop.png'), fullPage: true });
     assert.ok(!page.url().includes('token='));
     await page.getByRole('link', { name: 'Back to log in' }).click();
@@ -98,19 +98,31 @@ export async function runAccountScenario({ browser, origin, deps, output }) {
     await page.getByRole('heading', { name: 'Overview' }).waitFor();
     await page.goto(`${origin}/#/feedbacks`);
     await page.getByRole('heading', { name: 'Your first response starts here' }).waitFor();
-    assert.equal(await page.locator('.feedback-filter').count(), 6);
+    assert.equal(await page.locator('.feedback-filter').count(), 5);
+    for (const name of ['Date range', 'Sentiment', 'Language', 'Aspect', 'Branch'])
+      assert.ok((await page.locator('.feedback-filter').filter({ hasText: name }).count()) > 0);
     assert.equal(await page.locator('.feedback-table tbody tr').count(), 0);
     for (const width of [1440, 393]) {
       await page.setViewportSize({ width, height: width === 393 ? 800 : 900 });
-      const logout = await page.locator('.workspace-account-actions').boundingBox();
+      const profile = await page
+        .getByRole('button', { name: 'Profile', exact: true })
+        .boundingBox();
       const empty = await page.locator('.feedback-empty').boundingBox();
-      assert.ok(logout.y >= empty.y + empty.height, 'Logout must not cover the empty state');
+      assert.ok(
+        profile.y + profile.height <= empty.y,
+        'Account menu trigger must stay in the header and not cover the empty state',
+      );
+      await page.getByRole('button', { name: 'Profile', exact: true }).click();
+      await page.getByRole('button', { name: 'Sign out', exact: true }).waitFor();
+      await page.keyboard.press('Escape');
+      assert.equal(await page.getByRole('button', { name: 'Sign out', exact: true }).count(), 0);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     }
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`${origin}/#/dashboard`);
     await page.getByRole('heading', { name: 'Overview' }).waitFor();
-    await page.getByRole('button', { name: 'Log out', exact: true }).click();
+    await page.getByRole('button', { name: 'Profile', exact: true }).click();
+    await page.getByRole('button', { name: 'Sign out', exact: true }).click();
     await page.getByRole('heading', { name: 'Welcome back' }).waitFor();
     await login('Synthetic123');
     await page.getByRole('heading', { name: 'Overview' }).waitFor();

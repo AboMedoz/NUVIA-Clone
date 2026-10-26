@@ -1,5 +1,10 @@
 # NUVIA product API
 
+The approved interface adds [account settings/contact](account-settings.md),
+[saved actions/evidence](actions.md), [survey extensions](approved-survey-contract.md),
+[multiple workspaces](multi-workspace.md) and optional
+[Google/Stripe integrations](../development/external-integrations.md).
+
 Prefix `/api/v1`; UTF-8 JSON, UUID string IDs, UTC timestamps. GET `/auth/session` returns `{user,workspace,csrfToken,pendingInvitation}` with null identity when anonymous. Mutations require that cookie, `X-CSRF-Token` and exact Origin. No bearer token, credentials or MongoDB URI belongs in the frontend.
 
 | Method   | Path                                 | Payload/result                                                          |
@@ -79,7 +84,7 @@ Numeric cluster labels identify memberships; they are **not semantic summaries**
 
 Roles are Owner, Manager and Viewer. The workspace owner has all branches and alone changes team/business branding and branch structure. Managers read assigned branches and can create/edit/publish their branch-scoped surveys, run authorized analysis and reports. Viewers read/export authorized data without mutations. A survey distributed to any unassigned branch cannot be edited by a restricted manager. Owner-created unpublished drafts remain owner-only until distribution defines their scope; manager drafts retain their initial assigned branch scope.
 
-Session workspace DTO adds `role` and `allowedBranchIds` (`null` for owner; assigned IDs for others); `branches` is restricted and an unassigned primary branch ID is returned as null. Every request resolves current membership, so revocation or scope reduction applies immediately to responses, jobs, saved report snapshots, exports and assistant retrieval. Reports spanning any now-unassigned branch are hidden entirely. The current application selects an owned workspace first or one active membership; accepting another workspace while already owning/participating in one returns 409 instead of silently switching identity.
+Session workspace DTO adds `role` and `allowedBranchIds` (`null` for owner; assigned IDs for others); `branches` is restricted and an unassigned primary branch ID is returned as null. Every request resolves current membership, so revocation or scope reduction applies immediately to responses, jobs, saved report snapshots, exports and assistant retrieval. Reports spanning any now-unassigned branch are hidden entirely. The session stores its selected workspace. Explicit switching and invitation acceptance select an authorized business; stale workspace requests return 409 without replaying mutations. See the multi-workspace contract.
 
 Invitations are email-bound, seven-day, hashed, single-use tokens. A new invitation revokes previous unused invitations for the same email/workspace. Raw tokens are encrypted in the private mail outbox until delivery and never stored in invitation records or browser-continuation Session records. Acceptance binds the verified account email and transactionally creates membership, consumes the invitation and clears the current session continuation. The mail worker supports file-mode invitations and configured SMTP; only the issuing owner receives the new link directly for sharing/review. Actual SMTP acceptance remains deployment-specific.
 
@@ -111,3 +116,10 @@ The pump selects queued work, due transient retries and expired leases **before*
 `POST /analysis/retry` schedules authorized jobs as queued and returns without waiting for inference. Report creation also saves a queued report/job and returns immediately when the internal service is configured. The automatic pump owns execution, so installed models with long inference times do not keep a retry/report HTTP request open across a batch of jobs. The operational CLI is intentionally a foreground administrative command.
 
 `DATA_RETENTION_DAYS` is a private bounded integer setting from 0 through 3650; default 0 disables retention expiry and preserves response/report evidence indefinitely. It records the operator's configured retention horizon; **no automatic deletion or destructive purge is enabled**, including when a positive value is configured. Session/auth/mail token expiry retains its existing TTL behavior. A future reviewed deletion operation must coordinate responses, derived jobs, report snapshots and literal evidence; never delete raw responses independently of saved reports. No production retention policy is inferred from the safe default or the validation bound.
+
+## Authorized header search
+
+`GET /search?q=...&branchId=...` returns up to four saved feedback, survey and
+report matches per category as `{results:[{id,title,section,description,path}]}`.
+The query is bounded to 200 characters; empty queries return no records. Current
+workspace and branch permissions apply, including report snapshot scope.

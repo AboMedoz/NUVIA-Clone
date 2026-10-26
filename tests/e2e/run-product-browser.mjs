@@ -83,6 +83,8 @@ try {
     configLoader: 'runner',
     server: {
       host: '127.0.0.1',
+      hmr: false,
+      watch: null,
       port: webPort,
       strictPort: true,
       proxy: { '/api': `http://127.0.0.1:${apiServer.address().port}` },

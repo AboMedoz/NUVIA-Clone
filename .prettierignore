@@ -15,6 +15,10 @@ node_modules/
 **/dist/
 **/previews/
 **/public/assets/
+# Preserve the exact user-approved visual source; integration logic is formatted separately.
+apps/web/src/features/approved-ui/**/*.css
+apps/web/src/features/approved-ui/**/assets/**
+apps/web/src/features/approved-ui/**/empty-assets/**
 pnpm-lock.yaml
 **/uv.lock
 

@@ -8,6 +8,17 @@ reports and public business pages. `index.mjs` is the authoritative model regist
 
 ## Model map
 
+The approved interface adds `Account.mjs` (`Notification` / `notifications`),
+`OAuthState.mjs` (`OAuthState` / `oauth_states`), `Billing.mjs` (`BillingAccount` /
+`billing_accounts`, `BillingEvent` / `billing_events`), `Actions.mjs` (`Action` /
+`actions`), `ContactRequest.mjs` (`ContactRequest` / `contact_requests`), and
+`SurveyStart` / `survey_starts` in `Product.mjs`. All executable schemas remain
+connection-scoped in this directory; former module schema paths re-export them.
+Profile/preferences, encrypted TOTP enrollment/secrets, recovery-code hashes,
+pending-email state and credential-bound proofs extend the existing account
+models. Anonymous survey starts record first interaction, completion and link/QR
+channel; they contain no browser fingerprint or inferred identity.
+
 | Model         | Collection        | Source                                                                           | Main fields                                                                                                                                        |
 | ------------- | ----------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | User          | `users`           | [User.mjs](../../apps/api/src/shared/database/models/User.mjs)                   | `_id`, name, email, locale, passwordHash, credentialsVersion, verifiedAt, termsAcceptedAt, createdAt, updatedAt                                    |
@@ -18,7 +29,7 @@ reports and public business pages. `index.mjs` is the authoritative model regist
 | MailOutbox    | `mail_outbox`     | [MailOutbox.mjs](../../apps/api/src/shared/database/models/MailOutbox.mjs)       | `_id`, userId, kind, tokenDigest, encrypted payload, status, attempts, createdAt, expiresAt, nextAttemptAt, leaseId, leaseUntil, sentAt, errorCode |
 | SchemaVersion | `schema_versions` | [SchemaVersion.mjs](../../apps/api/src/shared/database/models/SchemaVersion.mjs) | `_id` (`foundation`), version, appliedAt                                                                                                           |
 
-`User` owns one `Workspace`; a workspace has branches and an optional primary branch. Sessions, auth tokens and outgoing authentication messages reference a user. Anonymous CSRF bootstrap sessions have null `userId`/`credentialsVersion`. References are schema metadata, not foreign-key enforcement or automatic population; services enforce owner scope and transactional invariants.
+`User` may own multiple `Workspace` records; a workspace has branches and an optional primary branch. Sessions, auth tokens and outgoing authentication messages reference a user. Anonymous CSRF bootstrap sessions have null `userId`/`credentialsVersion`. References are schema metadata, not foreign-key enforcement or automatic population; services enforce owner scope and transactional invariants.
 
 Business/account IDs remain UUID strings. Auth-token IDs remain MongoDB ObjectIds, matching the original upserts; token consumption uses the digest, purpose and expiry. Dates remain BSON dates. Nullable verification/revocation/archive fields preserve their existing meaning. Mail payloads contain ciphertext, nonce and authentication tag; delivered/expired payloads can be unset.
 
@@ -42,3 +53,12 @@ The underlying MongoDB client remains available for explicit transactions; every
 Mongoose is application-level enforcement. Writes from MongoDB Compass, another service, or native test fixtures bypass its validators. A future Python/FastAPI writer must share a documented storage contract and validation strategy rather than assume Mongoose validates Python writes.
 
 The upgrade uses the existing MongoDB URI and database name. Run `pnpm install --frozen-lockfile`, then the normal database check/setup and `pnpm dev` startup from [README](../../README.md). No data-copy migration is required for the tested existing shapes. Atlas/SMTP acceptance and deployment backup/restore remain separate from isolated test evidence.
+
+## Approved-interface extensions
+
+`User.workspaceVersion` serializes concurrent workspace creation. `Session.workspaceId`
+records explicit selection; request-local context never mutates shared dependencies.
+The nonunique `workspace_owner_created` index replaces the legacy one-owner unique
+constraint only through the explicit migration described in `docs/api/multi-workspace.md`.
+Routine index setup remains additive. `Report.scheduleKey` provides unique weekly
+scheduling; account notification settings retain explicit weekly opt-in.

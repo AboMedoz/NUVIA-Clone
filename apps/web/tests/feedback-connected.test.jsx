@@ -5,7 +5,7 @@ import App from '../src/app/App.jsx';
 import { authApi } from '../src/features/auth/api.js';
 import { productApi } from '../src/features/product/api.js';
 
-it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
+it.each(['feedbacks', 'feedbacks-empty'])(
   'keeps the reviewed empty feedback layout on the account route %s',
   async (route) => {
     vi.spyOn(authApi, 'session').mockResolvedValue({
@@ -32,10 +32,7 @@ it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
     expect(screen.getAllByText('Actual Cafe').length).toBeGreaterThan(0);
     expect(screen.queryByText('Bloom & Co.')).not.toBeInTheDocument();
     expect(screen.queryByText('1,248 / 5,000 responses')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'View sample responses' })).toHaveAttribute(
-      'href',
-      '/preview/#/feedbacks',
-    );
+    expect(screen.queryByText(/25 minutes/)).not.toBeInTheDocument();
     const clipboard = vi.fn();
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -43,7 +40,7 @@ it.each(['feedbacks', 'feedbacks-empty', 'feedback-details'])(
     });
     fireEvent.click(screen.getByRole('button', { name: 'Share a survey', exact: true }));
     expect(clipboard).not.toHaveBeenCalled();
-    expect(location.hash).toBe('#/surveys');
+    expect(location.hash).toBe('#/survey-all');
   },
 );
 
@@ -60,7 +57,7 @@ it.each([
   'preserves the reviewed overview empty copy in the %s design preview',
   async (language, copy) => {
     localStorage.setItem('nuvia-language', language);
-    history.replaceState(null, '', '/preview/#/dashboard-empty');
+    history.replaceState(null, '', '/preview/?state=empty#/overview');
     render(<App />);
     expect(await screen.findByText(copy)).toBeVisible();
   },

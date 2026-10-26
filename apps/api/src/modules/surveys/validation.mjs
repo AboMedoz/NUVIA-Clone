@@ -6,6 +6,26 @@ export const questionSchema = z
     type: z.enum(['short_text', 'long_text', 'single_choice', 'multiple_choice', 'rating', 'nps']),
     label: z.string().trim().min(1).max(500),
     required: z.boolean(),
+    ratingMax: z.number().int().min(2).max(10).optional(),
+    lowLabel: z
+      .object({ en: z.string().max(200), ar: z.string().max(200) })
+      .strict()
+      .optional(),
+    highLabel: z
+      .object({ en: z.string().max(200), ar: z.string().max(200) })
+      .strict()
+      .optional(),
+    labelTranslations: z
+      .object({ en: z.string().trim().max(500), ar: z.string().trim().max(500) })
+      .strict()
+      .optional(),
+    optionTranslations: z
+      .object({
+        en: z.array(z.string().trim().max(200)).max(30),
+        ar: z.array(z.string().trim().max(200)).max(30),
+      })
+      .strict()
+      .optional(),
     options: z.array(z.string().trim().min(1).max(200)).min(2).max(30).optional(),
     segment: z.boolean().optional(),
   })
@@ -27,6 +47,13 @@ const fields = {
   description: z.string().trim().max(2000).default(''),
   locale,
   questions,
+  anonymous: z.boolean().default(true),
+  enabledLanguages: z
+    .array(locale)
+    .min(1)
+    .max(2)
+    .refine((values) => new Set(values).size === values.length)
+    .optional(),
 };
 export const surveyInput = z.object(fields).strict();
 export const surveyPatch = z
@@ -35,6 +62,8 @@ export const surveyPatch = z
     description: z.string().trim().max(2000).optional(),
     locale: locale.optional(),
     questions: questions.optional(),
+    anonymous: z.boolean().optional(),
+    enabledLanguages: fields.enabledLanguages,
     revision: z.number().int().min(1).optional(),
   })
   .strict()
@@ -62,6 +91,15 @@ export const publicInput = z
       .max(128)
       .regex(/^[a-zA-Z0-9_-]+$/),
     consent: z.literal(true),
+    startId: z.uuid().optional(),
+    sourceChannel: z.enum(['qr', 'link']).optional(),
+    respondent: z
+      .object({
+        name: z.string().trim().min(1).max(120).optional(),
+        email: z.email().trim().toLowerCase().max(254).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export function validateAnswers(questions, answers) {
@@ -86,7 +124,12 @@ export function validateAnswers(questions, answers) {
         .min(q.required ? 1 : 0)
         .max(q.options.length)
         .refine((v) => new Set(v).size === v.length);
-    if (q.type === 'rating') schema = z.number().int().min(1).max(5);
+    if (q.type === 'rating')
+      schema = z
+        .number()
+        .int()
+        .min(1)
+        .max(q.ratingMax || 5);
     if (q.type === 'nps') schema = z.number().int().min(0).max(10);
     values.set(q.id, parse(schema, answer.value));
   }

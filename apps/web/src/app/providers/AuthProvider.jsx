@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { authApi } from '../../features/auth/api.js';
 import { workspaceApi } from '../../features/workspaces/api.js';
-import { resetApiSession } from '../../lib/http/client.js';
+import { resetApiSession, setApiWorkspace } from '../../lib/http/client.js';
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children, preview = false }) {
@@ -18,6 +18,7 @@ export function AuthProvider({ children, preview = false }) {
     try {
       const data = await authApi.session();
       if (id !== generation.current) return null;
+      setApiWorkspace(data.workspace?.id);
       setView({
         status: 'ready',
         user: data.user,
@@ -26,7 +27,10 @@ export function AuthProvider({ children, preview = false }) {
       });
       return data;
     } catch (error) {
-      if (id === generation.current) setView({ status: 'error', user: null, workspace: null });
+      if (id === generation.current) {
+        setApiWorkspace(null);
+        setView({ status: 'error', user: null, workspace: null });
+      }
       throw error;
     }
   }, []);
@@ -70,17 +74,24 @@ export function AuthProvider({ children, preview = false }) {
     resetApiSession();
     return refresh();
   };
+  const clearSession = useCallback(() => {
+    generation.current++;
+    active.current?.abort();
+    active.current = null;
+    resetApiSession();
+    setView({ status: 'ready', user: null, workspace: null, pendingInvitation: false });
+    location.hash = '/login';
+  }, []);
   const logout = async () => {
     cancel();
     await authApi.logout();
-    resetApiSession();
-    setView({ status: 'ready', user: null, workspace: null });
-    location.hash = '/login';
+    clearSession();
   };
   const save = async (operation, body, signal) => {
     const id = generation.current;
     const result = await operation(body, signal);
     if (id !== generation.current || signal?.aborted) return null;
+    setApiWorkspace(result.id);
     setView((old) => ({ ...old, workspace: result }));
     return result;
   };
@@ -92,6 +103,7 @@ export function AuthProvider({ children, preview = false }) {
         refresh,
         login,
         logout,
+        clearSession,
         cancel,
         saveWorkspace: (body, signal) => save(workspaceApi.save, body, signal),
         completeSetup: (body, signal) => save(workspaceApi.completeSetup, body, signal),

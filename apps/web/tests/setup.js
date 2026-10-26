@@ -25,3 +25,26 @@ HTMLDialogElement.prototype.show = function () {
 };
 Element.prototype.scrollIntoView = function () {};
 window.scrollTo = function () {};
+// Supplied UI measures real browser layout and observes animation visibility.
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+globalThis.IntersectionObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+window.matchMedia = (media) => ({
+  media,
+  matches: false,
+  addEventListener() {},
+  removeEventListener() {},
+  addListener() {},
+  removeListener() {},
+});
+Object.defineProperty(document, 'fonts', {
+  value: { ready: Promise.resolve() },
+  configurable: true,
+});

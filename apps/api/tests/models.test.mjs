@@ -25,6 +25,13 @@ const collections = {
   Invitation: 'team_invitations',
   Report: 'reports',
   BusinessPage: 'business_pages',
+  Notification: 'notifications',
+  OAuthState: 'oauth_states',
+  BillingAccount: 'billing_accounts',
+  BillingEvent: 'billing_events',
+  Action: 'actions',
+  SurveyStart: 'survey_starts',
+  ContactRequest: 'contact_requests',
 };
 
 test('Mongoose connection and model reads do not create collections before explicit setup', async () => {

@@ -20,7 +20,13 @@ JavaScript/JSX and `.mjs` remain in use. The source layout is ready for delibera
 
 ## Web ownership
 
-`src/app/App.jsx` chooses preview mode and composes providers. `app/router` owns route names/access decisions and route orchestration; `features/auth/AuthPage.jsx` owns account-screen markup. `app/providers` owns resolved account/workspace state and product shell state. Feature folders own their screen behavior, API clients and local drafts. `components/ui` and `components/layout` own shared controls, shell geometry and common CSS; `hooks`/`lib` own reusable behavior, transport, assets, localization and formatting.
+The October 26 approved `Frontend.zip` source under `features/approved-ui` now
+owns active page markup, supplied responsive CSS and visual assets. The existing
+auth provider and HTTP client remain canonical; `ApprovedWorkspace` routes to
+the integrated screens. Former page components remain compatibility/reference
+code for retained consumers. See [source ownership](../development/approved-frontend.md).
+
+`src/app/App.jsx` chooses preview mode and composes providers. `app/router` owns route names/access decisions and route orchestration; `features/approved-ui/auth/AuthScreen.jsx` owns active account-screen markup. `app/providers` owns resolved account/workspace state and product shell state. Feature folders own their screen behavior, API clients and local drafts. Supplied `approved-ui` components/styles own active product geometry; `components/ui` and `components/layout` retain shared controls for supplemental account/team flows; `hooks`/`lib` own reusable behavior, transport, assets, localization and formatting.
 
 Account product routes use saved identity/workspace data. `/preview/` is the only owner of synthetic metrics, sample feedback and canned assistant replies. Existing imported design variants are reference/preview code, not implemented product APIs. The shared scale hook preserves the reviewed desktop/mobile geometry.
 
