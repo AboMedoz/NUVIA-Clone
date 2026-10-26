@@ -2,6 +2,232 @@
 
 Bilingual customer-feedback intelligence for Arabic and English. The product goal is to collect survey responses, analyze sentiment/aspects and support evidence-backed business decisions.
 
+## دليل التشغيل من الصفر
+
+المشروع منصة لجمع آراء العملاء بالاستبيانات، وإدارة الأنشطة والفروع والفريق، وعرض الردود والتحليلات والتقارير بالعربي والإنجليزي. الدليل التالي يبدأ من جهاز جديد. أوامر التشغيل لا تنشئ حساب مستخدم افتراضيًا، ولا تنسخ قاعدة بيانات صاحب المشروع أو مفاتيحه.
+
+الريبو **Private**: لازم صاحب المشروع يضيفك كمشارك على GitHub وتقبل الدعوة قبل التنزيل. كل مطور يجهّز إعداداته الخاصة واتصال قاعدة البيانات المصرح له باستخدامه.
+
+### 1. المتطلبات
+
+| الأداة  | المطلوب                                       | استخدامها                                           |
+| ------- | --------------------------------------------- | --------------------------------------------------- |
+| Git     | إصدار مثبت ومتاح في الطرفية                   | تنزيل المشروع وتحديثه                               |
+| Node.js | `22.13.0` أو أحدث؛ إصدار 22 هو المستخدم في CI | تشغيل الواجهة والباك والمكتبات                      |
+| pnpm    | `11.25.0`                                     | تثبيت مكتبات JavaScript من ملف القفل                |
+| Python  | `3.11` أو أحدث                                | خدمة AI؛ غير مطلوب عند تشغيل الويب والباك فقط       |
+| uv      | `0.12.15`                                     | تجهيز بيئة Python المعزولة وتشغيلها                 |
+| MongoDB | Atlas أو replica set محلية                    | حفظ البيانات وتشغيل المعاملات؛ standalone غير كافية |
+| متصفح   | متصفح حديث                                    | استخدام التطبيق                                     |
+
+نزّل Git من [الموقع الرسمي](https://git-scm.com/downloads)، وNode.js من [صفحة التنزيل الرسمية](https://nodejs.org/en/download)، وPython من [python.org](https://www.python.org/downloads/). اتبع [دليل تثبيت uv الرسمي](https://docs.astral.sh/uv/getting-started/installation/)؛ ويمكن تثبيت الإصدار المستخدم في المشروع عبر Python:
+
+```sh
+python -m pip install uv==0.12.15
+npm install --global pnpm@11.25.0
+```
+
+على Linux/macOS قد يكون اسم أمر Python هو `python3` بدلًا من `python`. افتح طرفية جديدة بعد التثبيت، وتأكد أن الأدوات متاحة:
+
+```sh
+git --version
+node --version
+pnpm --version
+python --version
+uv --version
+```
+
+Docker اختياري، وكارت الشاشة ليس مطلوبًا لتشغيل التطبيق وخدمة AI الأساسية. أول تثبيت للمكتبات يحتاج إنترنت ومساحة للبيئات المحلية. تثبيت أوزان المودلز له متطلبات منفصلة حسب الحزمة.
+
+### 2. تنزيل المشروع
+
+```sh
+git clone https://github.com/mosv7/NUVIA-Clone.git
+cd NUVIA-Clone
+```
+
+استخدم حساب GitHub الذي قبل دعوة الوصول عند طلب تسجيل الدخول. لو ظهر `Repository not found`، تأكد من الحساب والدعوة. لا تضع access token في رابط التنزيل أو داخل ملفات المشروع. يمكن استخدام Download ZIP وفكّه بدل Git، لكن التحديث عبر `git pull` يتطلب نسخة مستنسخة بـGit.
+
+كل الأوامر التالية تُنفّذ من **جذر المشروع**، وهو المجلد الذي يحتوي على `package.json` و`START-FULL.cmd`.
+
+### 3. تجهيز المكتبات والإعدادات الخاصة
+
+```sh
+pnpm install --frozen-lockfile
+pnpm setup:local
+```
+
+الأمر الثاني ينشئ ملف `.env` محليًا مع مفتاح تشفير بريد عشوائي، ويحافظ على الملف إن كان موجودًا. افتح `.env` بأي محرر؛ على Windows يمكن استخدام:
+
+```powershell
+notepad .env
+```
+
+لا تستبدل الملف المتولد بنسخة `.env.example` بعد تجهيز المفتاح. استخدم `.env.example` كمرجع للأسماء فقط، وأضف أو عدّل القيم المطلوبة مع الحفاظ على `MAIL_ENCRYPTION_KEY`.
+
+### 4. تجهيز MongoDB
+
+اختر مسارًا واحدًا: **Atlas للتشغيل العادي على جهازك**، أو **Docker لتشغيل قاعدة محلية مع باقي الخدمات** كما في القسم التالي. سكريبت Windows لا ينشئ سيرفر MongoDB ولا يختار قاعدة بديلة تلقائيًا.
+
+**مسار Atlas:** أنشئ cluster، ثم database user، واسمح بعنوان IP الخاص بجهازك في Network Access. انسخ اتصال التطبيق من Atlas، واستبدل placeholders بالمستخدم وكلمة المرور والعنوان الخاصين بك. بيانات database user تختلف عن تسجيل الدخول لموقع Atlas. راجع [توثيق MongoDB](https://www.mongodb.com/docs/get-started/).
+
+أضف إلى `.env`، مع إبقاء مفتاح البريد المتولد:
+
+```dotenv
+MONGODB_URI=mongodb+srv://YOUR_DB_USER:YOUR_URL_ENCODED_PASSWORD@YOUR_CLUSTER_HOST/?retryWrites=true&w=majority
+MONGODB_DATABASE=nuvia_clone
+APP_ORIGIN=http://127.0.0.1:5173
+MAIL_MODE=file
+```
+
+القيم المكتوبة بحروف كبيرة في رابط الاتصال أمثلة يجب استبدالها. الحروف الخاصة في كلمة المرور تحتاج URL encoding. لا تنشر رابط الاتصال ولا تعطل التحقق من TLS لحل مشكلة اتصال. لا تستخدم قاعدة عملاء مشتركة في الاختبارات.
+
+لو عندك MongoDB محلية مجهزة بالفعل كـreplica set اسمها `rs0`، يكون مثال الاتصال:
+
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27017/?replicaSet=rs0
+```
+
+اسم replica set في الرابط يجب أن يطابق إعداد السيرفر الحقيقي؛ إضافة الاسم للرابط لا تحوّل standalone إلى replica set.
+
+بعد ضبط الاتصال:
+
+```sh
+pnpm db:check
+pnpm db:setup
+```
+
+`db:check` يتحقق من الاتصال بلا كتابة بيانات. `db:setup` يجهّز الفهارس وبيانات إصدار المخطط بشكل إضافي؛ لا يحذف الفهارس أو بيانات العملاء. بدء الـAPI يجري تجهيز المخطط أيضًا. الحسابات والردود تبقى محفوظة في قاعدة البيانات المختارة، ولا تنتقل تلقائيًا بين Atlas وDocker.
+
+### 5. التشغيل الكامل على Windows
+
+بعد تثبيت المتطلبات وضبط قاعدة البيانات، افتح [START-FULL.cmd](START-FULL.cmd) بدبل كليك، أو من PowerShell داخل المشروع:
+
+```powershell
+.\START-FULL.cmd
+```
+
+السكريبت ينفّذ بالترتيب: تثبيت JavaScript من القفل، تجهيز الإعدادات مع الحفاظ على الموجود، تجهيز Python من `uv.lock`، إضافة إعدادات AI الداخلية الناقصة، فحص MongoDB، ثم تشغيل **الواجهة + API + عامل البريد + خدمة AI**. `START-LAPTOP.cmd` يشغّل نفس السكريبت.
+
+انتظر ظهور `NUVIA ready at http://127.0.0.1:5173/`، ثم افتح [التطبيق](http://127.0.0.1:5173/). احتفظ بنافذة التشغيل مفتوحة. للإيقاف اضغط `Ctrl+C`؛ المجموعة توقف العمليات التي بدأتْها، ولا تغلق برامج أخرى أو تحذف قاعدة البيانات. إذا طلب Windows تأكيد إيقاف ملف الأوامر، وافق لإغلاق السكريبت.
+
+لرؤية المتطلبات دون تثبيت أو تشغيل:
+
+```powershell
+.\START-FULL.cmd --help
+```
+
+### 6. التشغيل بالأوامر على Windows / Linux / macOS
+
+بعد خطوات التنزيل وإعداد `.env` وMongoDB:
+
+```sh
+uv sync --project apps/ai-service --locked
+pnpm setup:models
+pnpm dev:full
+```
+
+عند التشغيل التالي، يكفي `pnpm dev:full` طالما المكتبات والإعدادات جاهزة. بعد سحب تحديثات تغيّر ملفات القفل، أعد `pnpm install --frozen-lockfile` و`uv sync --project apps/ai-service --locked` قبل التشغيل.
+
+| الخدمة                     | عنوانها في التشغيل العادي                   |
+| -------------------------- | ------------------------------------------- |
+| واجهة التطبيق              | `http://127.0.0.1:5173/`                    |
+| جاهزية API وقاعدة البيانات | `http://127.0.0.1:3001/api/v1/health/ready` |
+| حياة خدمة AI               | `http://127.0.0.1:8000/api/v1/health/live`  |
+
+المنافذ `5173` و`3001` و`8000` يجب أن تكون متاحة. الواجهة ترسل طلبات API عبر نفس origin؛ فتح صفحة health لا يثبت جاهزية موديلات التحليل. استخدم `127.0.0.1` كما هو في `APP_ORIGIN`، ولا تستبدله بـ`localhost` أو عنوان شبكة دون تعديل الإعدادات المرتبطة. خدمة Python داخلية؛ المتصفح يتعامل مع Node، ومفتاح AI لا يدخل الواجهة.
+
+لتشغيل الواجهة والباك والبريد **بدون Python/AI**:
+
+```sh
+pnpm dev
+```
+
+يمكنك استخدام الحسابات والاستبيانات وجمع الردود والبيانات المحفوظة؛ التحليل المتعلم يعرض حالة عدم التوفر. لا تشغّل `pnpm dev` و`pnpm dev:full` معًا على نفس المنافذ.
+
+### 7. بديل Docker: قاعدة محلية وباقي الخدمات
+
+هذا مسار مستقل عن تشغيل Windows/Node العادي. ثبّت Docker وشغّل daemon، ثم من جذر المشروع:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm setup:local
+pnpm setup:models
+docker compose --profile ai up --build -d
+docker compose ps
+```
+
+افتح `http://127.0.0.1:5173/`. هذا المسار ينشئ MongoDB replica set داخل شبكة Docker ويشغّل web/API/mail/AI. لا يحتاج تثبيت Python على المضيف، ولا يستخدم رابط Atlas في `.env`؛ قاعدة Compose اسمها `nuvia_development` وتختلف عن قاعدة التشغيل العادي. النموذج الافتراضي محلي، وحزم المودلز تُربط من `.local/models` ولا تُنسخ إلى الصور. اقرأ [تفاصيل Docker](infra/README.md) قبل تغيير الإعدادات.
+
+لإيقاف الحاويات مع الحفاظ على بياناتها:
+
+```sh
+docker compose --profile ai down
+```
+
+لا تضف `--volumes` إلا عند قصد حذف قاعدة Docker. لا تشغّل مسار Docker ومسار `pnpm dev:full` معًا على نفس منافذ الواجهة والـAI. هذا إعداد تطوير محلي وليس نشرًا إنتاجيًا.
+
+### 8. أول استخدام بعد التشغيل
+
+1. افتح `http://127.0.0.1:5173/#/signup` وأنشئ حسابك. لا يوجد اسم مستخدم أو كلمة مرور افتراضية.
+2. مع `MAIL_MODE=file`، افتح ملف JSON الخاص برسالة التحقق لهذا الحساب في `.local/mail/`، وانسخ الرابط الكامل من حقل `text` وافتحه. اختَر الرسالة المناسبة حسب المستلم ونوعها؛ أحدث ملف ليس بالضرورة رسالة حسابك. عامل البريد يعمل ضمن مجموعة التشغيل.
+3. سجّل الدخول، وأكمل بيانات النشاط والفرع. يمكنك تغيير اللغة من الواجهة.
+4. أنشئ استبيانًا من Surveys، وأضف أسئلته، وانشره للفروع المطلوبة، ثم انسخ الرابط العام أو نزّل QR.
+5. افتح الرابط العام في نافذة منفصلة وأرسل ردًا. راجع Feedback والعدادات الحقيقية، ثم جرّب CSV أو تقريرًا محفوظًا.
+6. جرّب إعادة تحميل الصفحة ثم الخروج والدخول للتحقق من حفظ البيانات.
+
+رسائل `.local/mail/` خاصة وتحتوي على روابط تحقق/استعادة؛ لا ترفعها إلى GitHub. File mode لا يرسل إلى Gmail أو صندوق بريد حقيقي. إرسال البريد الحقيقي يحتاج إعداد SMTP واختبار المزود.
+
+### 9. ما المطلوب لتفعيل AI وGoogle والدفع؟
+
+تشغيل خدمة AI لا يثبت وجود أوزان متعلمة. الوظائف الأساسية مثل تجهيز النصوص تعمل دونها؛ sentiment/aspects والتجميع والتوقعات والتوليد تنتظر حزمة متوافقة. لا يحتوي الريبو على أوزان مدرّبة أو نتائج تحليل وهمية.
+
+- **مودلز محلية:** اتبع [دليل حزم المودلز](apps/ai-service/docs/model-packages.md) و[جدول تسليم المودلز بالعربي](docs/ai-model-handoff-ar.md)، وثبّت runtime الإضافي المناسب للحزمة. لا يكفي وضع ملف أوزان عشوائي في المجلد.
+- **Gemini اختياري:** [دليل الإعداد والتبديل](docs/development/gemini-ar.md). يحتاج مفتاحًا خاصًا واختيار المزود صراحةً؛ لا يوجد تحويل تلقائي من local إلى خدمة مدفوعة.
+- **Google وStripe:** [دليل التكامل والإعدادات](docs/development/external-integrations.md). بيانات المزود والأسعار والـwebhook وموافقة OAuth ليست ضمن الريبو. عدم ضبطها لا يمنع الحسابات العادية وجمع الردود، لكنه يبقي التكامل المقابل غير متاح.
+- **نصوص الموقع:** متغيرات `PUBLIC_*_TEXT` الاختيارية في `.env.example` لنشر محتوى الفريق المعتمد؛ لا يُنشأ نص قانوني أو رابط شركة تلقائيًا.
+
+الإعدادات الحساسة تبقى في `.env` أو بيئة التشغيل. لا تستخدم بادئة `VITE_` لمفاتيح الخدمات، لأنها قد تُضمّن في كود المتصفح. حزم المودلز و`.local/` والبيانات الخاصة غير مرفوعة.
+
+### 10. التحديث وقواعد البيانات القديمة
+
+بعد حفظ تغييراتك المحلية:
+
+```sh
+git pull --ff-only
+pnpm install --frozen-lockfile
+uv sync --project apps/ai-service --locked
+```
+
+أوقف مجموعة التطوير ثم شغّلها مرة أخرى. أوامر التجهيز تحافظ على الإعدادات الحالية؛ لا تستبدل مفتاح البريد أثناء التحديث. لو ظهرت `WORKSPACE_MIGRATION_REQUIRED` عند إضافة نشاط ثانٍ لقاعدة قديمة، اقرأ [الترقية الصريحة لتعدد الأنشطة](docs/api/multi-workspace.md). ابدأ بالمعاينة فقط:
+
+```sh
+node apps/api/scripts/migrate-multi-workspace.mjs
+```
+
+المعاينة لا تطبق التغيير. راجع القاعدة والنسخة الاحتياطية ودليل الترقية قبل استخدام `--apply`. القواعد الجديدة لا تحتاج إزالة فهرس قديم غير موجود لديها.
+
+### 11. حل مشاكل التشغيل
+
+| المشكلة                                         | ما يجب مراجعته                                                                           |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `node` أو `pnpm` أو `uv` غير معروف              | ثبّت الأداة وافتح طرفية جديدة وتحقق من PATH والإصدارات المطلوبة                          |
+| فشل التثبيت بـ`--frozen-lockfile` أو `--locked` | تأكد من الفرع الصحيح والإصدار والاتصال؛ لا تحذف ملفات القفل ولا تنشئ `package-lock.json` |
+| `MongoDB check failed`                          | رابط الاتصال، database user، IP المسموح، كلمة المرور المشفرة، DNS والاتصال بالشبكة       |
+| خطأ معاملات / replica set                       | تأكد أن MongoDB ليست standalone وأن اسم replica set في الرابط صحيح                       |
+| `Port ... is already in use`                    | أوقف النسخة السابقة من نافذتها؛ السكريبت لا يقتل برامج أخرى أو يبدّل المنافذ تلقائيًا    |
+| الواجهة تفتح لكن الحفظ يرفض Origin/CSRF         | استخدم عنوان `APP_ORIGIN` نفسه، وشغّل الباك والواجهة معًا ثم أعد تحميل الصفحة            |
+| رسالة التحقق لم تصل إلى البريد                  | في file mode ابحث عن رسالة الحساب المناسبة في `.local/mail/`؛ للإرسال الحقيقي اضبط SMTP  |
+| رابط تحقق أو استعادة غير صالح                   | استخدم أحدث رسالة صالحة لهذا الإجراء؛ التوكنات مؤقتة وأحادية الاستخدام                   |
+| AI يعرض `waiting_for_model` أو unavailable      | راجع جاهزية capability وحزمة الموديل/runtime؛ صفحة health ليست اختبار inference          |
+| الحساب أو الردود تبدو مختفية                    | راجع اختيار النشاط واتصال قاعدة البيانات؛ Atlas وقاعدة Docker منفصلتان                   |
+| Google أو الدفع غير متاح                        | أضف إعدادات المزود الخاصة وفق الدليل؛ لا توجد مفاتيح تجريبية مشتركة داخل الريبو          |
+| المتصفح يرفض رابط الاستبيان                     | تأكد أنه منشور وله رابط فرع مفعل؛ إغلاق الجمع أو أرشفة الفرع يعطل الرابط                 |
+
+لرؤية التصميم فقط دون قاعدة بيانات أو AI: نفّذ `pnpm dev:web` وافتح `http://127.0.0.1:5173/preview/#/dashboard`. بيانات المعاينة توضيحية، وليست نتائج حساب حقيقي.
+
+الأقسام الإنجليزية التالية توضح المعمارية والأوامر والعقود والاختبارات بمزيد من التفاصيل.
+
 ## Current delivery
 
 The active interface uses the supplied `Frontend.zip` design with real account adapters. See [approved interface integration](docs/development/approved-frontend.md) and [Google/Stripe setup](docs/development/external-integrations.md).
@@ -21,8 +247,8 @@ apps/
   web/                       React/Vite application and its tests
     src/
       app/                   Router, providers and state ownership
-      features/              auth, workspaces, dashboard, feedback, landing,
-                             surveys, users and ai-analysis
+      features/approved-ui/  Approved active pages, supplied styles and adapters
+      features/              Retained auth/product transport and supplemental flows
       components/ui/         Shared controls
       components/layout/     Shared workspace shell and layout CSS
       hooks/                 Shared responsive behavior
@@ -31,8 +257,8 @@ apps/
   api/                       Express application, operational scripts and tests
     src/
       config/                Root-relative private configuration
-      modules/               auth, workspaces, surveys, feedback, team, analysis,
-                             analytics, reports, business-page and mail
+      modules/               auth/account, workspaces/team, surveys/feedback,
+                             analytics/reports, actions/search, billing, mail
       middleware/            Security, limits and safe HTTP errors
       integrations/          Mail transport and authenticated AI-service client
       shared/database/       Connection-scoped Mongoose models and transactions
@@ -61,6 +287,7 @@ Each application owns its dependencies and unit/integration tests. Root tooling 
 Prerequisites: Node.js >=22.13 and **pnpm 11.25.0**. If pnpm is missing, install it with `npm install --global pnpm@11.25.0`. Python and Docker are optional for this flow.
 
 ```sh
+git clone https://github.com/mosv7/NUVIA-Clone.git
 cd NUVIA-Clone
 pnpm install --frozen-lockfile
 pnpm setup:local
@@ -167,7 +394,7 @@ docker compose up --build -d
 
 Open `http://127.0.0.1:5173/`. This builds the web/API, starts a **separate local MongoDB replica set** and mail worker, and routes API calls through nginx on the same browser origin. MongoDB is internal to the compose network; the root `.env` Atlas URI is not used by this stack. Messages appear in `.local/mail/`; database data persists in the `mongo-data` volume.
 
-Add the model-ready AI service with `docker compose --profile ai up --build -d`. Stop services with `docker compose --profile ai down`; do not add `--volumes` unless you intend to delete the compose database. This is a loopback-bound HTTP development setup, not a production deployment or CD pipeline. It does not copy credentials into images. See [infrastructure details](infra/README.md).
+Before enabling the AI profile, run `pnpm setup:models` to create the private shared service key. Add the model-ready AI service with `docker compose --profile ai up --build -d`. Stop services with `docker compose --profile ai down`; do not add `--volumes` unless you intend to delete the compose database. This is a loopback-bound HTTP development setup, not a production deployment or CD pipeline. It does not copy credentials into images. See [infrastructure details](infra/README.md).
 
 ## Validation and CI
 
