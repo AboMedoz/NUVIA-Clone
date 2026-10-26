@@ -25,6 +25,12 @@ Optional Gemini HTTPS transport belongs exclusively to the internal AI service.
 fall back to cloud implicitly. Root development launchers pass `GEMINI_*` only
 to the AI child. Both providers use the same result and evidence validators.
 
+The opt-in `qwen` provider owns one offline persistent model child inside FastAPI,
+with separate task interfaces and explicit capability/locale selection. `QWEN_*`
+settings belong only to the AI child. It never supplies embeddings or numeric
+forecasts, writes MongoDB, or silently selects another model/provider. See
+[shared Qwen](../../apps/ai-service/docs/shared-qwen.md).
+
 The clone implements the user-approved completion design. Read its
 [shared contracts](integration-contract.md), [feature acceptance matrix](../product/implementation-matrix.md)
 and executable modules before extending workflows. Retain strict authorization,

@@ -272,6 +272,7 @@ def test_abstention_survives_internal_transport_without_becoming_failed(tmp_path
         "selected_registry",
         lambda: SimpleNamespace(
             cloud={},
+            qwen={},
             packages={
                 "assistant": (model, tmp_path),
             },

@@ -16,7 +16,14 @@ export async function runProductBrowserScenario(args) {
   await runApprovedSurveyScenario(args);
   await runProductExtensions(args);
 }
-async function runProductExtensions({ browser, origin, deps, output, results }) {
+async function runProductExtensions({
+  browser,
+  origin,
+  deps,
+  output,
+  results,
+  advanceVisualBatchWindow,
+}) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 960 },
     reducedMotion: 'reduce',
@@ -457,8 +464,11 @@ async function runProductExtensions({ browser, origin, deps, output, results }) 
     results.routeStates = [];
     for (const locale of ['en', 'ar']) {
       await page.evaluate((value) => localStorage.setItem('nuvia-language', value), locale);
-      await page.reload();
       for (const width of [360, 768, 1280, 1440]) {
+        // Auth, token and persistence assertions above run on the ordinary clock.
+        // Only the independent visual matrix advances the isolated API clock.
+        advanceVisualBatchWindow({ locale, width });
+        if (width === 360) await page.reload();
         await page.setViewportSize({ width, height: width === 1440 ? 960 : 800 });
         for (const route of [
           'dashboard',

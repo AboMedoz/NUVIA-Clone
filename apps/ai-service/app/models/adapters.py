@@ -121,7 +121,8 @@ def text_instructions(capability, parameters=None):
     )
 
 
-def transformers_text(manifest, package, request):
+def load_transformers(manifest, package):
+    """Load vetted local weights once; callers own lifetime and serialization."""
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
@@ -152,6 +153,42 @@ def transformers_text(manifest, package, request):
         torch_dtype=getattr(torch, dtype_name),
     ).to(manifest.device)
     model.eval()
+    return tokenizer, model
+
+
+def generate_text(manifest, runtime, system, data, *, max_new_tokens=None):
+    """Bounded deterministic generation with a fixed, offline Qwen ChatML template."""
+    import torch
+
+    tokenizer, model = runtime
+    max_input = min(max(int(manifest.options.get("maxInputTokens", 4096)), 64), 16384)
+    max_new = min(max(int(manifest.options.get("maxNewTokens", 512)), 8), 4096)
+    if max_new_tokens is not None:
+        max_new = min(max_new, max_new_tokens)
+    prompt = (
+        f"<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n"
+        + json.dumps(data, ensure_ascii=False)
+        + "<|im_end|>\n<|im_start|>assistant\n"
+    )
+    inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False)
+    if inputs["input_ids"].shape[1] > max_input:
+        raise ValueError("Input exceeds model token budget; refusing evidence truncation")
+    inputs = {key: value.to(manifest.device) for key, value in inputs.items()}
+    with torch.inference_mode():
+        output = model.generate(
+            **inputs,
+            max_new_tokens=max_new,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id,
+        )
+    generated = output[0, inputs["input_ids"].shape[1] :]
+    if len(generated) >= max_new and generated[-1].item() != tokenizer.eos_token_id:
+        raise ValueError("Truncated model output")
+    return tokenizer.decode(generated, skip_special_tokens=True)
+
+
+def transformers_text(manifest, package, request, *, runtime=None):
+    runtime = runtime if runtime is not None else load_transformers(manifest, package)
     system = text_instructions(manifest.capability, request.parameters)
     extra = manifest.options.get("systemPrompt", "")
     if not isinstance(extra, str) or len(extra) > 10000:
@@ -161,34 +198,12 @@ def transformers_text(manifest, package, request):
         payload["taxonomy"] = manifest.taxonomy.model_dump()
     if manifest.normalizationTasks:
         payload["normalizationTasks"] = manifest.normalizationTasks
-    max_input = min(max(int(manifest.options.get("maxInputTokens", 4096)), 64), 16384)
-    max_new = min(max(int(manifest.options.get("maxNewTokens", 512)), 8), 4096)
 
     def generate(task):
-        # Explicit Qwen ChatML; never execute an artifact-provided template.
         data = {**payload, **task.model_dump(exclude_none=True)}
-        prompt = (
-            f"<|im_start|>system\n{system}\n{extra}<|im_end|>\n<|im_start|>user\n"
-            + json.dumps(data, ensure_ascii=False)
-            + "<|im_end|>\n<|im_start|>assistant\n"
-        )
-        inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False)
-        if inputs["input_ids"].shape[1] > max_input:
-            raise ValueError("Input exceeds model token budget; refusing evidence truncation")
-        inputs = {key: value.to(manifest.device) for key, value in inputs.items()}
-        with torch.inference_mode():
-            output = model.generate(
-                **inputs,
-                max_new_tokens=max_new,
-                do_sample=False,
-                pad_token_id=tokenizer.eos_token_id,
-            )
-        generated = output[0, inputs["input_ids"].shape[1] :]
-        if len(generated) >= max_new and generated[-1].item() != tokenizer.eos_token_id:
-            raise ValueError("Truncated model output")
         return parse_tagged(
             manifest.capability,
-            tokenizer.decode(generated, skip_special_tokens=True),
+            generate_text(manifest, runtime, f"{system}\n{extra}", data),
             task,
             manifest,
         )

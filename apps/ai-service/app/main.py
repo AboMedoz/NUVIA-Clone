@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -6,7 +8,18 @@ from app.api.v1.health import router as health_router
 from app.api.v1.tasks import router as tasks_router
 from app.core.limits import MAX_INTERNAL_BODY_BYTES
 
-app = FastAPI(title="NUVIA internal AI service", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(_app):
+    try:
+        yield
+    finally:
+        from app.services.shared_model import shared_qwen
+
+        shared_qwen.close()
+
+
+app = FastAPI(title="NUVIA internal AI service", version="1.0.0", lifespan=lifespan)
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 

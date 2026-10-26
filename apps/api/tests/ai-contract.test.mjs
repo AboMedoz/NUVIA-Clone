@@ -186,13 +186,14 @@ test('dataset results must cover every source vector and requested forecast peri
     );
 });
 
-test('public capability metadata preserves configured but unverified cloud readiness without private fields', async () => {
+test('public capability metadata preserves provider readiness and locale limits without private fields', async () => {
   const entry = {
     capability: 'sentiment',
     available: true,
     status: 'ready',
     provider: 'gemini',
     readiness: 'configured_unverified_remote',
+    languages: ['en'],
     modelVersion: 'gemini:model',
     pipelineVersion: 'pipeline-1',
     secret: 'must-be-stripped',
@@ -214,6 +215,7 @@ test('public capability metadata preserves configured but unverified cloud readi
     });
     assert.equal(result.capabilities[0].readiness, entry.readiness);
     assert.equal(result.capabilities[0].provider, 'gemini');
+    assert.deepEqual(result.capabilities[0].languages, ['en']);
     assert.equal(result.capabilities[0].pipelineVersion, 'pipeline-1');
     assert.equal(result.capabilities[0].secret, undefined);
     assert.equal(result.capabilities[0].modelPath, undefined);

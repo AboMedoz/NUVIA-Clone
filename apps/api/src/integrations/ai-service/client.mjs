@@ -44,6 +44,11 @@ export async function capabilities(deps) {
             pipelineVersion: z.string().optional(),
             provider: z.string().optional(),
             readiness: z.string().optional(),
+            languages: z
+              .array(z.enum(['ar', 'en', 'mixed', 'und']))
+              .min(1)
+              .max(4)
+              .optional(),
             reason: z.string().optional(),
           }),
         ),

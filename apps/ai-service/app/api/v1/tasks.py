@@ -52,6 +52,62 @@ async def task(capability: str, request: TaskRequest):
     if capability not in CAPABILITIES:
         raise HTTPException(404, detail={"code": "unknown_capability"})
     registry = await asyncio.to_thread(selected_registry)
+    qwen = registry.qwen.get(capability)
+    if qwen is not None:
+        from app.providers.qwen import PIPELINE_VERSION as QWEN_PIPELINE_VERSION
+        from app.services.shared_model import shared_qwen
+
+        manifest, path = qwen
+        if request.locale not in manifest.languages:
+            raise HTTPException(503, detail={"code": "model_unavailable"})
+        if capability in ("sentiment", "aspects") and not (request.text or "").strip():
+            raise HTTPException(422, detail={"code": "text_required"})
+        if capability in ("assistant", "report") and not request.evidence:
+            raise HTTPException(422, detail={"code": "insufficient_evidence"})
+        try:
+            output = await shared_qwen.execute(manifest, path, request)
+            result = validate_result(capability, output, request, manifest)
+            return envelope(
+                capability,
+                "succeeded",
+                provider="qwen",
+                modelVersion=manifest.modelVersion,
+                pipelineVersion=QWEN_PIPELINE_VERSION,
+                result=result,
+            )
+        except (ExecutionError, ValueError) as exc:
+            code = str(exc) if isinstance(exc, ExecutionError) else "invalid_model_output"
+            if code not in {
+                "model_busy",
+                "model_timeout",
+                "model_load_failed",
+                "invalid_model_output",
+                "model_input_too_large",
+            }:
+                code = "model_load_failed"
+            status = (
+                429
+                if code == "model_busy"
+                else 504
+                if code == "model_timeout"
+                else 422
+                if code == "model_input_too_large"
+                else 502
+            )
+            return JSONResponse(
+                status_code=status,
+                content=envelope(
+                    capability,
+                    "failed",
+                    provider="qwen",
+                    modelVersion=manifest.modelVersion,
+                    pipelineVersion=QWEN_PIPELINE_VERSION,
+                    error={
+                        "code": code,
+                        "message": "The shared model could not produce a validated result.",
+                    },
+                ),
+            )
     cloud = registry.cloud.get(capability)
     if cloud is not None:
         if capability in ("sentiment", "aspects") and not (request.text or "").strip():

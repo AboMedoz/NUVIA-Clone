@@ -64,6 +64,13 @@ Membership is resolved on each request; revoked access takes effect immediately.
 
 ## Model handoff and analysis state
 
+Explicit `AI_PROVIDER=qwen` selects one persistent offline Qwen worker shared by
+capability-specific interfaces. The experimental local selection is short report/topic
+summaries and reviewed survey drafts in English; Arabic and sentiment/aspects/assistant
+remain disabled after actual smoke quality failures. Whole-source citations,
+bounded generation, hard timeout recovery and normal Node validation remain in
+place. No weights ship in Git. See the [shared Qwen guide](../../apps/ai-service/docs/shared-qwen.md).
+
 An explicit `AI_PROVIDER=gemini` selects the optional HTTPS provider inside
 FastAPI for supported text tasks and embeddings. Default `local` retains all
 existing model manifests/adapters. There is no implicit cloud fallback. Gemini

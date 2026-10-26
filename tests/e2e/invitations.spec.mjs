@@ -153,7 +153,7 @@ export async function runInvitationScenario({ browser, origin, deps, output, res
     await memberPage.getByLabel('Confirm password', { exact: true }).fill('Synthetic123');
     await memberPage.getByRole('checkbox').check();
     await memberPage.getByRole('button', { name: 'Create account', exact: true }).click();
-    await memberPage.getByRole('heading', { name: 'Verify your email', exact: true }).waitFor();
+    await memberPage.getByRole('heading', { name: 'Check your inbox', exact: true }).waitFor();
     assert.equal((await session(memberPage)).pendingInvitation, true);
     await storageSafe(memberPage);
     const delivered = await deliverPendingMail(deps);
@@ -169,9 +169,7 @@ export async function runInvitationScenario({ browser, origin, deps, output, res
     assert.ok(verificationUrl, 'Private local verification mail must exist for invited member');
     const verificationPage = await memberContext.newPage();
     await verificationPage.goto(verificationUrl);
-    await verificationPage
-      .getByText('Email verified. You can log in now.', { exact: true })
-      .waitFor();
+    await verificationPage.getByRole('heading', { name: 'Email verified', exact: true }).waitFor();
     assert.ok(!verificationPage.url().includes('token='));
     assert.equal((await session(verificationPage)).pendingInvitation, true);
     await storageSafe(verificationPage);
@@ -230,8 +228,10 @@ export async function runInvitationScenario({ browser, origin, deps, output, res
       'Acceptance consumes server digest without sending the bearer again',
     );
     await verificationPage.waitForURL('**/#/dashboard');
+    await verificationPage.getByRole('heading', { name: 'نظرة عامة', exact: true }).waitFor();
     await verificationPage
-      .getByRole('heading', { name: 'لا توجد ردود بعد', exact: true })
+      .locator('.scope-empty')
+      .getByText('لا توجد ردود في هذه الفترة', { exact: true })
       .waitFor();
     const final = await session(verificationPage);
     assert.equal(final.pendingInvitation, false);
@@ -258,8 +258,10 @@ export async function runInvitationScenario({ browser, origin, deps, output, res
     assert.ok(!JSON.stringify(await deps.models.Session.find({}).lean()).includes(rawToken));
     await storageSafe(verificationPage);
     await verificationPage.reload();
+    await verificationPage.getByRole('heading', { name: 'نظرة عامة', exact: true }).waitFor();
     await verificationPage
-      .getByRole('heading', { name: 'لا توجد ردود بعد', exact: true })
+      .locator('.scope-empty')
+      .getByText('لا توجد ردود في هذه الفترة', { exact: true })
       .waitFor();
     await screenshot(verificationPage, 'joined-viewer-ar-narrow');
     results.checks.push(

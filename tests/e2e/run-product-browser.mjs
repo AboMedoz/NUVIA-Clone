@@ -67,7 +67,14 @@ try {
   });
   connection = await connectDatabase(config);
   await ensureSchema(connection.models);
-  const deps = { ...connection, config, now: () => new Date() };
+  let clockOffsetMs = 0;
+  const deps = { ...connection, config, now: () => new Date(Date.now() + clockOffsetMs) };
+  const advanceVisualBatchWindow = (batch) => {
+    // Independent visual batches use actual limiter expiry, keeping all limits enforced.
+    const advancedMs = 900000;
+    clockOffsetMs += advancedMs;
+    (results.visualBatchClockAdvances ||= []).push({ ...batch, advancedMs, clockOffsetMs });
+  };
   apiServer = createApp(deps).listen(0, '127.0.0.1');
   await new Promise((done, reject) => {
     apiServer.once('listening', done);
@@ -104,7 +111,14 @@ try {
     headless: true,
     ...(executable ? { executablePath: executable } : {}),
   });
-  await runProductBrowserScenario({ browser, origin, deps, output, results });
+  await runProductBrowserScenario({
+    browser,
+    origin,
+    deps,
+    output,
+    results,
+    advanceVisualBatchWindow,
+  });
   results.status = 'PASS';
 } catch (error) {
   results.status = 'FAIL';
@@ -118,7 +132,7 @@ try {
   await writeFile(join(output, 'results.json'), JSON.stringify(results, null, 2));
   await writeFile(
     join(output, 'report.md'),
-    `# Connected product real-browser QA\n\nStatus: **${results.status}**\n\nEnvironment: ${results.origin || 'startup failed'}; ${results.browser}; ${results.viewports.join(', ')}. ${results.fallback}.\n\nFlow: UI registration and file-mail verification → workspace/branches → six-type survey → publication and QR → anonymous submission/retry → saved feedback/CSV/history → branding/templates → responsive EN/AR screens. One deliberate 503 response checks public form recovery. All other interactions use the real isolated API. No AI provider is configured; no paid model calls.\n\n${results.checks.map((check) => '- PASS: ' + check).join('\n')}\n\n${results.failure ? 'Failure: ' + results.failure + '\n\n' : ''}Screenshots: ${results.screenshots.join(', ')}.\n\nLimits: local synthetic identities and isolated MongoDB replica set only; file mail is not SMTP acceptance. Single Edge engine; no production, Atlas, model quality, Safari/device or SMTP acceptance. Team invitation and password reset have separate browser scenarios.\n\nCommand: \`node tests/e2e/run-product-browser.mjs\`.\n\n${results.cleanup}.\n`,
+    `# Connected product real-browser QA\n\nStatus: **${results.status}**\n\nEnvironment: ${results.origin || 'startup failed'}; ${results.browser}; ${results.viewports.join(', ')}. ${results.fallback}.\n\nFlow: UI registration and file-mail verification → workspace/branches → six-type survey → publication and QR → anonymous submission/retry → saved feedback/CSV/history → branding/templates → responsive EN/AR screens. One deliberate 503 response checks public form recovery. All other interactions use the real isolated API. After functional authentication/data assertions, each independent locale/viewport visual batch advances only the isolated API clock by one real 15-minute rate-limit window; production limits and unexpected-429 assertions remain enforced. Clock advances are recorded in results.json. No AI provider is configured; no paid model calls.\n\n${results.checks.map((check) => '- PASS: ' + check).join('\n')}\n\n${results.failure ? 'Failure: ' + results.failure + '\n\n' : ''}Screenshots: ${results.screenshots.join(', ')}.\n\nLimits: local synthetic identities and isolated MongoDB replica set only; file mail is not SMTP acceptance. Single Edge engine; no production, Atlas, model quality, Safari/device or SMTP acceptance. Team invitation and password reset have separate browser scenarios.\n\nCommand: \`node tests/e2e/run-product-browser.mjs\`.\n\n${results.cleanup}.\n`,
   );
   console.log(
     JSON.stringify({

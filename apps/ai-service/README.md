@@ -3,6 +3,9 @@
 Authenticated, versioned FastAPI model adapters. Node selects authorized evidence, owns jobs
 and MongoDB, and calls Python with `X-AI-Service-Key`. Browsers never receive that key or
 call Python directly. Local models are supplied later by the team; no weights ship with the app.
+Explicit `AI_PROVIDER=qwen` reuses one persistent instance of existing offline
+Qwen2.5-1.5B weights across separately selected service interfaces. See the
+[shared Qwen setup and actual selection limits](docs/shared-qwen.md).
 An explicit optional Gemini provider can perform supported online tasks while preserving the
 entire local package/adapter path for later team models.
 
@@ -126,8 +129,10 @@ also timed out on tiny requests, while an explicit `gemini-3.5-flash-lite` compa
 operators can select that model explicitly. There is no automatic model substitution.
 Real customer submissions and model scientific quality are not established by these checks.
 
-The [existing local Qwen survey-draft trial](docs/qwen-local-trial.md) proved actual CUDA
-placement but failed reliable bilingual draft acceptance, so no Qwen package is active.
+The [earlier Qwen survey trial](docs/qwen-local-trial.md) failed reliable bilingual
+draft acceptance. The newer optional shared provider uses compact interfaces with
+a limited experimental selection; see the [shared Qwen guide](docs/shared-qwen.md).
+Arabic drafts remain disabled.
 
 ```powershell
 uv run --directory apps/ai-service pytest

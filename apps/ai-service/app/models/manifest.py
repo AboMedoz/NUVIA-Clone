@@ -13,7 +13,13 @@ from pydantic import Field, model_validator
 
 from app.schemas.tasks import CAPABILITIES, StrictModel
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
+_service_root = Path(__file__).resolve().parents[2]
+# Checkouts retain repository-relative settings; app-only images use /service.
+REPOSITORY_ROOT = (
+    _service_root.parent.parent
+    if _service_root.name == "ai-service" and _service_root.parent.name == "apps"
+    else _service_root
+)
 _hashes = {}
 _hash_lock = threading.Lock()
 ADAPTER_CAPABILITIES = {

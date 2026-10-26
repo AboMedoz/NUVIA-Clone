@@ -90,6 +90,14 @@ Invitations are email-bound, seven-day, hashed, single-use tokens. A new invitat
 
 ## Reports, assistant and AI orchestration
 
+Optional `AI_PROVIDER=qwen` keeps these public contracts unchanged. One persistent
+model instance serves explicitly selected internal interfaces. The experimental
+local selection is short report/topic summaries and survey drafts in English;
+Arabic and other Qwen interfaces remain unavailable. Report citations contain
+whole selected source quotations and one concise summary section. Oversized
+prompts/invalid output fail rather than silently truncate evidence. See
+[selection and limitations](../../apps/ai-service/docs/shared-qwen.md).
+
 | Method   | Path                  | Payload/result                                                                                                |
 | -------- | --------------------- | ------------------------------------------------------------------------------------------------------------- |
 | GET/POST | `/reports`            | `{reports:[]}` / `{locale,filters}` → 201 `{report}`                                                          |

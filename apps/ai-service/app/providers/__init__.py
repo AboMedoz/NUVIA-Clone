@@ -11,12 +11,17 @@ def selected_registry():
     registry = Registry()
     registry.provider = os.environ.get("AI_PROVIDER", "local").strip()
     registry.cloud = {}
+    registry.qwen = {}
     registry.pipeline_version = "nuvia-ai-1"
     for entry in registry.entries.values():
         entry["provider"] = "local"
         entry["pipelineVersion"] = "nuvia-ai-1"
     if registry.provider == "local":
         return registry
+    if registry.provider == "qwen":
+        from app.providers.qwen import configure
+
+        return configure(registry)
     if registry.provider == "gemini":
         registry.pipeline_version = PIPELINE_VERSION
         for capability in CAPABILITIES:

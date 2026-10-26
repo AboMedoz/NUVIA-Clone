@@ -61,6 +61,8 @@ AI_MAX_MODEL_MEMORY_MB=16384
 ```
 
 Relative paths resolve against the repository root, independently of the working directory.
+In the app-only Docker image, relative paths resolve against the service root
+(`/service`); the configured absolute `/models` mount remains unchanged.
 Absolute paths are supported. Every package remains inside `AI_MODEL_ROOT`. The registry scans
 `manifest.json` in `AI_MODEL_MANIFEST_DIR` and its immediate package subdirectories, up to 64.
 Duplicate packages for one capability fail closed; they do not silently overwrite one another.

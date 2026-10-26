@@ -10,6 +10,27 @@ test('default development keeps the existing three services and does not require
   );
 });
 
+test('shared Qwen package configuration belongs only to the AI child', () => {
+  const services = buildDevelopmentServices({
+    root: '/nuvia',
+    env: {
+      AI_SERVICE_KEY: 'test-key',
+      AI_PROVIDER: 'qwen',
+      QWEN_MODEL_PACKAGE: '/private/models/qwen',
+      QWEN_CAPABILITIES: 'assistant,report',
+    },
+    withAI: true,
+  });
+  for (const service of services.filter((item) => item.name !== 'ai')) {
+    assert.equal(service.env.QWEN_MODEL_PACKAGE, undefined);
+    assert.equal(service.env.QWEN_CAPABILITIES, undefined);
+  }
+  assert.equal(
+    services.find((item) => item.name === 'ai').env.QWEN_CAPABILITIES,
+    'assistant,report',
+  );
+});
+
 test('full development starts internal AI with only its configuration and no database/mail secrets', () => {
   const env = {
     PATH: 'system-path',

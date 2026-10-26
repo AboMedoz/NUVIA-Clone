@@ -5,7 +5,7 @@ export function buildDevelopmentServices({ root, env, withAI }) {
   if (withAI && !env.AI_SERVICE_KEY)
     throw new Error('Run pnpm setup:models before full development.');
   const productEnv = Object.fromEntries(
-    Object.entries(env).filter(([key]) => !/^GEMINI_/i.test(key)),
+    Object.entries(env).filter(([key]) => !/^(GEMINI_|QWEN_)/i.test(key)),
   );
   const services = [
     {
