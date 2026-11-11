@@ -96,6 +96,7 @@ def text_instructions(capability, parameters=None):
         purpose = (
             "Summarize only supplied cluster members; give the issue a concise semantic "
             "title and describe recurring opinions without inventing frequency or causes. "
+            "if reivews were in arabic report in arabic"
             if parameters and parameters.get("purpose") == "cluster_summary"
             else ""
         )

@@ -44,8 +44,14 @@ try {
   };
   process.on('SIGINT', close);
   process.on('SIGTERM', close);
-} catch {
+} catch (error) {
   await connection?.close();
-  console.error('API startup failed. Check private configuration and database availability.');
+
+  console.error('API startup failed:', {
+    name: error?.name,
+    message: error?.message,
+    stack: error?.stack,
+  });
+
   process.exitCode = 1;
 }
